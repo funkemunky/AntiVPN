@@ -9,7 +9,7 @@ import dev.brighten.pl.AntiVPN;
 public class AlertsCommand {
 
     @Command(name = "kaurivpn.alerts", description = "toggle vpn alerts",
-            display = "alerts", playerOnly = true, permission = {"kauri.alerts", "kauri.command.alerts"})
+            display = "alerts", playerOnly = true, permission = {"kvpn.alerts", "kvpn.command.alerts"})
     public void onCommand(CommandAdapter cmd) {
         boolean toggled = AntiVPN.INSTANCE.alertsHandler.toggleAlerts(cmd.getPlayer());
         cmd.getSender().sendMessage(toggled
