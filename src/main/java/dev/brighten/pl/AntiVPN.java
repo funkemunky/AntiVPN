@@ -28,12 +28,14 @@ public class AntiVPN extends JavaPlugin {
     }
 
     public void enable() {
+        saveDefaultConfig();
         print(true, "scanner");
         Atlas.getInstance().initializeScanner(this, true, true);
 
         print(true, "vpn api and handlers");
         vpnAPI = new VPNAPI();
         vpnHandler = new VPNHandler();
+        vpnHandler.run();
 
         print(true, "alerts handler");
         alertsHandler = new AlertsHandler();

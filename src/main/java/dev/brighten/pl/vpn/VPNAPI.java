@@ -13,25 +13,24 @@ import dev.brighten.pl.AntiVPN;
 import dev.brighten.pl.utils.Config;
 import dev.brighten.pl.utils.JsonReader;
 import lombok.val;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.io.IOException;
 import java.util.Objects;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 public class VPNAPI {
 
     public Database database;
-    public ExecutorService vpnThread;
+    public ScheduledExecutorService vpnThread;
 
     public VPNAPI() {
         MiscUtils.printToConsole("&cLoading VPNHandler&7...");
         MiscUtils.printToConsole("&7Setting up Carbon database &eVPN-Cache&7...");
         database = new FlatfileDatabase("VPN-Cache");
         MiscUtils.printToConsole("&7Registering listener...");
-        vpnThread = Executors.newFixedThreadPool(2);
+        vpnThread = Executors.newScheduledThreadPool(2);
 
         //Running saveDatabase task.
         MiscUtils.printToConsole("&7Running database saving task...");
@@ -88,13 +87,10 @@ public class VPNAPI {
 
             if(response != null) return response;
 
-            String url = "https://funkemunky.cc/vpn?license=" + Config.license + "&ip=" + ipAddress;
+            String url = "https://funkemunky.cc/vpn?license="
+                    + (Config.license.length() == 0 ? "none" : Config.license) + "&ip=" + ipAddress;
 
             JSONObject object = JsonReader.readJsonFromUrl(url);
-
-            if (!object.has("ip")) {
-                return null;
-            }
 
             val toCacheAndReturn = VPNResponse.fromJson(object.toString());
 

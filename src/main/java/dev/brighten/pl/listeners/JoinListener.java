@@ -12,6 +12,12 @@ public class JoinListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onJoin(PlayerJoinEvent event) {
+        if(AntiVPN.INSTANCE.vpnHandler.toKick.containsKey(event.getPlayer().getUniqueId())) {
+            event.getPlayer().kickPlayer(AntiVPN.INSTANCE.vpnHandler.toKick
+                    .compute(event.getPlayer().getUniqueId(),
+                            (key, val) -> AntiVPN.INSTANCE.vpnHandler.toKick.remove(key)));
+            return;
+        }
         AntiVPN.INSTANCE.vpnHandler.checkPlayer(event.getPlayer());
     }
 

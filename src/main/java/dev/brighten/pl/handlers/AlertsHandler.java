@@ -6,12 +6,12 @@ import dev.brighten.pl.utils.StringUtils;
 import dev.brighten.pl.vpn.VPNResponse;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.craftbukkit.v1_8_R3.util.WeakCollection;
 import org.bukkit.entity.Player;
 
-import java.lang.ref.Reference;
-import java.lang.ref.WeakReference;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 
 public class AlertsHandler {
     private Set<Player> hasAlerts = new HashSet<>();

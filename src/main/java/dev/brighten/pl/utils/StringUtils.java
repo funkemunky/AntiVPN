@@ -15,7 +15,7 @@ public class StringUtils {
                 val json = response.toJson();
 
                 for (String key : json.keySet()) {
-                    message = message.replace(key, String.valueOf(json.get(key)));
+                    message = message.replace("%" + key + "%", String.valueOf(json.get(key)));
                 }
                 return message;
             } catch (JSONException e) {

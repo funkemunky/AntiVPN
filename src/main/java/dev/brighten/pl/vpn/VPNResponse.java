@@ -48,7 +48,7 @@ public class VPNResponse {
                 jsonObject.getString("city"), jsonObject.getString("isp"),
                 jsonObject.getString("timeZone"), jsonObject.getString("locationString"),
                 jsonObject.getBoolean("proxy"), jsonObject.getBoolean("usedAdvanced"),
-                jsonObject.getBoolean("cached"), jsonObject.getBoolean("sucess"),
+                jsonObject.getBoolean("cached"), jsonObject.getBoolean("success"),
                 jsonObject.has("score") ? jsonObject.getDouble("score") : -1,
                 jsonObject.getInt("queriesLeft"));
     }
@@ -60,7 +60,7 @@ public class VPNResponse {
                 set.getField("city"), set.getField("isp"),
                 set.getField("timeZone"), set.getField("locationString"),
                 set.getField("proxy"), set.getField("usedAdvanced"),
-                set.getField("cached"), set.getField("sucess"),
+                set.getField("cached"), set.getField("success"),
                 set.containsKey("score") ? set.getDouble("score") : -1,
                 set.getField("queriesLeft"));
     }
