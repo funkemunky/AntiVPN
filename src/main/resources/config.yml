@@ -1,0 +1,51 @@
+#
+# You will need a license from https://funkemunky.cc/shop to use the AntiVPN to its full potential.
+# Your server will have 200 free queries per month. Once that ends, the plugin will no longer query.
+# You can also use your Kauri Anticheat license here.
+#
+license: ""
+#
+# Enable kicking #
+# You can disable the function of removing players from the server.
+kick-players: true
+# Kick Message #
+# The message sent to the player when they are kicked.
+kick-message: |-
+  &r
+  &6&lKauri AntiVPN
+  &7You have been kicked for using a VPN.
+  &r
+  &f&o%method%
+#
+# Run Command in Bungee #
+# This will allow the command to be run in Bungee.
+kick-bungee: false
+#
+# VPN Use Alerts #
+# A great way to find nefarious players quickly (i.e. cheaters) without them knowing what is going on.
+alert-staff: true
+#
+# Alert Message #
+# This will be the message sent to staff vpn detection.
+# Requires the permission antivpn.alert to view alerts.
+alert-message: "&8[&c!&8] &7Found &f%player% &7to be using a VPN."
+# Alert Hover #
+# The lines here will be shown when hovering on the alert message
+# Placeholders: %method%, %ip%, %countryCode%, %countryName%, %score%, %queriesLeft%, %proxy%, %isp%, %timeZone%
+alert-hover:
+  - "&eMethod: &f%method%"
+  - "&eIP: &f%ip%"
+  - "&eCountry: &f%countryName%"
+#
+# Alert Bungee #
+# Requires AntiVPN to be on all servers using it and will require Atlas bungee mode to be enabled.
+# All configuration for alerts is local. No setup required on Bungee.
+alert-bungee: false
+#
+# Hide IP #
+# This will hide the IP from all users. If false, IPs are only shown to users with permission antivpn.showip.
+hide-ips: false
+#
+# Fire Event #
+# If disabled, the VPNCheckEvent will no longer be fired. Only disable this if you have no plugins depending on it.
+fire-event: true
