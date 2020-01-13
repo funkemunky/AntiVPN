@@ -9,7 +9,7 @@ import cc.funkemunky.api.utils.Init;
 public class VpnCommand {
 
     @Command(name = "kaurivpn", description = "The Kauri AntiVPN main command.",
-            aliases = {"antivpn", "avpn", "kvpn"}, permission = "kvpn.command")
+            aliases = {"antivpn"}, permission = "kvpn.command")
     public void onCommand(CommandAdapter cmd) {
         Atlas.getInstance().getCommandManager().runHelpMessage(cmd,
                 cmd.getSender(), Atlas.getInstance().getCommandManager().getDefaultScheme());

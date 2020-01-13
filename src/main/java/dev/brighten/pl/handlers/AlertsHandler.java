@@ -1,6 +1,7 @@
 package dev.brighten.pl.handlers;
 
 import cc.funkemunky.api.utils.JsonMessage;
+import dev.brighten.pl.data.UserData;
 import dev.brighten.pl.utils.Config;
 import dev.brighten.pl.utils.StringUtils;
 import dev.brighten.pl.vpn.VPNResponse;
@@ -14,7 +15,6 @@ import java.util.Set;
 import java.util.UUID;
 
 public class AlertsHandler {
-    private Set<Player> hasAlerts = new HashSet<>();
 
     public void sendAlert(UUID uuid, VPNResponse response) {
         JsonMessage message = new JsonMessage();
@@ -24,8 +24,8 @@ public class AlertsHandler {
                 .addHoverText(Config.alertHoverMessage.stream()
                         .map(string -> StringUtils.formatString(string, response)
                                 .replace("%player%", player.getName())).toArray(String[]::new));
-        hasAlerts.parallelStream().filter(Objects::nonNull)
-                .forEach(message::sendToPlayer);
+        UserData.dataMap.values().parallelStream().filter(data -> data.hasAlerts)
+                .forEach(data -> message.sendToPlayer(data.getPlayer()));
     }
 
     //TODO When updated Atlas releases, add this functionality.
@@ -34,11 +34,8 @@ public class AlertsHandler {
     }
 
     public boolean toggleAlerts(Player player) {
-        boolean contains;
+        UserData data = UserData.getData(player.getUniqueId());
 
-        if(contains = hasAlerts.contains(player)) hasAlerts.remove(player);
-        else hasAlerts.add(player);
-
-        return !contains;
+        return data.hasAlerts = !data.hasAlerts;
     }
 }

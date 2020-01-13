@@ -5,6 +5,7 @@ import cc.funkemunky.api.utils.MiscUtils;
 import cc.funkemunky.api.utils.RunUtils;
 import cc.funkemunky.api.utils.Tuple;
 import dev.brighten.pl.AntiVPN;
+import dev.brighten.pl.data.UserData;
 import dev.brighten.pl.listeners.impl.VPNCheckEvent;
 import dev.brighten.pl.utils.Config;
 import dev.brighten.pl.utils.StringUtils;
@@ -31,6 +32,8 @@ public class VPNHandler {
                 while(queue.size() > 0 && (element = queue.poll()) != null) {
                     val response = AntiVPN.INSTANCE.vpnAPI.getResponse(element.two);
                     if(response != null && response.isSuccess()) {
+                        UserData data = UserData.getData(element.one);
+                        data.response = response;
                         VPNCheckEvent event = new VPNCheckEvent(response);
                         if(Config.fireEvent)
                             RunUtils.task(() -> Bukkit.getPluginManager().callEvent(event), AntiVPN.INSTANCE);
