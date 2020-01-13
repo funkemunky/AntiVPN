@@ -2,6 +2,7 @@ package dev.brighten.pl.listeners;
 
 import cc.funkemunky.api.utils.Init;
 import dev.brighten.pl.AntiVPN;
+import dev.brighten.pl.data.UserData;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -18,6 +19,8 @@ public class JoinListener implements Listener {
                             (key, val) -> AntiVPN.INSTANCE.vpnHandler.toKick.remove(key)));
             return;
         }
+        UserData data = UserData.getData(event.getPlayer().getUniqueId());
+        data.getPlayer();
         AntiVPN.INSTANCE.vpnHandler.checkPlayer(event.getPlayer());
     }
 
