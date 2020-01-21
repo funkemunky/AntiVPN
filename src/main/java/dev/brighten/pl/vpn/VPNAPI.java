@@ -17,20 +17,16 @@ import org.bukkit.entity.Player;
 
 import java.io.IOException;
 import java.util.Objects;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 
 public class VPNAPI {
 
     public Database database;
-    public ScheduledExecutorService vpnThread;
 
     public VPNAPI() {
         MiscUtils.printToConsole("&cLoading VPNHandler&7...");
         MiscUtils.printToConsole("&7Setting up Carbon database &eVPN-Cache&7...");
         database = new FlatfileDatabase("VPN-Cache");
         MiscUtils.printToConsole("&7Registering listener...");
-        vpnThread = Executors.newScheduledThreadPool(2);
 
         //Running saveDatabase task.
         MiscUtils.printToConsole("&7Running database saving task...");

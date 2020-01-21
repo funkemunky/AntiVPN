@@ -69,10 +69,10 @@ public class AntiVPN extends JavaPlugin {
         AntiVPN.INSTANCE.vpnAPI.database.saveDatabase();
 
         print(false, "threads");
-        AntiVPN.INSTANCE.vpnAPI.vpnThread.shutdownNow();
+        AntiVPN.INSTANCE.vpnHandler.checking.set(false);
 
         print(false, "handlers");
-        AntiVPN.INSTANCE.vpnAPI.vpnThread = null;
+        AntiVPN.INSTANCE.vpnAPI = null;
         AntiVPN.INSTANCE.vpnHandler = null;
         AntiVPN.INSTANCE.alertsHandler = null;
 

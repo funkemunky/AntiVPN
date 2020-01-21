@@ -21,6 +21,10 @@ kick-message: |-
 # This will allow the command to be run in Bungee.
 kick-bungee: false
 #
+# Kick Commands #
+# These will be run on player kicks.
+kick-commands: []
+#
 # VPN Use Alerts #
 # A great way to find nefarious players quickly (i.e. cheaters) without them knowing what is going on.
 alert-staff: true

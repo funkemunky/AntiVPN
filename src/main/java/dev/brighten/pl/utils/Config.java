@@ -17,6 +17,9 @@ public class Config {
     @ConfigSetting(name = "kick-message")
     public static String kickMessage = "";
 
+    @ConfigSetting(name = "kick-commands")
+    public static List<String> kickCommands = new ArrayList<>();
+
     @ConfigSetting(name = "kick-bungee")
     public static boolean kickBungee = false;
 
