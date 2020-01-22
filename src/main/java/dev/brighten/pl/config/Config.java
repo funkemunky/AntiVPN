@@ -1,12 +1,13 @@
-package dev.brighten.pl.utils;
+package dev.brighten.pl.config;
 
 import cc.funkemunky.api.utils.ConfigSetting;
 import cc.funkemunky.api.utils.Init;
+import cc.funkemunky.api.utils.Priority;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Init
+@Init(priority = Priority.HIGH)
 public class Config {
     @ConfigSetting(name = "license")
     public static String license = "";
@@ -16,6 +17,9 @@ public class Config {
 
     @ConfigSetting(name = "kick-message")
     public static String kickMessage = "";
+
+    @ConfigSetting(name = "kick-commands")
+    public static List<String> kickCommands = new ArrayList<>();
 
     @ConfigSetting(name = "kick-bungee")
     public static boolean kickBungee = false;
@@ -37,4 +41,11 @@ public class Config {
 
     @ConfigSetting(name = "fire-event")
     public static boolean fireEvent = true;
+
+    /* Database Stuff */
+    @ConfigSetting(path = "database.general", name = "hashIp")
+    public static boolean hashIp = true;
+
+    @ConfigSetting(path = "database.general", name = "hashType")
+    public static String hashType = "SHA2";
 }

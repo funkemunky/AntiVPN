@@ -1,7 +1,7 @@
 package dev.brighten.pl.utils;
 
 import cc.funkemunky.api.utils.Color;
-import cc.funkemunky.carbon.utils.json.JSONException;
+import dev.brighten.db.utils.json.JSONException;
 import dev.brighten.pl.vpn.VPNResponse;
 import lombok.val;
 

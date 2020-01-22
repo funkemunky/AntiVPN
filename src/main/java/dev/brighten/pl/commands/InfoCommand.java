@@ -5,7 +5,8 @@ import cc.funkemunky.api.commands.ancmd.CommandAdapter;
 import cc.funkemunky.api.utils.Color;
 import cc.funkemunky.api.utils.Init;
 import cc.funkemunky.api.utils.MiscUtils;
-import cc.funkemunky.carbon.utils.json.JSONException;
+import dev.brighten.db.utils.json.JSONException;
+import dev.brighten.pl.AntiVPN;
 import dev.brighten.pl.data.UserData;
 import lombok.val;
 import org.bukkit.Bukkit;
@@ -40,6 +41,42 @@ public class InfoCommand {
 
     private static void sendData(CommandAdapter cmd, UserData data) {
         if(data.response != null) {
+            cmd.getSender().sendMessage(LINE);
+            sendMsg(cmd, "&6&l" + data.getPlayer().getName() + "'s Information");
+            sendMsg(cmd, "");
+            try {
+                val json = data.response.toJson();
+                json.keySet().stream()
+                        .filter(key -> {
+                            switch(key) {
+                                case "ip":
+                                case "city":
+                                case "success":
+                                case "queriesLeft":
+                                case "locationString":
+                                case "usedAdvanced":
+                                    return false;
+                                default:
+                                    return true;
+                            }
+                        })
+                        .forEach(key -> {
+                            try {
+                                sendMsg(cmd, "&7" + key.toUpperCase() + "&8: &f" + json.get(key));
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        });
+            } catch (JSONException e) {
+                sendMsg(cmd, "&cThere was an error parsing the VPN response.");
+                e.printStackTrace();
+            }
+            cmd.getSender().sendMessage(LINE);
+        } else if(AntiVPN.INSTANCE.vpnHandler.getCached().containsKey(data.uuid)) {
+            data.response = AntiVPN.INSTANCE.vpnHandler.getCached()
+                    .computeIfPresent(data.uuid,
+                            (key, value) -> AntiVPN.INSTANCE.vpnHandler.getCached().remove(key));
+
             cmd.getSender().sendMessage(LINE);
             sendMsg(cmd, "&6&l" + data.getPlayer().getName() + "'s Information");
             sendMsg(cmd, "");

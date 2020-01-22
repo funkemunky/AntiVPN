@@ -1,8 +1,8 @@
 package dev.brighten.pl.vpn;
 
-import cc.funkemunky.carbon.db.StructureSet;
-import cc.funkemunky.carbon.utils.json.JSONException;
-import cc.funkemunky.carbon.utils.json.JSONObject;
+import dev.brighten.db.db.StructureSet;
+import dev.brighten.db.utils.json.JSONException;
+import dev.brighten.db.utils.json.JSONObject;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,6 +13,7 @@ import lombok.Setter;
 public class VPNResponse {
     private String ip, countryName, countryCode, method, state, city, isp, timeZone, locationString;
     private boolean proxy, usedAdvanced, cached, success;
+    private long cacheTime;
     private double score;
     private int queriesLeft;
 
@@ -29,6 +30,7 @@ public class VPNResponse {
         json.put("score", score);
         json.put("proxy", proxy);
         json.put("success", success);
+        json.put("cacheTime", cacheTime);
         json.put("timeZone", timeZone);
         json.put("success", true);
         json.put("queriesLeft", queriesLeft);
@@ -48,20 +50,21 @@ public class VPNResponse {
                 jsonObject.getString("city"), jsonObject.getString("isp"),
                 jsonObject.getString("timeZone"), jsonObject.getString("locationString"),
                 jsonObject.getBoolean("proxy"), jsonObject.getBoolean("usedAdvanced"),
-                jsonObject.getBoolean("cached"), jsonObject.getBoolean("success"),
+                jsonObject.getBoolean("cached"), jsonObject.getBoolean("success"), -1,
                 jsonObject.has("score") ? jsonObject.getDouble("score") : -1,
                 jsonObject.getInt("queriesLeft"));
     }
 
     public static VPNResponse fromSet(StructureSet set) {
-        return new VPNResponse(set.getField("ip"), set.getField("countryName"),
-                set.containsKey("method") ? set.getField("method") : "N/A",
-                set.getField("countryCode"), set.getField("state"),
-                set.getField("city"), set.getField("isp"),
-                set.getField("timeZone"), set.getField("locationString"),
-                set.getField("proxy"), set.getField("usedAdvanced"),
-                set.getField("cached"), set.getField("success"),
-                set.containsKey("score") ? set.getDouble("score") : -1,
-                set.getField("queriesLeft"));
+        return new VPNResponse(set.getObject("ip"), set.getObject("countryName"),
+                set.contains("method") ? set.getObject("method") : "N/A",
+                set.getObject("countryCode"), set.getObject("state"),
+                set.getObject("city"), set.getObject("isp"),
+                set.getObject("timeZone"), set.getObject("locationString"),
+                set.getObject("proxy"), set.getObject("usedAdvanced"),
+                set.getObject("cached"), set.getObject("success"),
+                set.contains("cacheTime") ? set.getObject("cacheTime") : 01,
+                set.contains("score") ? (double)set.getObject("score") : -1,
+                set.getObject("queriesLeft"));
     }
 }
