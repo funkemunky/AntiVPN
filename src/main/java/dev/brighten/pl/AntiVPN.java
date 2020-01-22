@@ -3,6 +3,8 @@ package dev.brighten.pl;
 import cc.funkemunky.api.Atlas;
 import cc.funkemunky.api.reflections.types.WrappedClass;
 import cc.funkemunky.api.utils.MiscUtils;
+import cc.funkemunky.api.utils.RunUtils;
+import dev.brighten.pl.data.UserData;
 import dev.brighten.pl.handlers.AlertsHandler;
 import dev.brighten.pl.handlers.VPNHandler;
 import dev.brighten.pl.vpn.VPNAPI;
@@ -41,11 +43,9 @@ public class AntiVPN extends JavaPlugin {
             return;
         }
         saveDefaultConfig();
+
         print(true, "scanner");
-        //We use reflection and check versions to add backwards compatibility for the time being.
-        new WrappedClass(Atlas.class).getMethod("initializeScanner",
-                atlasVersion.startsWith("1.6") ? JavaPlugin.class : Plugin.class, boolean.class, boolean.class)
-                .invoke(atlasInstance, this, true, true);
+        Atlas.getInstance().initializeScanner(this, true, true);
 
         print(true, "vpn api and handlers");
         vpnAPI = new VPNAPI();
@@ -56,6 +56,13 @@ public class AntiVPN extends JavaPlugin {
         alertsHandler = new AlertsHandler();
 
         MiscUtils.printToConsole("&aCompleted startup.");
+
+        RunUtils.taskTimer(() -> {
+            UserData.dataMap.values().stream()
+                    .filter(user -> !user.getPlayer().hasPermission("kvpn.bypass")
+                            && user.response != null && user.response.isProxy())
+                    .forEach(user -> user.getPlayer().kickPlayer("not checked"));
+        }, this, 20L, 40L);
     }
 
     public void disable() {
@@ -66,7 +73,6 @@ public class AntiVPN extends JavaPlugin {
         Bukkit.getScheduler().cancelTasks(this);
 
         print("Save", "database");
-        AntiVPN.INSTANCE.vpnAPI.database.saveDatabase();
 
         print(false, "threads");
         AntiVPN.INSTANCE.vpnAPI.vpnThread.shutdownNow();
