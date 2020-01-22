@@ -15,34 +15,40 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.*;
-import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class VPNHandler {
-    private Deque<Tuple<UUID, String>> queue = new LinkedBlockingDeque<>();
+    private LinkedList<Tuple<UUID, String>> queue = new LinkedList<>();
+    private AtomicBoolean checking = new AtomicBoolean(false);
+    private List<Tuple<UUID, String>> toAdd = new ArrayList<>();
     public Map<UUID, String> toKick = new HashMap<>();
 
     public void run() {
-        AntiVPN.INSTANCE.vpnAPI.vpnThread.execute(() -> {
-            Tuple<UUID, String> element;
-            while(queue.size() > 0 && (element = queue.poll()) != null) {
-                val response = AntiVPN.INSTANCE.vpnAPI.getResponse(element.two);
-                if(response != null && response.isSuccess()) {
-                    UserData data = UserData.getData(element.one);
-                    data.response = response;
-                    VPNCheckEvent event = new VPNCheckEvent(response);
-                    if(Config.fireEvent)
-                        RunUtils.task(() -> Bukkit.getPluginManager().callEvent(event), AntiVPN.INSTANCE);
+        AntiVPN.INSTANCE.vpnAPI.vpnThread.scheduleAtFixedRate(() -> {
+            if(!checking.get()) {
+                Tuple<UUID, String> element;
+                checking.set(true);
+                while(queue.size() > 0 && (element = queue.poll()) != null) {
+                    val response = AntiVPN.INSTANCE.vpnAPI.getResponse(element.two);
+                    if(response != null && response.isSuccess()) {
+                        UserData data = UserData.getData(element.one);
+                        data.response = response;
+                        VPNCheckEvent event = new VPNCheckEvent(response);
+                        if(Config.fireEvent)
+                            RunUtils.task(() -> Bukkit.getPluginManager().callEvent(event), AntiVPN.INSTANCE);
 
-                    if(response.isProxy()) {
-                        if(Config.alertStaff) alert(response, element.one);
-                        if(Config.kickPlayers) kick(response, element.one);
-                    }
-                } else MiscUtils.printToConsole((response != null) + "?");
+                        if(response.isProxy()) {
+                            if(Config.alertStaff) alert(response, element.one);
+                            if(Config.kickPlayers) kick(response, element.one);
+                        }
+                    } else MiscUtils.printToConsole((response != null) + "?");
+                }
+                checking.set(false);
+                queue.addAll(toAdd);
+                toAdd.clear();
             }
-            run();
-        });
+        }, 0L, 20L, TimeUnit.MILLISECONDS);
     }
     private void alert(VPNResponse response, UUID uuid) {
         if(Config.alertBungee) {
@@ -69,26 +75,8 @@ public class VPNHandler {
     }
 
     public void checkPlayer(Player player) {
-        AntiVPN.INSTANCE.vpnAPI.vpnThread.execute(() -> {
-            val element = new Tuple<>(player.getUniqueId(), player.getAddress().getAddress().getHostAddress());
-            val response = AntiVPN.INSTANCE.vpnAPI.getResponse(element.two);
-            if(response != null && response.isSuccess()) {
-                UserData data = UserData.getData(element.one);
-                data.response = response;
-                VPNCheckEvent event = new VPNCheckEvent(response);
-                if(Config.fireEvent)
-                    RunUtils.task(() -> Bukkit.getPluginManager().callEvent(event), AntiVPN.INSTANCE);
-
-                if(response.isProxy()) {
-                    if(Config.alertStaff) alert(response, element.one);
-                    if(Config.kickPlayers) kick(response, element.one);
-                }
-            } else {
-                if(response == null) {
-                    if(Config.alertStaff) alert(response, element.one);
-                    if(Config.kickPlayers) kick(response, element.one);
-                }
-            }
-        });
+        if(!checking.get())
+            queue.add(new Tuple<>(player.getUniqueId(), player.getAddress().getAddress().getHostAddress()));
+        else toAdd.add(new Tuple<>(player.getUniqueId(), player.getAddress().getAddress().getHostAddress()));
     }
 }
