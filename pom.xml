@@ -32,7 +32,7 @@
     <repositories>
         <repository>
             <id>funkemunky-releases</id>
-            <url>http://nexus.funkemunky.cc/content/repositories/releases/</url>
+            <url>https://nexus.funkemunky.cc/content/repositories/releases/</url>
         </repository>
     </repositories>
 
@@ -50,9 +50,9 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>cc.funkemunky.plugins</groupId>
+            <groupId>cc.funkemunky.utils</groupId>
             <artifactId>Atlas</artifactId>
-            <version>1.7.1</version>
+            <version>1.8.4</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

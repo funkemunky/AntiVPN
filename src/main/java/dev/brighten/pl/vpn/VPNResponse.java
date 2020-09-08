@@ -11,10 +11,9 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 public class VPNResponse {
-    private String ip, countryName, countryCode, method, state, city, isp, timeZone, locationString;
+    private String ip, countryName, countryCode, method, city, isp, timeZone;
     private boolean proxy, usedAdvanced, cached, success;
     private long cacheTime;
-    private double score;
     private int queriesLeft;
 
     public JSONObject toJson() throws JSONException {
@@ -23,18 +22,15 @@ public class VPNResponse {
         json.put("ip", ip);
         json.put("countryName", countryName);
         json.put("countryCode", countryCode);
-        json.put("state", state);
         json.put("city", city);
         json.put("method", method);
         json.put("isp", isp);
-        json.put("score", score);
         json.put("proxy", proxy);
         json.put("success", success);
         json.put("cacheTime", cacheTime);
         json.put("timeZone", timeZone);
         json.put("success", true);
         json.put("queriesLeft", queriesLeft);
-        json.put("locationString", locationString);
         json.put("usedAdvanced", usedAdvanced);
         json.put("cached", cached);
 
@@ -45,26 +41,23 @@ public class VPNResponse {
         JSONObject jsonObject = new JSONObject(json);
 
         return new VPNResponse(jsonObject.getString("ip"), jsonObject.getString("countryName"),
+                jsonObject.getString("countryCode"),
                 jsonObject.has("method") ? jsonObject.getString("method") : "N/A",
-                jsonObject.getString("countryCode"), jsonObject.getString("state"),
                 jsonObject.getString("city"), jsonObject.getString("isp"),
-                jsonObject.getString("timeZone"), jsonObject.getString("locationString"),
+                jsonObject.getString("timeZone"),
                 jsonObject.getBoolean("proxy"), jsonObject.getBoolean("usedAdvanced"),
                 jsonObject.getBoolean("cached"), jsonObject.getBoolean("success"), -1,
-                jsonObject.has("score") ? jsonObject.getDouble("score") : -1,
                 jsonObject.getInt("queriesLeft"));
     }
 
     public static VPNResponse fromSet(StructureSet set) {
         return new VPNResponse(set.getObject("ip"), set.getObject("countryName"),
-                set.contains("method") ? set.getObject("method") : "N/A",
-                set.getObject("countryCode"), set.getObject("state"),
+                set.getObject("countryCode"), set.contains("method") ? set.getObject("method") : "N/A",
                 set.getObject("city"), set.getObject("isp"),
-                set.getObject("timeZone"), set.getObject("locationString"),
+                set.getObject("timeZone"),
                 set.getObject("proxy"), set.getObject("usedAdvanced"),
                 set.getObject("cached"), set.getObject("success"),
                 set.contains("cacheTime") ? set.getObject("cacheTime") : 01,
-                set.contains("score") ? (double)set.getObject("score") : -1,
                 set.getObject("queriesLeft"));
     }
 }

@@ -17,6 +17,8 @@ import org.bukkit.entity.Player;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 public class VPNAPI {
@@ -75,8 +77,10 @@ public class VPNAPI {
         return getResponse(player.getAddress().getAddress().getHostAddress());
     }
 
+    private Map<String, VPNResponse> cache = new ConcurrentHashMap<>();
+
     public void cacheReponse(VPNResponse response) {
-        if(database != null && response.isSuccess()) {
+        /*if(database != null && response.isSuccess()) {
             try {
                 //Removing old value if it contains it.
                 if(database.contains(response.getIp())) database.remove(response.getIp());
@@ -98,11 +102,13 @@ public class VPNAPI {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-        }
+        }*/
+        cache.put(response.getIp(), response);
     }
 
     public VPNResponse getIfCached(String ipAddress) {
-        if(database != null && database.contains(ipAddress)) {
+        return cache.getOrDefault(ipAddress, null);
+        /*if(database != null && database.contains(ipAddress)) {
             val list = hashAlgorithm != null
                     ? database.get(set -> hashAlgorithm.hashEqualsKey(set.getObject("ip"), ipAddress))
                     : database.get(ipAddress);
@@ -139,7 +145,7 @@ public class VPNAPI {
                 }
             }
         }
-        return null;
+        return null;*/
     }
 
     public VPNResponse getResponse(String ipAddress) {
