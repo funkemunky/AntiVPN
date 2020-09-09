@@ -28,7 +28,7 @@ public class JoinListener implements Listener {
 
         if(AntiVPN.INSTANCE.vpnHandler.getCached().containsKey(event.getPlayer().getUniqueId())) {
             val result = AntiVPN.INSTANCE.vpnHandler.getCached().get(event.getPlayer().getUniqueId());
-            if(result.isProxy()) {
+            if(result.isProxy() && !event.getPlayer().hasPermission("antivpn.bypass")) {
                 event.setKickMessage(StringUtils.formatString(Config.kickMessage, result));
                 event.setResult(PlayerLoginEvent.Result.KICK_BANNED);
             }

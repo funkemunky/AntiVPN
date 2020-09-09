@@ -43,7 +43,7 @@ public class VPNHandler {
                         if(data != null && data.getPlayer() != null) {
                             data.response = response;
 
-                            if(data.response.isProxy()) {
+                            if(data.response.isProxy() && !data.getPlayer().hasPermission("antivpn.bypass")) {
                                 alert(response, value.one);
                                 kick(response, value.one);
                             }

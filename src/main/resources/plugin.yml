@@ -7,3 +7,6 @@ permissions:
   antivpn.showip:
     default: false
     description: Permission node to show IPs.
+  antivpn.bypass:
+    default: op
+    description: Permission node to bypass VPN kicks and alerts.
