@@ -60,6 +60,9 @@ public class AntiVPN extends JavaPlugin {
         print(false, "threads");
         AntiVPN.INSTANCE.vpnHandler.shutdown();
 
+        print(false, "removing commands");
+        Atlas.getInstance().getCommandManager(this).unregisterCommands();
+
         print(false, "handlers");
 
         MiscUtils.printToConsole("&aCompleted shutdown.");

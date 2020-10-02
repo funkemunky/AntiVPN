@@ -50,6 +50,11 @@ public class VPNHandler {
                         } else cached.put(value.one, response);
                     } else queue.add(value);
                 }
+                try {
+                    Thread.sleep(50L);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 run();
             }
         });
