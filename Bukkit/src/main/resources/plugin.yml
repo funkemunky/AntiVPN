@@ -1,0 +1,5 @@
+name: AntiVPN
+main: dev.brighten.antivpn.bukkit.BukkitPlugin
+version: ${project.version}
+author: funkemunky
+api-version: 1.13

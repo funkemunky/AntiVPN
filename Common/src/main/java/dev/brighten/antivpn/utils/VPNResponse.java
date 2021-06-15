@@ -4,14 +4,17 @@ import dev.brighten.antivpn.utils.json.JSONException;
 import dev.brighten.antivpn.utils.json.JSONObject;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
 @AllArgsConstructor
+@RequiredArgsConstructor
 public class VPNResponse {
     private String asn, ip, countryName, countryCode, city, timeZone, method, isp;
-    private boolean proxy, cached, success;
+    private boolean proxy, cached;
+    private final boolean success;
     private double latitude, longitude;
     private long lastAccess;
     private long queriesLeft;
@@ -46,5 +49,20 @@ public class VPNResponse {
                 jsonObject.getBoolean("cached"), jsonObject.getBoolean("success"),
                 jsonObject.getDouble("latitude"), jsonObject.getDouble("longitude"),
                 jsonObject.getLong("lastAccess"), jsonObject.getInt("queriesLeft"));
+    }
+
+    public static VPNResponse fromJson(JSONObject jsonObject) throws JSONException {
+        if(jsonObject.getBoolean("success")) {
+            return new VPNResponse(jsonObject.getString("asn"), jsonObject.getString("ip"),
+                    jsonObject.getString("countryName"), jsonObject.getString("countryCode"),
+                    jsonObject.getString("city"), jsonObject.getString("timeZone"),
+                    jsonObject.has("method") ? jsonObject.getString("method") : "N/A",
+                    jsonObject.getString("isp"), jsonObject.getBoolean("proxy"),
+                    jsonObject.getBoolean("cached"), jsonObject.getBoolean("success"),
+                    jsonObject.getDouble("latitude"), jsonObject.getDouble("longitude"),
+                    jsonObject.getLong("lastAccess"), jsonObject.getInt("queriesLeft"));
+        }
+
+        return new VPNResponse(false);
     }
 }
