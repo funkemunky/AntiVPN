@@ -11,7 +11,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Getter
 public class VPNCheckEvent extends Event {
-    private UUID uuid;
+    private final UUID uuid;
     private final VPNResponse response;
     private static HandlerList handlerList = new HandlerList();
 

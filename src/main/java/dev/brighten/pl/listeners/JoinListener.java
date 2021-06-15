@@ -1,10 +1,8 @@
 package dev.brighten.pl.listeners;
 
 import cc.funkemunky.api.utils.Init;
-import cc.funkemunky.api.utils.Tuple;
 import dev.brighten.pl.AntiVPN;
 import dev.brighten.pl.config.Config;
-import dev.brighten.pl.data.UserData;
 import dev.brighten.pl.utils.StringUtils;
 import lombok.val;
 import org.bukkit.event.EventHandler;
@@ -24,7 +22,6 @@ public class JoinListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onEvent(PlayerLoginEvent event) {
-        UserData data = UserData.getData(event.getPlayer().getUniqueId());
 
         if(AntiVPN.INSTANCE.vpnHandler.getCached().containsKey(event.getPlayer().getUniqueId())) {
             val result = AntiVPN.INSTANCE.vpnHandler.getCached().get(event.getPlayer().getUniqueId());
