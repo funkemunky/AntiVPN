@@ -51,6 +51,7 @@ public class BukkitListener extends VPNExecutor implements Listener {
                 Optional.ofNullable(Bukkit.getPlayer(event.getUniqueId())).ifPresent(player -> {
                     new BukkitRunnable() {
                         public void run() {
+                            if(!player.hasPermission("antivpn.bypass"))
                             player.kickPlayer(ChatColor.translateAlternateColorCodes('&',
                                     AntiVPN.getInstance().getConfig().getKickString()));
                         }

@@ -41,6 +41,7 @@ public class BungeeListener extends VPNExecutor implements Listener {
 
     @EventHandler
     public void onListener(final PostLoginEvent event) {
+        if(event.getPlayer().hasPermission("antivpn.bypass")) return;
         checkIp(event.getPlayer().getAddress().getAddress().getHostAddress(),
                 AntiVPN.getInstance().getConfig().cachedResults(), result -> {
             if(result.isSuccess() && result.isProxy()) {
