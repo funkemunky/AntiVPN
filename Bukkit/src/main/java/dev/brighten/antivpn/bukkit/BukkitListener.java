@@ -13,6 +13,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.Optional;
+import java.util.logging.Level;
 
 public class BukkitListener extends VPNExecutor implements Listener {
 
@@ -55,6 +56,10 @@ public class BukkitListener extends VPNExecutor implements Listener {
                         }
                     }.runTask(BukkitPlugin.pluginInstance);
                 });
+            } else if(!result.isSuccess()) {
+                Bukkit.getLogger().log(Level.WARNING,
+                        "The API query was not a success! " +
+                                "You may need to upgrade your license on https://funkemunky.cc/shop");
             }
         });
     }

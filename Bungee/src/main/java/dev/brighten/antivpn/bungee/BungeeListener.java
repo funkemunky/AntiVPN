@@ -2,6 +2,7 @@ package dev.brighten.antivpn.bungee;
 
 import dev.brighten.antivpn.AntiVPN;
 import dev.brighten.antivpn.api.VPNExecutor;
+import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.event.PostLoginEvent;
@@ -10,6 +11,7 @@ import net.md_5.bungee.api.scheduler.ScheduledTask;
 import net.md_5.bungee.event.EventHandler;
 
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 
 public class BungeeListener extends VPNExecutor implements Listener {
 
@@ -45,6 +47,11 @@ public class BungeeListener extends VPNExecutor implements Listener {
                 event.getPlayer().disconnect(TextComponent.fromLegacyText(ChatColor
                         .translateAlternateColorCodes('&',
                                 AntiVPN.getInstance().getConfig().getKickString())));
+            } else if(!result.isSuccess()) {
+                BungeeCord.getInstance().getLogger()
+                        .log(Level.WARNING,
+                                "The API query was not a success! " +
+                                        "You may need to upgrade your license on https://funkemunky.cc/shop");
             }
         });
     }
