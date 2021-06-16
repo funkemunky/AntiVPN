@@ -54,6 +54,8 @@ public class BukkitListener extends VPNExecutor implements Listener {
                             if(!player.hasPermission("antivpn.bypass"))
                             player.kickPlayer(ChatColor.translateAlternateColorCodes('&',
                                     AntiVPN.getInstance().getConfig().getKickString()));
+                            System.out.println(player.getPlayer().getName()
+                                    + " joined on a VPN/Proxy (" + result.getMethod() + ")");
                         }
                     }.runTask(BukkitPlugin.pluginInstance);
                 });
