@@ -7,7 +7,7 @@
     <groupId>dev.brighten.antivpn</groupId>
     <artifactId>AntiVPN</artifactId>
     <packaging>pom</packaging>
-    <version>1.0.1</version>
+    <version>1.1</version>
 
     <modules>
         <module>Common</module>
