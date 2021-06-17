@@ -40,9 +40,14 @@ public class LookupCommand extends Command {
     }
 
     @Override
+    public Command[] children() {
+        return new Command[0];
+    }
+
+    @Override
     public String execute(CommandExecutor executor, String[] args) {
         if(args.length == 0) {
-            return "&cPlease supply a player to check the VPN information of";
+            return "&cPlease supply a player to check.";
         }
 
         Optional<APIPlayer> player = AntiVPN.getInstance().getPlayerExecutor().getPlayer(args[0]);
@@ -57,7 +62,7 @@ public class LookupCommand extends Command {
                 executor.sendMessage("&cThere was an error trying to find the information of this player.");
             } else {
                 executor.sendMessage(StringUtil.line("&8"));
-                executor.sendMessage("&6&l" + player.get().getName() + "s &7&lConnection Information");
+                executor.sendMessage("&6&l" + player.get().getName() + "&7&l's Connection Information");
                 executor.sendMessage("");
                 executor.sendMessage(String.format("&e%s&8: &f%s", "Proxy", result.isProxy()
                         ? "&a" + result.getMethod() : "&cNo"));

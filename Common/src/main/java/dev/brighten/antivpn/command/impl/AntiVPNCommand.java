@@ -4,6 +4,7 @@ import dev.brighten.antivpn.AntiVPN;
 import dev.brighten.antivpn.command.Command;
 import dev.brighten.antivpn.command.CommandExecutor;
 import dev.brighten.antivpn.utils.StringUtil;
+import jdk.nashorn.internal.lookup.Lookup;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +41,11 @@ public class AntiVPNCommand extends Command {
     }
 
     @Override
+    public Command[] children() {
+        return new Command[] {new LookupCommand()};
+    }
+
+    @Override
     public String execute(CommandExecutor uuid, String[] args) {
         List<String> messages = new ArrayList<>();
 
@@ -47,8 +53,9 @@ public class AntiVPNCommand extends Command {
         messages.add("&6&lAntiVPN Help Page");
         messages.add("");
         for (Command child : AntiVPN.getInstance().getCommands()) {
-            messages.add(String.format("&8/&f%s &8- &7&o%s", "&7antivpn &f" + child.name() + " &7" + child.usage(),
-                    description()));
+            messages.add(String.format("&8/&f%s &8- &7&o%s", "&7" + child.parent()
+                    + (child.parent().length() > 0 ? " " : "") + "&f" + child.name() + " &7"
+                            + child.usage(), description()));
         }
         messages.add(StringUtil.line("&8"));
 

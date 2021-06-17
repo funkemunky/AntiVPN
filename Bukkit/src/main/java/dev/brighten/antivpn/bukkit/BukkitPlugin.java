@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.IntStream;
 
 public class BukkitPlugin extends JavaPlugin {
 
@@ -46,14 +47,34 @@ public class BukkitPlugin extends JavaPlugin {
         }
 
         for (Command command : AntiVPN.getInstance().getCommands()) {
-            val newCommand = new org.bukkit.command.Command(command.name(),
-                    command.description(), command.usage(), Arrays.asList(command.aliases())) {
+            val newCommand = new org.bukkit.command.Command(command.name(), command.description(), command.usage(),
+                    Arrays.asList(command.aliases())) {
                 @Override
                 public boolean execute(CommandSender sender, String s, String[] args) {
                     if(!sender.hasPermission("antivpn.command.*")
                             && !sender.hasPermission(command.permission())) {
                         sender.sendMessage(ChatColor.RED + "No permission.");
                         return true;
+                    }
+
+                    val children = command.children();
+
+                    if(children.length > 0 && args.length > 0) {
+                        for (Command child : children) {
+                            if(child.name().equalsIgnoreCase(args[0])) {
+                                if(!sender.hasPermission("antivpn.command.*")
+                                        && !sender.hasPermission(child.permission())) {
+                                    sender.sendMessage(ChatColor.RED + "No permission.");
+                                    return true;
+                                }
+
+                                sender.sendMessage(ChatColor.translateAlternateColorCodes('&',
+                                        child.execute(new BukkitCommandExecutor(sender), IntStream
+                                                .range(0, args.length - 1)
+                                                .mapToObj(i -> args[i + 1]).toArray(String[]::new))));
+                                return true;
+                            }
+                        }
                     }
 
                     sender.sendMessage(ChatColor.translateAlternateColorCodes('&',
@@ -64,7 +85,7 @@ public class BukkitPlugin extends JavaPlugin {
             };
 
             registeredCommands.add(newCommand);
-            commandMap.register("antivpn", newCommand);
+            commandMap.register(pluginInstance.getName(), newCommand);
         }
     }
 
@@ -75,8 +96,10 @@ public class BukkitPlugin extends JavaPlugin {
 
         System.out.println("Unregistering commands...");
         try {
-            Map<String, org.bukkit.command.Command> knownCommands = (Map<String, org.bukkit.command.Command>)
-                    SimpleCommandMap.class.getField("knownCommands").get(commandMap);
+            Field field = SimpleCommandMap.class.getDeclaredField("knownCommands");
+            field.setAccessible(true);
+            Map<String, org.bukkit.command.Command> knownCommands =
+                    (Map<String, org.bukkit.command.Command>) field.get(commandMap);
 
             knownCommands.values().removeAll(registeredCommands);
             registeredCommands.clear();

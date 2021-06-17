@@ -15,6 +15,8 @@ public abstract class Command {
     public abstract String usage();
 
     public abstract String parent();
+
+    public abstract Command[] children();
     
     public abstract String execute(CommandExecutor executor, String[] args);
 }
