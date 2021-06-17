@@ -40,11 +40,6 @@ public class LookupCommand extends Command {
     }
 
     @Override
-    public Command[] children() {
-        return new Command[0];
-    }
-
-    @Override
     public String execute(CommandExecutor executor, String[] args) {
         if(args.length == 0) {
             return "&cPlease supply a player to check the VPN information of";

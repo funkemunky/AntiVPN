@@ -1,0 +1,5 @@
+name: AntiVPN
+main: dev.brighten.antivpn.bungee.BungeePlugin
+description: A simple and fast antivpn plugin.
+version: 1.1
+author: funkemunky

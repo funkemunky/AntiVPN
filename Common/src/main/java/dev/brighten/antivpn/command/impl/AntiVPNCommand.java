@@ -1,5 +1,6 @@
 package dev.brighten.antivpn.command.impl;
 
+import dev.brighten.antivpn.AntiVPN;
 import dev.brighten.antivpn.command.Command;
 import dev.brighten.antivpn.command.CommandExecutor;
 import dev.brighten.antivpn.utils.StringUtil;
@@ -39,19 +40,13 @@ public class AntiVPNCommand extends Command {
     }
 
     @Override
-    public Command[] children() {
-        return new Command[] {new LookupCommand()};
-    }
-
-    @Override
     public String execute(CommandExecutor uuid, String[] args) {
         List<String> messages = new ArrayList<>();
 
         messages.add(StringUtil.line("&8"));
         messages.add("&6&lAntiVPN Help Page");
         messages.add("");
-        messages.add(String.format("&8/&f%s &8- &7&o%s", "antivpn", description()));
-        for (Command child : children()) {
+        for (Command child : AntiVPN.getInstance().getCommands()) {
             messages.add(String.format("&8/&f%s &8- &7&o%s", "&7antivpn &f" + child.name() + " &7" + child.usage(),
                     description()));
         }

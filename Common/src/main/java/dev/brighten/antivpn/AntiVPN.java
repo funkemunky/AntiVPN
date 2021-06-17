@@ -4,6 +4,8 @@ import dev.brighten.antivpn.api.PlayerExecutor;
 import dev.brighten.antivpn.api.VPNConfig;
 import dev.brighten.antivpn.api.VPNExecutor;
 import dev.brighten.antivpn.command.Command;
+import dev.brighten.antivpn.command.impl.AntiVPNCommand;
+import dev.brighten.antivpn.command.impl.LookupCommand;
 import dev.brighten.antivpn.utils.VPNResponse;
 import dev.brighten.antivpn.utils.json.JSONException;
 import dev.brighten.antivpn.utils.json.JSONObject;
@@ -39,7 +41,7 @@ public class AntiVPN {
         INSTANCE.config.update();
 
         //Registering commands
-        registerCommands();
+        INSTANCE.registerCommands();
     }
 
     public void stop() {
@@ -61,7 +63,8 @@ public class AntiVPN {
         return VPNResponse.fromJson(result);
     }
 
-    private static void registerCommands() {
-
+    private void registerCommands() {
+        commands.add(new AntiVPNCommand());
+        commands.add(new LookupCommand());
     }
 }
