@@ -56,7 +56,8 @@ public class BukkitPlugin extends JavaPlugin {
 
                     if(children.length > 0 && args.length > 0) {
                         for (Command child : children) {
-                            if(child.name().equalsIgnoreCase(args[0])) {
+                            if(child.name().equalsIgnoreCase(args[0])  || Arrays.stream(child.aliases())
+                                    .anyMatch(alias2 -> alias2.equalsIgnoreCase(args[0]))) {
                                 return child.tabComplete(new BukkitCommandExecutor(sender), alias, IntStream
                                         .range(0, args.length - 1)
                                         .mapToObj(i -> args[i + 1]).toArray(String[]::new));
@@ -78,7 +79,8 @@ public class BukkitPlugin extends JavaPlugin {
 
                     if(children.length > 0 && args.length > 0) {
                         for (Command child : children) {
-                            if(child.name().equalsIgnoreCase(args[0])) {
+                            if(child.name().equalsIgnoreCase(args[0])  || Arrays.stream(child.aliases())
+                                    .anyMatch(alias -> alias.equalsIgnoreCase(args[0]))) {
                                 if(!sender.hasPermission("antivpn.command.*")
                                         && !sender.hasPermission(child.permission())) {
                                     sender.sendMessage(ChatColor.RED + "No permission.");

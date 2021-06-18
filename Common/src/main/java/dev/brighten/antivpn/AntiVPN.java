@@ -6,6 +6,8 @@ import dev.brighten.antivpn.api.VPNExecutor;
 import dev.brighten.antivpn.command.Command;
 import dev.brighten.antivpn.command.impl.AntiVPNCommand;
 import dev.brighten.antivpn.command.impl.LookupCommand;
+import dev.brighten.antivpn.database.VPNDatabase;
+import dev.brighten.antivpn.database.sql.MySqlVPN;
 import dev.brighten.antivpn.utils.VPNResponse;
 import dev.brighten.antivpn.utils.json.JSONException;
 import dev.brighten.antivpn.utils.json.JSONObject;
@@ -26,6 +28,7 @@ public class AntiVPN {
     private VPNConfig config;
     private VPNExecutor executor;
     private PlayerExecutor playerExecutor;
+    private VPNDatabase database;
     private List<Command> commands = new ArrayList<>();
 
     public static void start(VPNConfig config, VPNExecutor executor, PlayerExecutor playerExecutor) {
@@ -40,12 +43,34 @@ public class AntiVPN {
         INSTANCE.executor.registerListeners();
         INSTANCE.config.update();
 
+        switch(INSTANCE.config.getDatabaseType().toLowerCase()) {
+            case "mysql":
+            case "sql":{
+                System.out.println("Using databaseType MySQL...");
+                INSTANCE.database = new MySqlVPN();
+                INSTANCE.database.init();
+                break;
+            }
+            case "mongo":
+            case "mongodb":
+            case "mongod": {
+                System.out.println("We currently do not support Mongo, but this is coming in future updates.");
+                break;
+            }
+            default: {
+                System.out.println("Could not find database type \"" + INSTANCE.config.getDatabaseType() + "\". " +
+                        "Options: [MySQL]");
+                break;
+            }
+        }
+
         //Registering commands
         INSTANCE.registerCommands();
     }
 
     public void stop() {
         executor.shutdown();
+        if(database != null) database.shutdown();
     }
 
     public static AntiVPN getInstance() {
@@ -65,6 +90,5 @@ public class AntiVPN {
 
     private void registerCommands() {
         commands.add(new AntiVPNCommand());
-        commands.add(new LookupCommand());
     }
 }

@@ -12,6 +12,20 @@ public interface VPNConfig {
 
     List<String> getPrefixWhitelists();
 
+    boolean isDatabaseEnabled();
+
+    String getDatabaseType();
+
+    String getDatabaseName();
+
+    String getUsername();
+
+    String getPassword();
+
+    String getIp();
+
+    int getPort();
+
     void update();
 
 }

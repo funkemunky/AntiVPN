@@ -43,6 +43,7 @@ public class BungeeListener extends VPNExecutor implements Listener {
     @EventHandler
     public void onListener(final PostLoginEvent event) {
         if(event.getPlayer().hasPermission("antivpn.bypass") //Has bypass permission
+                || AntiVPN.getInstance().getExecutor().isWhitelisted(event.getPlayer().getUniqueId()) //Is exempt
                 //Or has a name that starts with a certain prefix. This is for Bedrock exempting.
                 || AntiVPN.getInstance().getConfig().getPrefixWhitelists().stream()
                 .anyMatch(prefix -> event.getPlayer().getName().startsWith(prefix))) return;

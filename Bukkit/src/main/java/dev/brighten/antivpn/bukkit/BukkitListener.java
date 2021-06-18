@@ -43,6 +43,8 @@ public class BukkitListener extends VPNExecutor implements Listener {
 
     @EventHandler
     public void onListener(final AsyncPlayerPreLoginEvent event) {
+        //If they're exempt, don't check.
+        if(AntiVPN.getInstance().getExecutor().isWhitelisted(event.getUniqueId())) return;
         checkIp(event.getAddress().getHostAddress(), AntiVPN.getInstance().getConfig().cachedResults(), result -> {
             if(result.isSuccess() && result.isProxy()) {
                 event.setLoginResult(AsyncPlayerPreLoginEvent.Result.KICK_OTHER);

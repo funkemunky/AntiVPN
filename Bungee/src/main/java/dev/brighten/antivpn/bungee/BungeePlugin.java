@@ -13,6 +13,7 @@ import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.plugin.Plugin;
 
+import java.util.Arrays;
 import java.util.stream.IntStream;
 
 public class BungeePlugin extends Plugin {
@@ -52,7 +53,8 @@ public class BungeePlugin extends Plugin {
 
                     if(children.length > 0 && args.length > 0) {
                         for (Command child : children) {
-                            if(child.name().equalsIgnoreCase(args[0])) {
+                            if(child.name().equalsIgnoreCase(args[0]) || Arrays.stream(child.aliases())
+                                    .anyMatch(alias -> alias.equalsIgnoreCase(args[0]))) {
                                 if(!sender.hasPermission("antivpn.command.*")
                                         && !sender.hasPermission(child.permission())) {
                                     sender.sendMessage(noPermission);
