@@ -6,7 +6,11 @@ import dev.brighten.antivpn.command.Command;
 import dev.brighten.antivpn.command.CommandExecutor;
 import dev.brighten.antivpn.utils.StringUtil;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class LookupCommand extends Command {
     @Override
@@ -77,5 +81,16 @@ public class LookupCommand extends Command {
 
 
         return "&7Looking up the IP information for player " + player.get().getName() + "...";
+    }
+
+    @Override
+    public List<String> tabComplete(CommandExecutor executor, String alias, String[] args) {
+
+        if(args.length == 1) return AntiVPN.getInstance().getPlayerExecutor().getOnlinePlayers().stream()
+                .map(APIPlayer::getName)
+                .filter(name -> name.toLowerCase().startsWith(args[0].toLowerCase()))
+                .collect(Collectors.toList());
+
+        return Collections.emptyList();
     }
 }

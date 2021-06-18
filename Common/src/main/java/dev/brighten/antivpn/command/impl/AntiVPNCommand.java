@@ -6,8 +6,8 @@ import dev.brighten.antivpn.command.CommandExecutor;
 import dev.brighten.antivpn.utils.StringUtil;
 import jdk.nashorn.internal.lookup.Lookup;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class AntiVPNCommand extends Command {
     @Override
@@ -60,5 +60,16 @@ public class AntiVPNCommand extends Command {
         messages.add(StringUtil.line("&8"));
 
         return String.join("\n", messages);
+    }
+
+    @Override
+    public List<String> tabComplete(CommandExecutor executor, String alias, String[] args) {
+        if(args.length == 1)
+        return Arrays.stream(children())
+                .map(Command::name)
+                .filter(name -> name.toLowerCase().startsWith(args[0].toLowerCase()))
+                .collect(Collectors.toList());
+
+        return Collections.emptyList();
     }
 }

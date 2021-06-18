@@ -1,6 +1,6 @@
 package dev.brighten.antivpn.command;
 
-import dev.brighten.antivpn.AntiVPN;
+import java.util.List;
 
 public abstract class Command {
 
@@ -19,4 +19,6 @@ public abstract class Command {
     public abstract Command[] children();
     
     public abstract String execute(CommandExecutor executor, String[] args);
+
+    public abstract List<String> tabComplete(CommandExecutor executor, String alias, String[] args);
 }

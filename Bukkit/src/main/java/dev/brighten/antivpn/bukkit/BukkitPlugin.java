@@ -50,6 +50,23 @@ public class BukkitPlugin extends JavaPlugin {
             val newCommand = new org.bukkit.command.Command(command.name(), command.description(), command.usage(),
                     Arrays.asList(command.aliases())) {
                 @Override
+                public List<String> tabComplete(CommandSender sender, String alias, String[] args)
+                        throws IllegalArgumentException {
+                    val children = command.children();
+
+                    if(children.length > 0 && args.length > 0) {
+                        for (Command child : children) {
+                            if(child.name().equalsIgnoreCase(args[0])) {
+                                return child.tabComplete(new BukkitCommandExecutor(sender), alias, IntStream
+                                        .range(0, args.length - 1)
+                                        .mapToObj(i -> args[i + 1]).toArray(String[]::new));
+                            }
+                        }
+                    }
+                    return command.tabComplete(new BukkitCommandExecutor(sender), alias, args);
+                }
+
+                @Override
                 public boolean execute(CommandSender sender, String s, String[] args) {
                     if(!sender.hasPermission("antivpn.command.*")
                             && !sender.hasPermission(command.permission())) {
