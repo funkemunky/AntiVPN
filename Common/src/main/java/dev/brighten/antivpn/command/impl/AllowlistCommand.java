@@ -14,7 +14,7 @@ public class AllowlistCommand extends Command {
 
     @Override
     public String permission() {
-        return "anticheat.command.allowlist";
+        return "antivpn.command.allowlist";
     }
 
     @Override
