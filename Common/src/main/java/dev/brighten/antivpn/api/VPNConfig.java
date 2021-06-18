@@ -1,5 +1,7 @@
 package dev.brighten.antivpn.api;
 
+import java.util.List;
+
 public interface VPNConfig {
 
     String getLicense();
@@ -7,6 +9,8 @@ public interface VPNConfig {
     boolean cachedResults();
 
     String getKickString();
+
+    List<String> getPrefixWhitelists();
 
     void update();
 

@@ -51,7 +51,10 @@ public class BukkitListener extends VPNExecutor implements Listener {
                 Optional.ofNullable(Bukkit.getPlayer(event.getUniqueId())).ifPresent(player -> {
                     new BukkitRunnable() {
                         public void run() {
-                            if(!player.hasPermission("antivpn.bypass"))
+                            if(!player.hasPermission("antivpn.bypass") //Has bypass permission
+                                    //Or has a name that starts with a certain prefix. This is for Bedrock exempting.
+                                    || AntiVPN.getInstance().getConfig().getPrefixWhitelists().stream()
+                                    .anyMatch(prefix -> player.getName().startsWith(prefix)))
                             player.kickPlayer(ChatColor.translateAlternateColorCodes('&',
                                     AntiVPN.getInstance().getConfig().getKickString()));
                             System.out.println(player.getPlayer().getName()
