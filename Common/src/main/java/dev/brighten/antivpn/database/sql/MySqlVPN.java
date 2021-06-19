@@ -142,7 +142,7 @@ public class MySqlVPN implements VPNDatabase {
         Query.prepare("create table if not exists `whitelisted` (`uuid` varchar(36) not null)").execute();
         Query.prepare("create table if not exists `responses` (`ip` varchar(45) not null, `asn` varchar(12)," +
                 "`countryName` varchar(64), `countryCode` varchar(10), `city` varchar(64), `timeZone` varchar(64), " +
-                "`method` varchar(32), `isp` varchar(32), `proxy` boolean, `cached` boolean, `inserted` timestamp," +
+                "`method` varchar(32), `isp` varchar(64), `proxy` boolean, `cached` boolean, `inserted` timestamp," +
                 "`latitude` double, `longitude` double)").execute();
 
         System.out.println("Creating indexes...");
