@@ -50,7 +50,7 @@ public class MySqlVPN implements VPNDatabase {
         ResultSet rs = Query.prepare("select * from `responses` where `ip` = ? limit 1").append(ip).executeQuery();
 
         try {
-            if (rs != null && !rs.wasNull() && rs.next()) {
+            if (rs != null && rs.next()) {
                 VPNResponse response = new VPNResponse(rs.getString("asn"), rs.getString("ip"),
                         rs.getString("countryName"), rs.getString("countryCode"), rs.getString("city"),
                         rs.getString("timeZone"), rs.getString("method"), rs.getString("isp"), rs.getBoolean("proxy"),
