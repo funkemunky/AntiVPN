@@ -159,7 +159,6 @@ public class MySqlVPN implements VPNDatabase {
             int id = 0;
             while (rs.next()) {
                 id = rs.getInt("IndexExists");
-                System.err.println(id);
             }
             if (id == 0) {
                 Query.prepare("create index `uuid_1` on `whitelisted` (`uuid`)").execute();
@@ -169,7 +168,6 @@ public class MySqlVPN implements VPNDatabase {
             rs = Query.prepare(query).executeQuery();
             while (rs.next()) {
                 id = rs.getInt("IndexExists");
-                System.err.println(id);
             }
             if (id == 0) {
                 Query.prepare("create index `ip_1` on `responses` (`ip`)").execute();
@@ -179,7 +177,6 @@ public class MySqlVPN implements VPNDatabase {
             rs = Query.prepare(query).executeQuery();
             while (rs.next()) {
                 id = rs.getInt("IndexExists");
-                System.err.println(id);
             }
             if (id == 0) {
                 Query.prepare("create index `proxy_1` on `responses` (`proxy`)").execute();
@@ -189,7 +186,6 @@ public class MySqlVPN implements VPNDatabase {
             rs = Query.prepare(query).executeQuery();
             while (rs.next()) {
                 id = rs.getInt("IndexExists");
-                System.err.println(id);
             }
             if (id == 0) {
                 Query.prepare("create index `inserted_1` on `responses` (`inserted`)").execute();
