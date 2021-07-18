@@ -2,14 +2,17 @@ package dev.brighten.antivpn.bukkit;
 
 import dev.brighten.antivpn.api.VPNConfig;
 import dev.brighten.antivpn.bukkit.util.ConfigDefault;
+import org.bukkit.Bukkit;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class BukkitConfig implements VPNConfig {
     private final ConfigDefault<String> licenseDefault = new ConfigDefault<>("",
             "license", BukkitPlugin.pluginInstance), kickStringDefault =
-            new ConfigDefault<>("Proxies are not allowed on our server",
+                    new ConfigDefault<>("Proxies are not allowed on our server",
                     "kickMessage", BukkitPlugin.pluginInstance),
             defaultDatabaseType = new ConfigDefault<>("MySQL",
                     "database.type", BukkitPlugin.pluginInstance),
@@ -25,16 +28,19 @@ public class BukkitConfig implements VPNConfig {
     private final ConfigDefault<Boolean> cacheResultsDefault = new ConfigDefault<>(true,
             "cachedResults", BukkitPlugin.pluginInstance),
             defaultDatabaseEnabled = new ConfigDefault<>(false, "database.enabled",
-                    BukkitPlugin.pluginInstance);
+                    BukkitPlugin.pluginInstance), defaultCommandsEnable
+            = new ConfigDefault<>(false, "commands.enabled", BukkitPlugin.pluginInstance);
     private final ConfigDefault<Integer>
             defaultPort = new ConfigDefault<>(-1, "database.port", BukkitPlugin.pluginInstance);
     private final ConfigDefault<List<String>> prefixWhitelistsDefault = new ConfigDefault<>(new ArrayList<>(),
-            "prefixWhitelists", BukkitPlugin.pluginInstance);
+            "prefixWhitelists", BukkitPlugin.pluginInstance), defaultCommands = new ConfigDefault<>(
+            Collections.singletonList("kick %player% VPNs are not allowed on our server!"), "commands.execute",
+            BukkitPlugin.pluginInstance);
 
     private String license, kickMessage, databaseType, databaseName, username, password, ip;
-    private List<String> prefixWhitelists;
+    private List<String> prefixWhitelists, commands;
     private int port;
-    private boolean cacheResults, databaseEnabled;
+    private boolean cacheResults, databaseEnabled, commandsEnabled;
 
     @Override
     public String getLicense() {
@@ -49,6 +55,16 @@ public class BukkitConfig implements VPNConfig {
     @Override
     public String getKickString() {
         return kickMessage;
+    }
+
+    @Override
+    public boolean runCommands() {
+        return commandsEnabled;
+    }
+
+    @Override
+    public List<String> commands() {
+        return commands;
     }
 
     @Override
@@ -115,5 +131,7 @@ public class BukkitConfig implements VPNConfig {
         password = defaultPassword.get();
         ip = defaultIp.get();
         port = defaultPort.get();
+        commandsEnabled = defaultCommandsEnable.get();
+        commands = defaultCommands.get();
     }
 }

@@ -59,6 +59,12 @@ public class BukkitListener extends VPNExecutor implements Listener {
                                     .anyMatch(prefix -> player.getName().startsWith(prefix)))
                             player.kickPlayer(ChatColor.translateAlternateColorCodes('&',
                                     AntiVPN.getInstance().getConfig().getKickString()));
+
+                            for (String command : AntiVPN.getInstance().getConfig().commands()) {
+                                Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
+                                                ChatColor.translateAlternateColorCodes('&',
+                                                        command.replace("%player%", event.getName())));
+                            }
                             System.out.println(player.getPlayer().getName()
                                     + " joined on a VPN/Proxy (" + result.getMethod() + ")");
                         }

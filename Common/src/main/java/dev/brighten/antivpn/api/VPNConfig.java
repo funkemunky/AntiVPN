@@ -10,6 +10,10 @@ public interface VPNConfig {
 
     String getKickString();
 
+    boolean runCommands();
+
+    List<String> commands();
+
     List<String> getPrefixWhitelists();
 
     boolean isDatabaseEnabled();

@@ -6,7 +6,6 @@ import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.event.PostLoginEvent;
-import net.md_5.bungee.api.event.TabCompleteEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.api.scheduler.ScheduledTask;
 import net.md_5.bungee.event.EventHandler;
@@ -56,6 +55,15 @@ public class BungeeListener extends VPNExecutor implements Listener {
                                 AntiVPN.getInstance().getConfig().getKickString())));
                 System.out.println(event.getPlayer().getName()
                         + " joined on a VPN/Proxy (" + result.getMethod() + ")");
+
+                if(AntiVPN.getInstance().getConfig().runCommands()) {
+                    for (String command : AntiVPN.getInstance().getConfig().commands()) {
+                        BungeeCord.getInstance().getPluginManager()
+                                .dispatchCommand(BungeeCord.getInstance().getConsole(),
+                                        ChatColor.translateAlternateColorCodes('&',
+                                                command.replace("%player%", event.getPlayer().getName())));
+                    }
+                }
             } else if(!result.isSuccess()) {
                 BungeeCord.getInstance().getLogger()
                         .log(Level.WARNING,

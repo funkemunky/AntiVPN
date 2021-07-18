@@ -4,9 +4,10 @@ import dev.brighten.antivpn.api.VPNConfig;
 import dev.brighten.antivpn.bungee.util.ConfigDefault;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-public class BungeeConfig implements VPNConfig { ;
+public class BungeeConfig implements VPNConfig {
     private final ConfigDefault<String> licenseDefault = new ConfigDefault<>("",
             "license", BungeePlugin.pluginInstance), kickStringDefault =
             new ConfigDefault<>("Proxies are not allowed on our server",
@@ -25,16 +26,19 @@ public class BungeeConfig implements VPNConfig { ;
     private final ConfigDefault<Boolean> cacheResultsDefault = new ConfigDefault<>(true,
             "cachedResults", BungeePlugin.pluginInstance),
             defaultDatabaseEnabled = new ConfigDefault<>(false, "database.enabled",
-                    BungeePlugin.pluginInstance);
+                    BungeePlugin.pluginInstance), defaultCommandsEnable
+            = new ConfigDefault<>(false, "commands.enabled", BungeePlugin.pluginInstance);
     private final ConfigDefault<Integer>
             defaultPort = new ConfigDefault<>(-1, "database.port", BungeePlugin.pluginInstance);
     private final ConfigDefault<List<String>> prefixWhitelistsDefault = new ConfigDefault<>(new ArrayList<>(),
-            "prefixWhitelists", BungeePlugin.pluginInstance);
+            "prefixWhitelists", BungeePlugin.pluginInstance), defaultCommands = new ConfigDefault<>(
+            Collections.singletonList("kick %player% VPNs are not allowed on our server!"), "commands.execute",
+            BungeePlugin.pluginInstance);
 
     private String license, kickMessage, databaseType, databaseName, username, password, ip;
-    private List<String> prefixWhitelists;
+    private List<String> prefixWhitelists, commands;
     private int port;
-    private boolean cacheResults, databaseEnabled;
+    private boolean cacheResults, databaseEnabled, commandsEnabled;
 
     @Override
     public String getLicense() {
@@ -49,6 +53,16 @@ public class BungeeConfig implements VPNConfig { ;
     @Override
     public String getKickString() {
         return kickMessage;
+    }
+
+    @Override
+    public boolean runCommands() {
+        return commandsEnabled;
+    }
+
+    @Override
+    public List<String> commands() {
+        return commands;
     }
 
     @Override
@@ -115,5 +129,7 @@ public class BungeeConfig implements VPNConfig { ;
         password = defaultPassword.get();
         ip = defaultIp.get();
         port = defaultPort.get();
+        commandsEnabled = defaultCommandsEnable.get();
+        commands = defaultCommands.get();
     }
 }
