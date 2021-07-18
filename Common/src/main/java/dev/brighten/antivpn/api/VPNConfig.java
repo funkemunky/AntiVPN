@@ -14,6 +14,8 @@ public interface VPNConfig {
 
     List<String> commands();
 
+    boolean kickPlayersOnDetect();
+
     List<String> getPrefixWhitelists();
 
     boolean isDatabaseEnabled();

@@ -26,8 +26,9 @@ public class BungeeConfig implements VPNConfig {
     private final ConfigDefault<Boolean> cacheResultsDefault = new ConfigDefault<>(true,
             "cachedResults", BungeePlugin.pluginInstance),
             defaultDatabaseEnabled = new ConfigDefault<>(false, "database.enabled",
-                    BungeePlugin.pluginInstance), defaultCommandsEnable
-            = new ConfigDefault<>(false, "commands.enabled", BungeePlugin.pluginInstance);
+                    BungeePlugin.pluginInstance), defaultCommandsEnable = new ConfigDefault<>(false,
+            "commands.enabled", BungeePlugin.pluginInstance), defaultKickPlayers
+            = new ConfigDefault<>(true, "kickPlayers", BungeePlugin.pluginInstance);
     private final ConfigDefault<Integer>
             defaultPort = new ConfigDefault<>(-1, "database.port", BungeePlugin.pluginInstance);
     private final ConfigDefault<List<String>> prefixWhitelistsDefault = new ConfigDefault<>(new ArrayList<>(),
@@ -38,7 +39,7 @@ public class BungeeConfig implements VPNConfig {
     private String license, kickMessage, databaseType, databaseName, username, password, ip;
     private List<String> prefixWhitelists, commands;
     private int port;
-    private boolean cacheResults, databaseEnabled, commandsEnabled;
+    private boolean cacheResults, databaseEnabled, commandsEnabled, kickPlayers;
 
     @Override
     public String getLicense() {
@@ -63,6 +64,11 @@ public class BungeeConfig implements VPNConfig {
     @Override
     public List<String> commands() {
         return commands;
+    }
+
+    @Override
+    public boolean kickPlayersOnDetect() {
+        return kickPlayers;
     }
 
     @Override
@@ -131,5 +137,6 @@ public class BungeeConfig implements VPNConfig {
         port = defaultPort.get();
         commandsEnabled = defaultCommandsEnable.get();
         commands = defaultCommands.get();
+        kickPlayers = defaultKickPlayers.get();
     }
 }

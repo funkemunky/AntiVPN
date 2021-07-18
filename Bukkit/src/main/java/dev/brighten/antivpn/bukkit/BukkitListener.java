@@ -47,16 +47,19 @@ public class BukkitListener extends VPNExecutor implements Listener {
         if(AntiVPN.getInstance().getExecutor().isWhitelisted(event.getUniqueId())) return;
         checkIp(event.getAddress().getHostAddress(), AntiVPN.getInstance().getConfig().cachedResults(), result -> {
             if(result.isSuccess() && result.isProxy()) {
-                event.setLoginResult(AsyncPlayerPreLoginEvent.Result.KICK_OTHER);
-                event.setKickMessage(ChatColor.translateAlternateColorCodes('&',
-                        AntiVPN.getInstance().getConfig().getKickString()));
+                if(AntiVPN.getInstance().getConfig().kickPlayersOnDetect()) {
+                    event.setLoginResult(AsyncPlayerPreLoginEvent.Result.KICK_OTHER);
+                    event.setKickMessage(ChatColor.translateAlternateColorCodes('&',
+                            AntiVPN.getInstance().getConfig().getKickString()));
+                }
                 Optional.ofNullable(Bukkit.getPlayer(event.getUniqueId())).ifPresent(player -> {
                     new BukkitRunnable() {
                         public void run() {
-                            if(!player.hasPermission("antivpn.bypass") //Has bypass permission
+                            if(AntiVPN.getInstance().getConfig().kickPlayersOnDetect()
+                                    && (!player.hasPermission("antivpn.bypass") //Has bypass permission
                                     //Or has a name that starts with a certain prefix. This is for Bedrock exempting.
                                     || AntiVPN.getInstance().getConfig().getPrefixWhitelists().stream()
-                                    .anyMatch(prefix -> player.getName().startsWith(prefix)))
+                                    .anyMatch(prefix -> player.getName().startsWith(prefix))))
                             player.kickPlayer(ChatColor.translateAlternateColorCodes('&',
                                     AntiVPN.getInstance().getConfig().getKickString()));
 

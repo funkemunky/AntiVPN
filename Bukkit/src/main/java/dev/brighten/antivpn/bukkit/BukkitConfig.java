@@ -28,8 +28,9 @@ public class BukkitConfig implements VPNConfig {
     private final ConfigDefault<Boolean> cacheResultsDefault = new ConfigDefault<>(true,
             "cachedResults", BukkitPlugin.pluginInstance),
             defaultDatabaseEnabled = new ConfigDefault<>(false, "database.enabled",
-                    BukkitPlugin.pluginInstance), defaultCommandsEnable
-            = new ConfigDefault<>(false, "commands.enabled", BukkitPlugin.pluginInstance);
+                    BukkitPlugin.pluginInstance), defaultCommandsEnable = new ConfigDefault<>(false,
+            "commands.enabled", BukkitPlugin.pluginInstance), defaultKickPlayers
+            = new ConfigDefault<>(true, "kickPlayers", BukkitPlugin.pluginInstance);
     private final ConfigDefault<Integer>
             defaultPort = new ConfigDefault<>(-1, "database.port", BukkitPlugin.pluginInstance);
     private final ConfigDefault<List<String>> prefixWhitelistsDefault = new ConfigDefault<>(new ArrayList<>(),
@@ -40,7 +41,7 @@ public class BukkitConfig implements VPNConfig {
     private String license, kickMessage, databaseType, databaseName, username, password, ip;
     private List<String> prefixWhitelists, commands;
     private int port;
-    private boolean cacheResults, databaseEnabled, commandsEnabled;
+    private boolean cacheResults, databaseEnabled, commandsEnabled, kickPlayers;
 
     @Override
     public String getLicense() {
@@ -65,6 +66,11 @@ public class BukkitConfig implements VPNConfig {
     @Override
     public List<String> commands() {
         return commands;
+    }
+
+    @Override
+    public boolean kickPlayersOnDetect() {
+        return kickPlayers;
     }
 
     @Override
@@ -133,5 +139,6 @@ public class BukkitConfig implements VPNConfig {
         port = defaultPort.get();
         commandsEnabled = defaultCommandsEnable.get();
         commands = defaultCommands.get();
+        kickPlayers = defaultKickPlayers.get();
     }
 }
