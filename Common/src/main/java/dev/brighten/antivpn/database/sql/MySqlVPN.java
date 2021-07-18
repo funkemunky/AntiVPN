@@ -155,33 +155,47 @@ public class MySqlVPN implements VPNDatabase {
             // Ref:
             // https://dba.stackexchange.com/questions/24531/mysql-create-index-if-not-exists
             String query = "SELECT COUNT(1) IndexExists FROM INFORMATION_SCHEMA.STATISTICS WHERE table_schema=DATABASE() AND table_name='whitelisted' AND index_name='uuid_1';";
-            Statement st = conn.createStatement();
-            ResultSet rs = st.executeQuery(query);
-            int id = rs.getInt("IndexExists");
+            ResultSet rs = Query.prepare(query).executeQuery();
+            int id = 0;
+            while (rs.next()) {
+                id = rs.getInt("IndexExists");
+                System.err.println(id);
+            }
             if (id == 0) {
                 Query.prepare("create index `uuid_1` on `whitelisted` (`uuid`)").execute();
             }
+            id = 0;
             query = "SELECT COUNT(1) IndexExists FROM INFORMATION_SCHEMA.STATISTICS WHERE table_schema=DATABASE() AND table_name='responses' AND index_name='ip_1';";
-            rs = st.executeQuery(query);
-            id = rs.getInt("IndexExists");
+            rs = Query.prepare(query).executeQuery();
+            while (rs.next()) {
+                id = rs.getInt("IndexExists");
+                System.err.println(id);
+            }
             if (id == 0) {
                 Query.prepare("create index `ip_1` on `responses` (`ip`)").execute();
             }
+            id = 0;
             query = "SELECT COUNT(1) IndexExists FROM INFORMATION_SCHEMA.STATISTICS WHERE table_schema=DATABASE() AND table_name='responses' AND index_name='proxy_1';";
-            rs = st.executeQuery(query);
-            id = rs.getInt("IndexExists");
+            rs = Query.prepare(query).executeQuery();
+            while (rs.next()) {
+                id = rs.getInt("IndexExists");
+                System.err.println(id);
+            }
             if (id == 0) {
                 Query.prepare("create index `proxy_1` on `responses` (`proxy`)").execute();
             }
+            id = 0;
             query = "SELECT COUNT(1) IndexExists FROM INFORMATION_SCHEMA.STATISTICS WHERE table_schema=DATABASE() AND table_name='responses' AND index_name='inserted_1';";
-            rs = st.executeQuery(query);
-            id = rs.getInt("IndexExists");
+            rs = Query.prepare(query).executeQuery();
+            while (rs.next()) {
+                id = rs.getInt("IndexExists");
+                System.err.println(id);
+            }
             if (id == 0) {
                 Query.prepare("create index `inserted_1` on `responses` (`inserted`)").execute();
             }
         } catch (Exception e) {
-            System.err.println("mySQL Excepton created");
-            System.err.println(e.getMessage());
+            System.err.println("MySQL Excepton created" + e.getMessage());
         }
     }
 
