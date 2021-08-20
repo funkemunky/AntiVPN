@@ -11,7 +11,6 @@ public class MySQL {
     public static void init() {
         try {
             if (conn == null || conn.isClosed()) {
-                Class.forName("com.mysql.cj.jdbc.Driver");
                 conn = DriverManager.getConnection("jdbc:mysql://" + AntiVPN.getInstance().getConfig().getIp()
                                 + ":" + AntiVPN.getInstance().getConfig().getPort()
                                 + "/?useSSL=true&autoReconnect=true",
