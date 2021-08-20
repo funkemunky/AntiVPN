@@ -40,7 +40,6 @@ public class MySqlVPN implements VPNDatabase {
         });
 
         whitelistedThread.start();
-        ;
     }
 
     @Override
