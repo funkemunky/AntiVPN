@@ -55,18 +55,19 @@ public class BukkitListener extends VPNExecutor implements Listener {
                 Optional.ofNullable(Bukkit.getPlayer(event.getUniqueId())).ifPresent(player -> {
                     new BukkitRunnable() {
                         public void run() {
-                            if(AntiVPN.getInstance().getConfig().kickPlayersOnDetect()
-                                    && (!player.hasPermission("antivpn.bypass") //Has bypass permission
+                            if(!player.hasPermission("antivpn.bypass") //Has bypass permission
                                     //Or has a name that starts with a certain prefix. This is for Bedrock exempting.
                                     || AntiVPN.getInstance().getConfig().getPrefixWhitelists().stream()
-                                    .anyMatch(prefix -> player.getName().startsWith(prefix))))
-                            player.kickPlayer(ChatColor.translateAlternateColorCodes('&',
-                                    AntiVPN.getInstance().getConfig().getKickString()));
+                                    .anyMatch(prefix -> player.getName().startsWith(prefix))) {
+                                if (AntiVPN.getInstance().getConfig().kickPlayersOnDetect())
+                                    player.kickPlayer(ChatColor.translateAlternateColorCodes('&',
+                                            AntiVPN.getInstance().getConfig().getKickString()));
 
-                            for (String command : AntiVPN.getInstance().getConfig().commands()) {
-                                Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
-                                                ChatColor.translateAlternateColorCodes('&',
-                                                        command.replace("%player%", event.getName())));
+                                for (String command : AntiVPN.getInstance().getConfig().commands()) {
+                                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
+                                            ChatColor.translateAlternateColorCodes('&',
+                                                    command.replace("%player%", event.getName())));
+                                }
                             }
                             System.out.println(player.getPlayer().getName()
                                     + " joined on a VPN/Proxy (" + result.getMethod() + ")");

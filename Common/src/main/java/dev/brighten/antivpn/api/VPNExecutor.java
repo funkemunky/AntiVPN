@@ -46,10 +46,13 @@ public abstract class VPNExecutor {
 
                         if(response.isSuccess()) {
                             AntiVPN.getInstance().getDatabase().cacheResponse(response);
+                        } else {
+                            System.out.println("Query to VPN API failed! Reason: " + response.getFailureReason());
                         }
 
                         return response;
                     } catch (JSONException | IOException e) {
+                        System.out.println("Query to VPN API failed! Reason: Java Exception");
                         e.printStackTrace();
                     }
                 }
@@ -72,10 +75,13 @@ public abstract class VPNExecutor {
 
                         if(response.isSuccess()) {
                             threadExecutor.execute(() -> AntiVPN.getInstance().getDatabase().cacheResponse(response));
+                        } else {
+                            System.out.println("Query to VPN API failed! Reason: " + response.getFailureReason());
                         }
 
                         return response;
                     } catch (JSONException | IOException e) {
+                        System.out.println("Query to VPN API failed! Reason: Java Exception");
                         e.printStackTrace();
                     }
                 }

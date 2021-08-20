@@ -54,7 +54,7 @@ public class MySqlVPN implements VPNDatabase {
                 VPNResponse response = new VPNResponse(rs.getString("asn"), rs.getString("ip"),
                         rs.getString("countryName"), rs.getString("countryCode"),
                         rs.getString("city"), rs.getString("timeZone"),
-                        rs.getString("method"), rs.getString("isp"),
+                        rs.getString("method"), rs.getString("isp"), "N/A",
                         rs.getBoolean("proxy"), rs.getBoolean("cached"), true,
                         rs.getDouble("latitude"), rs.getDouble("longitude"),
                         System.currentTimeMillis(), -1);

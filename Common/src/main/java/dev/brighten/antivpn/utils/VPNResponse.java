@@ -12,7 +12,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @RequiredArgsConstructor
 public class VPNResponse {
-    private String asn, ip, countryName, countryCode, city, timeZone, method, isp;
+    private String asn, ip, countryName, countryCode, city, timeZone, method, isp, failureReason = "N/A";
     private boolean proxy, cached;
     private final boolean success;
     private double latitude, longitude;
@@ -41,14 +41,22 @@ public class VPNResponse {
     public static VPNResponse fromJson(String json) throws JSONException {
         JSONObject jsonObject = new JSONObject(json);
 
-        return new VPNResponse(jsonObject.getString("asn"), jsonObject.getString("ip"),
-                jsonObject.getString("countryName"), jsonObject.getString("countryCode"),
-                jsonObject.getString("city"), jsonObject.getString("timeZone"),
-                jsonObject.has("method") ? jsonObject.getString("method") : "N/A",
-                jsonObject.getString("isp"), jsonObject.getBoolean("proxy"),
-                jsonObject.getBoolean("cached"), jsonObject.getBoolean("success"),
-                jsonObject.getDouble("latitude"), jsonObject.getDouble("longitude"),
-                jsonObject.getLong("lastAccess"), jsonObject.getInt("queriesLeft"));
+        if(jsonObject.getBoolean("success")) {
+            return new VPNResponse(jsonObject.getString("asn"), jsonObject.getString("ip"),
+                    jsonObject.getString("countryName"), jsonObject.getString("countryCode"),
+                    jsonObject.getString("city"), jsonObject.getString("timeZone"),
+                    jsonObject.has("method") ? jsonObject.getString("method") : "N/A",
+                    jsonObject.getString("isp"), "N/A", jsonObject.getBoolean("proxy"),
+                    jsonObject.getBoolean("cached"), jsonObject.getBoolean("success"),
+                    jsonObject.getDouble("latitude"), jsonObject.getDouble("longitude"),
+                    jsonObject.getLong("lastAccess"), jsonObject.getInt("queriesLeft"));
+        } else {
+            VPNResponse response = new VPNResponse(false);
+
+            response.failureReason = jsonObject.getString("failureReason");
+
+            return response;
+        }
     }
 
     public static VPNResponse fromJson(JSONObject jsonObject) throws JSONException {
@@ -57,12 +65,16 @@ public class VPNResponse {
                     jsonObject.getString("countryName"), jsonObject.getString("countryCode"),
                     jsonObject.getString("city"), jsonObject.getString("timeZone"),
                     jsonObject.has("method") ? jsonObject.getString("method") : "N/A",
-                    jsonObject.getString("isp"), jsonObject.getBoolean("proxy"),
+                    jsonObject.getString("isp"), "N/A", jsonObject.getBoolean("proxy"),
                     jsonObject.getBoolean("cached"), jsonObject.getBoolean("success"),
                     jsonObject.getDouble("latitude"), jsonObject.getDouble("longitude"),
                     jsonObject.getLong("lastAccess"), jsonObject.getInt("queriesLeft"));
-        }
+        } else {
+            VPNResponse response = new VPNResponse(false);
 
-        return new VPNResponse(false);
+            response.failureReason = jsonObject.getString("failureReason");
+
+            return response;
+        }
     }
 }
