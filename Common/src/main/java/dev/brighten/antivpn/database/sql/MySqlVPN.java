@@ -96,7 +96,7 @@ public class MySqlVPN implements VPNDatabase {
         ResultSet set = Query.prepare("select uuid from `whitelisted` where `uuid` = ? limit 1").append(uuid.toString())
                 .executeQuery();
 
-        return set != null && !set.wasNull() && set.next() && set.getString("uuid") != null;
+        return set != null && set.getFetchSize() > 0 && set.next() && set.getString("uuid") != null;
     }
 
     @Override
