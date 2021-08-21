@@ -97,8 +97,8 @@ public class AllowlistCommand extends Command {
     public List<String> tabComplete(CommandExecutor executor, String alias, String[] args) {
         switch(args.length) {
             case 1: {
-                return Arrays.stream(args)
-                        .filter(narg -> narg.startsWith(args[0]))
+                return Arrays.stream(secondArgs)
+                        .filter(narg -> narg.toLowerCase().startsWith(args[0].toLowerCase()))
                         .collect(Collectors.toList());
             }
             case 2: {
