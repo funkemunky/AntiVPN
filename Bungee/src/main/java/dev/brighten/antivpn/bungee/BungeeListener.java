@@ -1,6 +1,7 @@
 package dev.brighten.antivpn.bungee;
 
 import dev.brighten.antivpn.AntiVPN;
+import dev.brighten.antivpn.api.APIPlayer;
 import dev.brighten.antivpn.api.VPNExecutor;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.api.ChatColor;
@@ -57,6 +58,12 @@ public class BungeeListener extends VPNExecutor implements Listener {
                 BungeeCord.getInstance().getLogger().info(event.getPlayer().getName()
                         + " joined on a VPN/Proxy (" + result.getMethod() + ")");
 
+                if(AntiVPN.getInstance().getConfig().alertToStaff()) //Ensuring the user wishes to alert to staff
+                AntiVPN.getInstance().getPlayerExecutor().getOnlinePlayers().stream()
+                        .filter(APIPlayer::isAlertsEnabled)
+                        .forEach(pl -> pl.sendMessage(AntiVPN.getInstance().getConfig().alertMessage()));
+
+                //In case the user wants to run their own commands instead of using the built in kicking
                 if(AntiVPN.getInstance().getConfig().runCommands()) {
                     for (String command : AntiVPN.getInstance().getConfig().commands()) {
                         BungeeCord.getInstance().getPluginManager()

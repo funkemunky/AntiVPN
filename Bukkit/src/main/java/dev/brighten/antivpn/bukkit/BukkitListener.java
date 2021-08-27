@@ -1,6 +1,7 @@
 package dev.brighten.antivpn.bukkit;
 
 import dev.brighten.antivpn.AntiVPN;
+import dev.brighten.antivpn.api.APIPlayer;
 import dev.brighten.antivpn.api.VPNExecutor;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -63,6 +64,14 @@ public class BukkitListener extends VPNExecutor implements Listener {
                                     player.kickPlayer(ChatColor.translateAlternateColorCodes('&',
                                             AntiVPN.getInstance().getConfig().getKickString()));
 
+                                //Ensuring the user wishes to alert to staff
+                                if(AntiVPN.getInstance().getConfig().alertToStaff())
+                                    AntiVPN.getInstance().getPlayerExecutor().getOnlinePlayers().stream()
+                                            .filter(APIPlayer::isAlertsEnabled)
+                                            .forEach(pl -> pl.sendMessage(AntiVPN.getInstance().getConfig()
+                                                    .alertMessage()));
+
+                                //In case the user wants to run their own commands instead of using the built in kicking
                                 for (String command : AntiVPN.getInstance().getConfig().commands()) {
                                     Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
                                             ChatColor.translateAlternateColorCodes('&',
