@@ -24,13 +24,18 @@ public class BukkitConfig implements VPNConfig {
                     "database.password", BukkitPlugin.pluginInstance),
             defaultAuthDatabase = new ConfigDefault<>("admin",
                     "database.auth", BukkitPlugin.pluginInstance),
-            defaultIp = new ConfigDefault<>("localhost", "database.ip", BukkitPlugin.pluginInstance);
+            defaultIp = new ConfigDefault<>("localhost", "database.ip", BukkitPlugin.pluginInstance),
+            defaultAlertMsg = new ConfigDefault<>("&8[&6KauriVPN&8] &e%player% &7has joined on a VPN/proxy" +
+                    " &8(&f%reason%&8) &7in location &8(&f%city%&7, &f%country%&8)", "alerts.message",
+                    BukkitPlugin.pluginInstance);
     private final ConfigDefault<Boolean> cacheResultsDefault = new ConfigDefault<>(true,
             "cachedResults", BukkitPlugin.pluginInstance),
             defaultDatabaseEnabled = new ConfigDefault<>(false, "database.enabled",
                     BukkitPlugin.pluginInstance), defaultCommandsEnable = new ConfigDefault<>(false,
             "commands.enabled", BukkitPlugin.pluginInstance), defaultKickPlayers
-            = new ConfigDefault<>(true, "kickPlayers", BukkitPlugin.pluginInstance);
+            = new ConfigDefault<>(true, "kickPlayers", BukkitPlugin.pluginInstance),
+            defaultAlertToStaff = new ConfigDefault<>(true, "alerts.enabled",
+                    BukkitPlugin.pluginInstance);
     private final ConfigDefault<Integer>
             defaultPort = new ConfigDefault<>(-1, "database.port", BukkitPlugin.pluginInstance);
     private final ConfigDefault<List<String>> prefixWhitelistsDefault = new ConfigDefault<>(new ArrayList<>(),
@@ -38,10 +43,10 @@ public class BukkitConfig implements VPNConfig {
             Collections.singletonList("kick %player% VPNs are not allowed on our server!"), "commands.execute",
             BukkitPlugin.pluginInstance);
 
-    private String license, kickMessage, databaseType, databaseName, username, password, ip;
+    private String license, kickMessage, databaseType, databaseName, username, password, ip, alertMsg;
     private List<String> prefixWhitelists, commands;
     private int port;
-    private boolean cacheResults, databaseEnabled, commandsEnabled, kickPlayers;
+    private boolean cacheResults, databaseEnabled, commandsEnabled, kickPlayers, alertToStaff;
 
     @Override
     public String getLicense() {
@@ -56,6 +61,16 @@ public class BukkitConfig implements VPNConfig {
     @Override
     public String getKickString() {
         return kickMessage;
+    }
+
+    @Override
+    public String alertMessage() {
+        return alertMsg;
+    }
+
+    @Override
+    public boolean alertToStaff() {
+        return alertToStaff;
     }
 
     @Override
@@ -140,5 +155,7 @@ public class BukkitConfig implements VPNConfig {
         commandsEnabled = defaultCommandsEnable.get();
         commands = defaultCommands.get();
         kickPlayers = defaultKickPlayers.get();
+        alertToStaff = defaultAlertToStaff.get();
+        alertMsg = defaultAlertMsg.get();
     }
 }

@@ -69,7 +69,7 @@ public class BukkitListener extends VPNExecutor implements Listener {
                                                     command.replace("%player%", event.getName())));
                                 }
                             }
-                            System.out.println(player.getPlayer().getName()
+                           Bukkit.getLogger().info(player.getPlayer().getName()
                                     + " joined on a VPN/Proxy (" + result.getMethod() + ")");
                         }
                     }.runTask(BukkitPlugin.pluginInstance);

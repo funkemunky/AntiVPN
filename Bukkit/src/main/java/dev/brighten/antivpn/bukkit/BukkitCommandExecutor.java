@@ -1,9 +1,15 @@
 package dev.brighten.antivpn.bukkit;
 
+import dev.brighten.antivpn.AntiVPN;
+import dev.brighten.antivpn.api.APIPlayer;
+import dev.brighten.antivpn.api.PlayerExecutor;
 import dev.brighten.antivpn.command.CommandExecutor;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+
+import java.util.Optional;
 
 @RequiredArgsConstructor
 public class BukkitCommandExecutor implements CommandExecutor {
@@ -18,5 +24,17 @@ public class BukkitCommandExecutor implements CommandExecutor {
     @Override
     public boolean hasPermission(String permission) {
         return sender.hasPermission(permission);
+    }
+
+    @Override
+    public Optional<APIPlayer> getPlayer() {
+        if(!isPlayer()) return Optional.empty();
+
+        return AntiVPN.getInstance().getPlayerExecutor().getPlayer(((Player)sender).getUniqueId());
+    }
+
+    @Override
+    public boolean isPlayer() {
+        return sender instanceof Player;
     }
 }

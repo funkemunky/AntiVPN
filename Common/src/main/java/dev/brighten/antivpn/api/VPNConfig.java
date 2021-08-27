@@ -10,6 +10,10 @@ public interface VPNConfig {
 
     String getKickString();
 
+    String alertMessage();
+
+    boolean alertToStaff();
+
     boolean runCommands();
 
     List<String> commands();
