@@ -33,7 +33,8 @@ public class BungeeConfig implements VPNConfig {
             "commands.enabled", BungeePlugin.pluginInstance), defaultKickPlayers
             = new ConfigDefault<>(true, "kickPlayers", BungeePlugin.pluginInstance),
             defaultAlertToStaff = new ConfigDefault<>(true, "alerts.enabled",
-                    BungeePlugin.pluginInstance);
+                    BungeePlugin.pluginInstance),
+            defaultMetrics = new ConfigDefault<>(true, "bstats", BungeePlugin.pluginInstance);
     private final ConfigDefault<Integer>
             defaultPort = new ConfigDefault<>(-1, "database.port", BungeePlugin.pluginInstance);
     private final ConfigDefault<List<String>> prefixWhitelistsDefault = new ConfigDefault<>(new ArrayList<>(),
@@ -44,7 +45,7 @@ public class BungeeConfig implements VPNConfig {
     private String license, kickMessage, databaseType, databaseName, username, password, ip, alertMsg;
     private List<String> prefixWhitelists, commands;
     private int port;
-    private boolean cacheResults, databaseEnabled, commandsEnabled, kickPlayers, alertToStaff;
+    private boolean cacheResults, databaseEnabled, commandsEnabled, kickPlayers, alertToStaff, metrics;
 
     @Override
     public String getLicense() {
@@ -138,6 +139,11 @@ public class BungeeConfig implements VPNConfig {
         return port;
     }
 
+    @Override
+    public boolean metrics() {
+        return metrics;
+    }
+
     public void update() {
         license = licenseDefault.get();
         kickMessage = kickStringDefault.get();
@@ -155,5 +161,6 @@ public class BungeeConfig implements VPNConfig {
         kickPlayers = defaultKickPlayers.get();
         alertToStaff = defaultAlertToStaff.get();
         alertMsg = defaultAlertMsg.get();
+        metrics = defaultMetrics.get();
     }
 }

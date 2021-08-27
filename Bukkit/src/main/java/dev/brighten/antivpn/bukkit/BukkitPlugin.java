@@ -4,12 +4,16 @@ import dev.brighten.antivpn.AntiVPN;
 import dev.brighten.antivpn.command.Command;
 import lombok.val;
 import net.md_5.bungee.api.ChatColor;
+import org.bstats.bukkit.Metrics;
+import org.bstats.charts.MultiLineChart;
+import org.bstats.charts.SingleLineChart;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.SimplePluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -23,18 +27,33 @@ public class BukkitPlugin extends JavaPlugin {
     public static BukkitPlugin pluginInstance;
     private SimpleCommandMap commandMap;
     private List<org.bukkit.command.Command> registeredCommands = new ArrayList<>();
+    private SingleLineChart vpnDetections, ipsChecked;
 
     public void onEnable() {
         pluginInstance = this;
 
         //Loading config
-        System.out.println("Loading config...");
+        Bukkit.getLogger().info("Loading config...");
         saveDefaultConfig();
 
-        System.out.println("Starting AntiVPN services...");
+        Bukkit.getLogger().info("Starting AntiVPN services...");
         AntiVPN.start(new BukkitConfig(), new BukkitListener(), new BukkitPlayerExecutor());
 
-        System.out.println("Setting up and registering commands...");
+        if(AntiVPN.getInstance().getConfig().metrics()) {
+            Bukkit.getLogger().info("Starting bStats metrics...");
+            Metrics metrics = new Metrics(this, 12615);
+            metrics.addCustomChart(vpnDetections = new SingleLineChart("vpn_detections",
+                    () -> AntiVPN.getInstance().detections));
+            metrics.addCustomChart(ipsChecked = new SingleLineChart("ips_checked",
+                    () -> AntiVPN.getInstance().checked));
+            new BukkitRunnable() {
+                public void run() {
+                    AntiVPN.getInstance().checked = AntiVPN.getInstance().detections = 0;
+                }
+            }.runTaskTimerAsynchronously(this, 12000, 12000);
+        }
+
+        Bukkit.getLogger().info("Setting up and registering commands...");
         if (pluginInstance.getServer().getPluginManager() instanceof SimplePluginManager) {
             SimplePluginManager manager = (SimplePluginManager) pluginInstance.getServer().getPluginManager();
             try {
@@ -110,10 +129,10 @@ public class BukkitPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        System.out.println("Stopping plugin services...");
+        Bukkit.getLogger().info("Stopping plugin services...");
         AntiVPN.getInstance().stop();
 
-        System.out.println("Unregistering commands...");
+        Bukkit.getLogger().info("Unregistering commands...");
         try {
             Field field = SimpleCommandMap.class.getDeclaredField("knownCommands");
             field.setAccessible(true);
@@ -126,10 +145,10 @@ public class BukkitPlugin extends JavaPlugin {
             e.printStackTrace();
         }
 
-        System.out.println("Unregistering listeners...");
+        Bukkit.getLogger().info("Unregistering listeners...");
         HandlerList.unregisterAll(this);
 
-        System.out.println("Cancelling any running tasks...");
+        Bukkit.getLogger().info("Cancelling any running tasks...");
         Bukkit.getScheduler().cancelTasks(this);
     }
 }

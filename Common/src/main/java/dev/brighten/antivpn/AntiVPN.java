@@ -30,6 +30,7 @@ public class AntiVPN {
     private PlayerExecutor playerExecutor;
     private VPNDatabase database;
     private List<Command> commands = new ArrayList<>();
+    public int detections, checked;
 
     public static void start(VPNConfig config, VPNExecutor executor, PlayerExecutor playerExecutor) {
         //Initializing

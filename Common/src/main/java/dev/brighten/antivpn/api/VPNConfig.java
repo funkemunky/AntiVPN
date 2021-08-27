@@ -36,6 +36,8 @@ public interface VPNConfig {
 
     int getPort();
 
+    boolean metrics();
+
     void update();
 
 }

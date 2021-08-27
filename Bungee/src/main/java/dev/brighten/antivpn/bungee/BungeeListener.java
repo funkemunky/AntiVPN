@@ -72,12 +72,14 @@ public class BungeeListener extends VPNExecutor implements Listener {
                                                 command.replace("%player%", event.getPlayer().getName())));
                     }
                 }
+                AntiVPN.getInstance().detections++;
             } else if(!result.isSuccess()) {
                 BungeeCord.getInstance().getLogger()
                         .log(Level.WARNING,
                                 "The API query was not a success! " +
                                         "You may need to upgrade your license on https://funkemunky.cc/shop");
             }
+            AntiVPN.getInstance().checked++;
         });
     }
 }

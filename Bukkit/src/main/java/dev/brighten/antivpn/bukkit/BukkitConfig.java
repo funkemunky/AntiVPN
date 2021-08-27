@@ -35,7 +35,8 @@ public class BukkitConfig implements VPNConfig {
             "commands.enabled", BukkitPlugin.pluginInstance), defaultKickPlayers
             = new ConfigDefault<>(true, "kickPlayers", BukkitPlugin.pluginInstance),
             defaultAlertToStaff = new ConfigDefault<>(true, "alerts.enabled",
-                    BukkitPlugin.pluginInstance);
+                    BukkitPlugin.pluginInstance),
+            defaultMetrics = new ConfigDefault<>(true, "bstats", BukkitPlugin.pluginInstance);
     private final ConfigDefault<Integer>
             defaultPort = new ConfigDefault<>(-1, "database.port", BukkitPlugin.pluginInstance);
     private final ConfigDefault<List<String>> prefixWhitelistsDefault = new ConfigDefault<>(new ArrayList<>(),
@@ -46,7 +47,7 @@ public class BukkitConfig implements VPNConfig {
     private String license, kickMessage, databaseType, databaseName, username, password, ip, alertMsg;
     private List<String> prefixWhitelists, commands;
     private int port;
-    private boolean cacheResults, databaseEnabled, commandsEnabled, kickPlayers, alertToStaff;
+    private boolean cacheResults, databaseEnabled, commandsEnabled, kickPlayers, alertToStaff, metrics;
 
     @Override
     public String getLicense() {
@@ -140,6 +141,11 @@ public class BukkitConfig implements VPNConfig {
         return port;
     }
 
+    @Override
+    public boolean metrics() {
+        return metrics;
+    }
+
     public void update() {
         license = licenseDefault.get();
         kickMessage = kickStringDefault.get();
@@ -157,5 +163,6 @@ public class BukkitConfig implements VPNConfig {
         kickPlayers = defaultKickPlayers.get();
         alertToStaff = defaultAlertToStaff.get();
         alertMsg = defaultAlertMsg.get();
+        metrics = defaultMetrics.get();
     }
 }
