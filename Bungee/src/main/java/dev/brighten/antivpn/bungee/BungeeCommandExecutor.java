@@ -14,28 +14,28 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class BungeeCommandExecutor implements CommandExecutor {
 
-    private final CommandSender executor;
+    private final CommandSender sender;
 
     @Override
     public void sendMessage(String message) {
-        executor.sendMessage(TextComponent.fromLegacyText(ChatColor
+        sender.sendMessage(TextComponent.fromLegacyText(ChatColor
                 .translateAlternateColorCodes('&', message)));
     }
 
     @Override
     public boolean hasPermission(String permission) {
-        return executor.hasPermission(permission);
+        return sender.hasPermission(permission);
     }
 
     @Override
     public Optional<APIPlayer> getPlayer() {
         if(!isPlayer()) return Optional.empty();
 
-        return AntiVPN.getInstance().getPlayerExecutor().getPlayer(((ProxiedPlayer)executor).getUniqueId());
+        return AntiVPN.getInstance().getPlayerExecutor().getPlayer(((ProxiedPlayer) sender).getUniqueId());
     }
 
     @Override
     public boolean isPlayer() {
-        return executor instanceof ProxiedPlayer;
+        return sender instanceof ProxiedPlayer;
     }
 }
