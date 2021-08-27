@@ -54,7 +54,7 @@ public class BungeeListener extends VPNExecutor implements Listener {
                 event.getPlayer().disconnect(TextComponent.fromLegacyText(ChatColor
                         .translateAlternateColorCodes('&',
                                 AntiVPN.getInstance().getConfig().getKickString())));
-                System.out.println(event.getPlayer().getName()
+                BungeeCord.getInstance().getLogger().info(event.getPlayer().getName()
                         + " joined on a VPN/Proxy (" + result.getMethod() + ")");
 
                 if(AntiVPN.getInstance().getConfig().runCommands()) {
