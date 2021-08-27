@@ -54,12 +54,12 @@ public class AntiVPNCommand extends Command {
         for (Command cmd : AntiVPN.getInstance().getCommands()) {
             messages.add(String.format("&8/&f%s &8- &7&o%s", "&7" + cmd.parent()
                     + (cmd.parent().length() > 0 ? " " : "") + "&f" + cmd.name() + " &7"
-                            + cmd.usage(), description()));
+                            + cmd.usage(), cmd.description()));
         }
         for (Command child : children()) {
             messages.add(String.format("&8/&f%s &8- &7&o%s", "&7" + child.parent()
                     + (child.parent().length() > 0 ? " " : "") + "&f" + child.name() + " &7"
-                    + child.usage(), description()));
+                    + child.usage(), child.description()));
         }
 
         messages.add(StringUtil.line("&8"));
