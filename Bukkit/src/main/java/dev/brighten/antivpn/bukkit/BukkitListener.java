@@ -72,6 +72,7 @@ public class BukkitListener extends VPNExecutor implements Listener {
                                                     .alertMessage()));
 
                                 //In case the user wants to run their own commands instead of using the built in kicking
+                                if(AntiVPN.getInstance().getConfig().runCommands())
                                 for (String command : AntiVPN.getInstance().getConfig().commands()) {
                                     Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
                                             ChatColor.translateAlternateColorCodes('&',
