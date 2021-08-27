@@ -6,12 +6,12 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class BukkitPlayerExecutor implements PlayerExecutor {
+
+    private final Map<Player, BukkitPlayer> cachedPlayers = new WeakHashMap<>();
 
     @Override
     public Optional<APIPlayer> getPlayer(String name) {
@@ -21,7 +21,7 @@ public class BukkitPlayerExecutor implements PlayerExecutor {
             return Optional.empty();
         }
 
-        return Optional.of(new BukkitPlayer(player));
+        return Optional.of(cachedPlayers.computeIfAbsent(player, BukkitPlayer::new));
     }
 
     @Override
@@ -32,13 +32,15 @@ public class BukkitPlayerExecutor implements PlayerExecutor {
             return Optional.empty();
         }
 
-        return Optional.of(new BukkitPlayer(player));
+        return Optional.of(cachedPlayers.computeIfAbsent(player, BukkitPlayer::new));
     }
 
 
     @Override
     public List<APIPlayer> getOnlinePlayers() {
-        return Bukkit.getOnlinePlayers().stream().map(BukkitPlayer::new).collect(Collectors.toList());
+        return Bukkit.getOnlinePlayers().stream()
+                .map(pl -> cachedPlayers.computeIfAbsent(pl, BukkitPlayer::new))
+                .collect(Collectors.toList());
     }
 
 }

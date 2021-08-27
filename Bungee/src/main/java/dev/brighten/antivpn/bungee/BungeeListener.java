@@ -61,7 +61,11 @@ public class BungeeListener extends VPNExecutor implements Listener {
                 if(AntiVPN.getInstance().getConfig().alertToStaff()) //Ensuring the user wishes to alert to staff
                 AntiVPN.getInstance().getPlayerExecutor().getOnlinePlayers().stream()
                         .filter(APIPlayer::isAlertsEnabled)
-                        .forEach(pl -> pl.sendMessage(AntiVPN.getInstance().getConfig().alertMessage()));
+                        .forEach(pl -> pl.sendMessage(AntiVPN.getInstance().getConfig().alertMessage()
+                                .replace("%player%", event.getPlayer().getName())
+                                .replace("%reason%", result.getMethod())
+                                .replace("%country%", result.getCountryName())
+                                .replace("%city%", result.getCity())));
 
                 //In case the user wants to run their own commands instead of using the built in kicking
                 if(AntiVPN.getInstance().getConfig().runCommands()) {
