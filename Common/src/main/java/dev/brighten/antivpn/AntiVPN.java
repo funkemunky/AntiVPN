@@ -8,6 +8,7 @@ import dev.brighten.antivpn.command.impl.AntiVPNCommand;
 import dev.brighten.antivpn.command.impl.LookupCommand;
 import dev.brighten.antivpn.database.VPNDatabase;
 import dev.brighten.antivpn.database.sql.MySqlVPN;
+import dev.brighten.antivpn.message.MessageHandler;
 import dev.brighten.antivpn.utils.VPNResponse;
 import dev.brighten.antivpn.utils.json.JSONException;
 import dev.brighten.antivpn.utils.json.JSONObject;
@@ -29,6 +30,7 @@ public class AntiVPN {
     private VPNExecutor executor;
     private PlayerExecutor playerExecutor;
     private VPNDatabase database;
+    private MessageHandler messageHandler;
     private List<Command> commands = new ArrayList<>();
     public int detections, checked;
 
@@ -43,6 +45,8 @@ public class AntiVPN {
 
         INSTANCE.executor.registerListeners();
         INSTANCE.config.update();
+
+        INSTANCE.messageHandler = new MessageHandler();
 
         switch(INSTANCE.config.getDatabaseType().toLowerCase()) {
             case "mysql":

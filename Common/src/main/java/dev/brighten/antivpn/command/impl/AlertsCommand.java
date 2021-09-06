@@ -1,8 +1,10 @@
 package dev.brighten.antivpn.command.impl;
 
+import dev.brighten.antivpn.AntiVPN;
 import dev.brighten.antivpn.api.APIPlayer;
 import dev.brighten.antivpn.command.Command;
 import dev.brighten.antivpn.command.CommandExecutor;
+import dev.brighten.antivpn.message.VpnString;
 
 import java.util.Collections;
 import java.util.List;
@@ -47,17 +49,15 @@ public class AlertsCommand extends Command {
     @Override
     public String execute(CommandExecutor executor, String[] args) {
         Optional<APIPlayer> pgetter = executor.getPlayer();
-        if(!pgetter.isPresent()) return "&cYou must be a player to execute this command!";
+        if(!pgetter.isPresent()) return AntiVPN.getInstance().getMessageHandler()
+                .getString("command-misc-playerRequired").getMessage();
 
         APIPlayer player = pgetter.get();
 
-        if(player.isAlertsEnabled()) {
-            player.setAlertsEnabled(false);
-            return "&7You have set your AntiVPN alerts to: &coff";
-        } else {
-            player.setAlertsEnabled(true);
-            return "&7You have set your AntiVPN alerts to: &aon";
-        }
+        player.setAlertsEnabled(!player.isAlertsEnabled());
+
+        return AntiVPN.getInstance().getMessageHandler().getString("command-alerts-toggled")
+                .getFormattedMessage(new VpnString.Var<>("state", player.isAlertsEnabled()));
     }
 
     @Override
