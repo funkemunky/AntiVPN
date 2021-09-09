@@ -40,11 +40,6 @@ public class BukkitPlugin extends JavaPlugin {
         Bukkit.getLogger().info("Starting AntiVPN services...");
         AntiVPN.start(new BukkitConfig(), new BukkitListener(), new BukkitPlayerExecutor());
 
-        Bukkit.getLogger().info("Getting strings...");
-        AntiVPN.getInstance().getMessageHandler().initStrings(vpnString -> new ConfigDefault<>
-                (vpnString.getDefaultMessage(), "messages." + vpnString.getKey(), BukkitPlugin.pluginInstance)
-                .get());
-
         if(AntiVPN.getInstance().getConfig().metrics()) {
             Bukkit.getLogger().info("Starting bStats metrics...");
             Metrics metrics = new Metrics(this, 12615);
@@ -131,6 +126,12 @@ public class BukkitPlugin extends JavaPlugin {
             registeredCommands.add(newCommand);
             commandMap.register(pluginInstance.getName(), newCommand);
         }
+
+        Bukkit.getLogger().info("Getting strings...");
+        AntiVPN.getInstance().getMessageHandler().initStrings(vpnString -> new ConfigDefault<>
+                (vpnString.getDefaultMessage(), "messages." + vpnString.getKey(), BukkitPlugin.pluginInstance)
+                .get());
+        AntiVPN.getInstance().getMessageHandler().reloadStrings();
     }
 
     @Override

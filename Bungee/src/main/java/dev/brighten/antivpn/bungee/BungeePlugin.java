@@ -44,11 +44,6 @@ public class BungeePlugin extends Plugin {
         BungeeCord.getInstance().getLogger().info("Starting AntiVPN services...");
         AntiVPN.start(new BungeeConfig(), new BungeeListener(), new BungeePlayerExecutor());
 
-        BungeeCord.getInstance().getLogger().info("Getting strings...");
-        AntiVPN.getInstance().getMessageHandler().initStrings(vpnString -> new ConfigDefault<>
-                (vpnString.getDefaultMessage(), "messages." + vpnString.getKey(), BungeePlugin.pluginInstance)
-                .get());
-
         if(AntiVPN.getInstance().getConfig().metrics()) {
             BungeeCord.getInstance().getLogger().info("Starting bStats metrics...");
             Metrics metrics = new Metrics(this, 12616);
@@ -105,6 +100,12 @@ public class BungeePlugin extends Plugin {
                 }
             });
         }
+
+        BungeeCord.getInstance().getLogger().info("Getting strings...");
+        AntiVPN.getInstance().getMessageHandler().initStrings(vpnString -> new ConfigDefault<>
+                (vpnString.getDefaultMessage(), "messages." + vpnString.getKey(), BungeePlugin.pluginInstance)
+                .get());
+        AntiVPN.getInstance().getMessageHandler().reloadStrings();
     }
 
     @Override

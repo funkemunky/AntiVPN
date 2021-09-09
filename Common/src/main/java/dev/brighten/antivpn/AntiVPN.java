@@ -5,7 +5,6 @@ import dev.brighten.antivpn.api.VPNConfig;
 import dev.brighten.antivpn.api.VPNExecutor;
 import dev.brighten.antivpn.command.Command;
 import dev.brighten.antivpn.command.impl.AntiVPNCommand;
-import dev.brighten.antivpn.command.impl.LookupCommand;
 import dev.brighten.antivpn.database.VPNDatabase;
 import dev.brighten.antivpn.database.sql.MySqlVPN;
 import dev.brighten.antivpn.message.MessageHandler;
