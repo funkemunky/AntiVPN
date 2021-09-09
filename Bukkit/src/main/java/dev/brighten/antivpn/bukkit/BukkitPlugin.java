@@ -1,6 +1,7 @@
 package dev.brighten.antivpn.bukkit;
 
 import dev.brighten.antivpn.AntiVPN;
+import dev.brighten.antivpn.bukkit.util.ConfigDefault;
 import dev.brighten.antivpn.command.Command;
 import lombok.val;
 import net.md_5.bungee.api.ChatColor;
@@ -38,6 +39,11 @@ public class BukkitPlugin extends JavaPlugin {
 
         Bukkit.getLogger().info("Starting AntiVPN services...");
         AntiVPN.start(new BukkitConfig(), new BukkitListener(), new BukkitPlayerExecutor());
+
+        Bukkit.getLogger().info("Getting strings...");
+        AntiVPN.getInstance().getMessageHandler().initStrings(vpnString -> new ConfigDefault<>
+                (vpnString.getDefaultMessage(), "messages." + vpnString.getKey(), BukkitPlugin.pluginInstance)
+                .get());
 
         if(AntiVPN.getInstance().getConfig().metrics()) {
             Bukkit.getLogger().info("Starting bStats metrics...");

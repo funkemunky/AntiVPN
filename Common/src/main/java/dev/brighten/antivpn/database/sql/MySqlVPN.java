@@ -173,7 +173,7 @@ public class MySqlVPN implements VPNDatabase {
             //We want to make sure there isn't already a uuid inserted to prevent double insertions
             alertsState(uuid, alreadyEnabled -> { //No need to make another thread execute, already async
                 if(!alreadyEnabled) {
-                    Query.prepare("insert into `alerts` (`uuid`) values ?").append(uuid.toString())
+                    Query.prepare("insert into `alerts` (`uuid`) values (?)").append(uuid.toString())
                             .execute();
                 } //No need to insert again of already enabled
             });
@@ -200,8 +200,8 @@ public class MySqlVPN implements VPNDatabase {
                         if(set.getObject("DATA_TYPE").toString().contains("varchar")) {
                             System.out.println("Using old database format for storing responses! " +
                                     "Dropping table and creating a new one...");
-                            if(Query.prepare("drop table `responses`").execute() == 1) {
-                                System.out.println("Sucessfully dropped table!");
+                            if(Query.prepare("drop table `responses`").execute() > 0) {
+                                System.out.println("Successfully dropped table!");
                             }
                         }
             });
