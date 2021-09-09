@@ -127,6 +127,9 @@ public class BukkitPlugin extends JavaPlugin {
             commandMap.register(pluginInstance.getName(), newCommand);
         }
 
+        AntiVPN.getInstance().getMessageHandler().initStrings(vpnString -> new ConfigDefault<>
+                (vpnString.getDefaultMessage(), "messages." + vpnString.getKey(), BukkitPlugin.pluginInstance)
+                .get());
         //TODO Finish system before implementing on startup
         /*Bukkit.getLogger().info("Getting strings...");
         AntiVPN.getInstance().getMessageHandler().initStrings(vpnString -> new ConfigDefault<>

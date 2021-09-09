@@ -101,6 +101,10 @@ public class BungeePlugin extends Plugin {
             });
         }
 
+        BungeeCord.getInstance().getLogger().info("Getting strings...");
+        AntiVPN.getInstance().getMessageHandler().initStrings(vpnString -> new ConfigDefault<>
+                (vpnString.getDefaultMessage(), "messages." + vpnString.getKey(), BungeePlugin.pluginInstance)
+                .get());
         //TODO Finish system before implementing on startup
         /*BungeeCord.getInstance().getLogger().info("Getting strings...");
         AntiVPN.getInstance().getMessageHandler().initStrings(vpnString -> new ConfigDefault<>
