@@ -71,6 +71,16 @@ public class AntiVPN {
 
         //Registering commands
         INSTANCE.registerCommands();
+
+        //Turning on alerts of players who are already online.
+        playerExecutor.getOnlinePlayers().forEach(player -> {
+            //We want to make sure they even have permission to see alerts before we make a bunch
+            //of unnecessary database queries.
+            if(player.hasPermission("antivpn.command.alerts")) {
+                //Running database check for enabled alerts.
+                INSTANCE.database.alertsState(player.getUuid(), player::setAlertsEnabled);
+            }
+        });
     }
 
     public void stop() {
