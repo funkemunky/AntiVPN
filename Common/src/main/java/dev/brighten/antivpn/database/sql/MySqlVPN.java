@@ -138,6 +138,38 @@ public class MySqlVPN implements VPNDatabase {
     }
 
     @Override
+    public void alertsState(UUID uuid, Consumer<Boolean> result) {
+        VPNExecutor.threadExecutor.execute(() -> {
+            ResultSet set = Query.prepare("select * from `alerts` where `uuid` = ?")
+                    .append(uuid.toString()).executeQuery();
+
+            try {
+                result.accept(set.next());
+            } catch (SQLException e) {
+                e.printStackTrace();
+                result.accept(false);
+            }
+        });
+    }
+
+    @Override
+    public void updateAlertsState(UUID uuid, boolean enabled) {
+        if(enabled) {
+            //We want to make sure there isn't already a uuid inserted to prevent double insertions
+            alertsState(uuid, alreadyEnabled -> { //No need to make another thread execute, already async
+                if(!alreadyEnabled) {
+                    Query.prepare("insert into `alerts` (`uuid`) values ?").append(uuid.toString())
+                            .execute();
+                } //No need to insert again of already enabled
+            });
+            //Removing any uuid from the alerts table will disable alerts globally.
+        } else VPNExecutor.threadExecutor.execute(() ->
+                Query.prepare("delete from `alerts` where `uuid` = ?")
+                        .append(uuid.toString())
+                        .execute());
+    }
+
+    @Override
     public void init() {
         if (!AntiVPN.getInstance().getConfig().isDatabaseEnabled())
             return;
@@ -145,11 +177,21 @@ public class MySqlVPN implements VPNDatabase {
         MySQL.init();
 
         System.out.println("Creating tables...");
+
+        //Running check for old table types to update
+        oldTableCheck: {
+            Query.prepare("select `DATA_TYPE` from INFORMATION_SCHEMA.COLUMNS " +
+                    "WHERE table_name = 'responses' AND COLUMN_NAME = 'isp';").execute(set -> {
+                        System.out.println("Data type: " + set.getObject("DATA_TYPE"));
+            });
+        }
+
         Query.prepare("create table if not exists `whitelisted` (`uuid` varchar(36) not null)").execute();
         Query.prepare("create table if not exists `responses` (`ip` varchar(45) not null, `asn` varchar(12),"
-                + "`countryName` varchar(64), `countryCode` varchar(10), `city` varchar(64), `timeZone` varchar(64), "
-                + "`method` varchar(32), `isp` varchar(64), `proxy` boolean, `cached` boolean, `inserted` timestamp,"
+                + "`countryName` text, `countryCode` varchar(10), `city` text, `timeZone` varchar(64), "
+                + "`method` varchar(32), `isp` text, `proxy` boolean, `cached` boolean, `inserted` timestamp,"
                 + "`latitude` double, `longitude` double)").execute();
+        Query.prepare("create table if not exists `alerts` (`uuid` varchar(36) not null)").execute();
 
         System.out.println("Creating indexes...");
         try {
