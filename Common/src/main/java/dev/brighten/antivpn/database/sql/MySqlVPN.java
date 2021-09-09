@@ -192,6 +192,21 @@ public class MySqlVPN implements VPNDatabase {
         MySQL.init();
 
         System.out.println("Creating tables...");
+
+        //Running check for old table types to update
+        oldTableCheck: {
+            Query.prepare("select `DATA_TYPE` from INFORMATION_SCHEMA.COLUMNS " +
+                    "WHERE table_name = 'responses' AND COLUMN_NAME = 'isp';").execute(set -> {
+                        if(set.getObject("DATA_TYPE").toString().contains("varchar")) {
+                            System.out.println("Using old database format for storing responses! " +
+                                    "Dropping table and creating a new one...");
+                            if(Query.prepare("drop table `responses`").execute() == 1) {
+                                System.out.println("Sucessfully dropped table!");
+                            }
+                        }
+            });
+        }
+
         Query.prepare("create table if not exists `whitelisted` (`uuid` varchar(36) not null)").execute();
         Query.prepare("create table if not exists `responses` (`ip` varchar(45) not null, `asn` varchar(12),"
                 + "`countryName` text, `countryCode` varchar(10), `city` text, `timeZone` varchar(64), "
