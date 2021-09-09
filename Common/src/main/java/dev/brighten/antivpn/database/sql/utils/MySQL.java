@@ -47,4 +47,11 @@ public class MySQL {
             e.printStackTrace();
         }
     }
+
+    public static boolean isClosed() {
+        if(conn == null)
+            return true;
+
+        return conn,isClosed();
+    }
 }

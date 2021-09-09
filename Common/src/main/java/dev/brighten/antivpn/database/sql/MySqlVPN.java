@@ -44,8 +44,9 @@ public class MySqlVPN implements VPNDatabase {
 
     @Override
     public Optional<VPNResponse> getStoredResponse(String ip) {
-        if (!AntiVPN.getInstance().getConfig().isDatabaseEnabled())
+        if (!AntiVPN.getInstance().getConfig().isDatabaseEnabled()|| MySQL.isClosed())
             return Optional.empty();
+
         ResultSet rs = Query.prepare("select * from `responses` where `ip` = ? limit 1").append(ip).executeQuery();
 
         try {
@@ -77,8 +78,9 @@ public class MySqlVPN implements VPNDatabase {
      */
     @Override
     public void cacheResponse(VPNResponse toCache) {
-        if (!AntiVPN.getInstance().getConfig().isDatabaseEnabled())
+        if (!AntiVPN.getInstance().getConfig().isDatabaseEnabled() || MySQL.isClosed())
             return;
+
         Query.prepare("insert into `responses` (`ip`,`asn`,`countryName`,`countryCode`,`city`,`timeZone`,"
                 + "`method`,`isp`,`proxy`,`cached`,`inserted`,`latitude`,`longitude`) values (?,?,?,?,?,?,?,?,?,?,?,?,?)")
                 .append(toCache.getIp()).append(toCache.getAsn()).append(toCache.getCountryName())
@@ -91,7 +93,7 @@ public class MySqlVPN implements VPNDatabase {
     @SneakyThrows
     @Override
     public boolean isWhitelisted(UUID uuid) {
-        if (!AntiVPN.getInstance().getConfig().isDatabaseEnabled())
+        if (!AntiVPN.getInstance().getConfig().isDatabaseEnabled() || MySQL.isClosed())
             return false;
         ResultSet set = Query.prepare("select uuid from `whitelisted` where `uuid` = ? limit 1").append(uuid.toString())
                 .executeQuery();
@@ -101,6 +103,8 @@ public class MySqlVPN implements VPNDatabase {
 
     @Override
     public void setWhitelisted(UUID uuid, boolean whitelisted) {
+        if(MySQL.isClosed()) return;
+
         if (whitelisted) {
             if (!isWhitelisted(uuid)) {
                 Query.prepare("insert into `whitelisted` (`uuid`) values (?)").append(uuid.toString()).execute();
@@ -115,6 +119,9 @@ public class MySqlVPN implements VPNDatabase {
     @Override
     public List<UUID> getAllWhitelisted() {
         List<UUID> uuids = new ArrayList<>();
+
+        if(MySQL.isClosed()) return uuids;
+
         ResultSet set = Query.prepare("select uuid from `whitelisted`").executeQuery();
 
         try {
@@ -129,16 +136,22 @@ public class MySqlVPN implements VPNDatabase {
 
     @Override
     public void getStoredResponseAsync(String ip, Consumer<Optional<VPNResponse>> result) {
+        if(MySQL.isClosed()) return;
+
         VPNExecutor.threadExecutor.execute(() -> result.accept(getStoredResponse(ip)));
     }
 
     @Override
     public void isWhitelistedAsync(UUID uuid, Consumer<Boolean> result) {
+        if(MySQL.isClosed()) return;
+
         VPNExecutor.threadExecutor.execute(() -> result.accept(isWhitelisted(uuid)));
     }
 
     @Override
     public void alertsState(UUID uuid, Consumer<Boolean> result) {
+        if(MySQL.isClosed()) return;
+
         VPNExecutor.threadExecutor.execute(() -> {
             ResultSet set = Query.prepare("select * from `alerts` where `uuid` = ?")
                     .append(uuid.toString()).executeQuery();
@@ -154,6 +167,8 @@ public class MySqlVPN implements VPNDatabase {
 
     @Override
     public void updateAlertsState(UUID uuid, boolean enabled) {
+        if(MySQL.isClosed()) return;
+
         if(enabled) {
             //We want to make sure there isn't already a uuid inserted to prevent double insertions
             alertsState(uuid, alreadyEnabled -> { //No need to make another thread execute, already async
@@ -177,15 +192,6 @@ public class MySqlVPN implements VPNDatabase {
         MySQL.init();
 
         System.out.println("Creating tables...");
-
-        //Running check for old table types to update
-        oldTableCheck: {
-            Query.prepare("select `DATA_TYPE` from INFORMATION_SCHEMA.COLUMNS " +
-                    "WHERE table_name = 'responses' AND COLUMN_NAME = 'isp';").execute(set -> {
-                        System.out.println("Data type: " + set.getObject("DATA_TYPE"));
-            });
-        }
-
         Query.prepare("create table if not exists `whitelisted` (`uuid` varchar(36) not null)").execute();
         Query.prepare("create table if not exists `responses` (`ip` varchar(45) not null, `asn` varchar(12),"
                 + "`countryName` text, `countryCode` varchar(10), `city` text, `timeZone` varchar(64), "
