@@ -3,6 +3,7 @@ package dev.brighten.antivpn.bukkit;
 import dev.brighten.antivpn.AntiVPN;
 import dev.brighten.antivpn.api.APIPlayer;
 import dev.brighten.antivpn.api.VPNExecutor;
+import dev.brighten.antivpn.message.VpnString;
 import lombok.val;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -12,6 +13,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -43,6 +45,22 @@ public class BukkitListener extends VPNExecutor implements Listener {
     @Override
     public void shutdown() {
         if(cacheResetTask != null && !cacheResetTask.isCancelled()) cacheResetTask.cancel();
+    }
+
+    @EventHandler
+    public void onJoin(final PlayerJoinEvent event) {
+        AntiVPN.getInstance().getPlayerExecutor().getPlayer(event.getPlayer().getUniqueId())
+                .ifPresent(player -> {
+                    AntiVPN.getInstance().getDatabase().alertsState(player.getUuid(), enabled -> {
+                        if(enabled) {
+                            System.out.println("Enabled");
+                            player.setAlertsEnabled(true);
+                            player.sendMessage(AntiVPN.getInstance().getMessageHandler()
+                                    .getString("command-alerts-toggled")
+                                    .getFormattedMessage(new VpnString.Var<>("state", true)));
+                        } else System.out.println("Not enabled");
+                    });
+                });
     }
 
     @EventHandler

@@ -1,6 +1,7 @@
 package dev.brighten.antivpn.api;
 
 import dev.brighten.antivpn.AntiVPN;
+import dev.brighten.antivpn.message.VpnString;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -19,13 +20,6 @@ public abstract class APIPlayer {
         this.uuid = uuid;
         this.name = name;
         this.ip = ip;
-
-        AntiVPN.getInstance().getDatabase().alertsState(uuid, enabled -> {
-            if(enabled) {
-                alertsEnabled = enabled; //This can be within the if statement. It's not dirty, it lowers field writes.
-                sendMessage("");
-            }
-        });
     }
 
     public abstract void sendMessage(String message);
@@ -36,6 +30,9 @@ public abstract class APIPlayer {
 
     public void setAlertsEnabled(boolean alertsEnabled) {
         this.alertsEnabled = alertsEnabled;
+    }
+
+    public void updateAlertsState() {
         //Updating into database so its synced across servers and saved on logout.
         AntiVPN.getInstance().getDatabase().updateAlertsState(uuid, alertsEnabled);
     }
