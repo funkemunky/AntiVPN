@@ -22,6 +22,10 @@ public interface VPNDatabase {
 
     void isWhitelistedAsync(UUID uuid, Consumer<Boolean> result);
 
+    void alertsState(UUID uuid, Consumer<Boolean> result);
+
+    void updateAlertsState(UUID uuid, boolean state);
+
     void init();
 
     void shutdown();

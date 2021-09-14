@@ -55,6 +55,7 @@ public class AlertsCommand extends Command {
         APIPlayer player = pgetter.get();
 
         player.setAlertsEnabled(!player.isAlertsEnabled());
+        player.updateAlertsState();
 
         return AntiVPN.getInstance().getMessageHandler().getString("command-alerts-toggled")
                 .getFormattedMessage(new VpnString.Var<>("state", player.isAlertsEnabled()));

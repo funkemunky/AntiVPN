@@ -4,6 +4,7 @@ import dev.brighten.antivpn.AntiVPN;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.SQLException;
 
 public class MySQL {
     private static Connection conn;
@@ -45,6 +46,18 @@ public class MySQL {
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    public static boolean isClosed() {
+        if(conn == null)
+            return true;
+
+        try {
+            return conn.isClosed();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return true;
         }
     }
 }

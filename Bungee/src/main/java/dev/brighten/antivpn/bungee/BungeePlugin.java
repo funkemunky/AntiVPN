@@ -2,6 +2,7 @@ package dev.brighten.antivpn.bungee;
 
 import dev.brighten.antivpn.AntiVPN;
 import dev.brighten.antivpn.bungee.util.Config;
+import dev.brighten.antivpn.bungee.util.ConfigDefault;
 import dev.brighten.antivpn.command.Command;
 import lombok.Getter;
 import lombok.val;
@@ -27,7 +28,7 @@ public class BungeePlugin extends Plugin {
     private Config config;
     private SingleLineChart vpnDetections, ipsChecked;
 
-    private static BaseComponent[] noPermission = new ComponentBuilder("No permission").color(ChatColor.RED)
+    private static final BaseComponent[] noPermission = new ComponentBuilder("No permission").color(ChatColor.RED)
             .create();
 
     @Override
@@ -37,6 +38,7 @@ public class BungeePlugin extends Plugin {
         //Setting up config
         BungeeCord.getInstance().getLogger().info("Loading config...");
         config = new Config();
+
 
         //Loading plugin
         BungeeCord.getInstance().getLogger().info("Starting AntiVPN services...");
@@ -98,6 +100,17 @@ public class BungeePlugin extends Plugin {
                 }
             });
         }
+
+        BungeeCord.getInstance().getLogger().info("Getting strings...");
+        AntiVPN.getInstance().getMessageHandler().initStrings(vpnString -> new ConfigDefault<>
+                (vpnString.getDefaultMessage(), "messages." + vpnString.getKey(), BungeePlugin.pluginInstance)
+                .get());
+        //TODO Finish system before implementing on startup
+        /*BungeeCord.getInstance().getLogger().info("Getting strings...");
+        AntiVPN.getInstance().getMessageHandler().initStrings(vpnString -> new ConfigDefault<>
+                (vpnString.getDefaultMessage(), "messages." + vpnString.getKey(), BungeePlugin.pluginInstance)
+                .get());
+        AntiVPN.getInstance().getMessageHandler().reloadStrings();*/
     }
 
     @Override

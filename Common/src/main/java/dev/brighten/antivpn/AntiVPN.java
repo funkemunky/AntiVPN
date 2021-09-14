@@ -5,7 +5,6 @@ import dev.brighten.antivpn.api.VPNConfig;
 import dev.brighten.antivpn.api.VPNExecutor;
 import dev.brighten.antivpn.command.Command;
 import dev.brighten.antivpn.command.impl.AntiVPNCommand;
-import dev.brighten.antivpn.command.impl.LookupCommand;
 import dev.brighten.antivpn.database.VPNDatabase;
 import dev.brighten.antivpn.database.sql.MySqlVPN;
 import dev.brighten.antivpn.message.MessageHandler;
@@ -71,6 +70,16 @@ public class AntiVPN {
 
         //Registering commands
         INSTANCE.registerCommands();
+
+        //Turning on alerts of players who are already online.
+        playerExecutor.getOnlinePlayers().forEach(player -> {
+            //We want to make sure they even have permission to see alerts before we make a bunch
+            //of unnecessary database queries.
+            if(player.hasPermission("antivpn.command.alerts")) {
+                //Running database check for enabled alerts.
+                INSTANCE.database.alertsState(player.getUuid(), player::setAlertsEnabled);
+            }
+        });
     }
 
     public void stop() {
