@@ -16,6 +16,7 @@ import lombok.val;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.bstats.velocity.Metrics;
 
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -23,11 +24,13 @@ import java.util.logging.Logger;
 import java.util.stream.IntStream;
 
 @Getter
-@Plugin(id = "kaurivpn", name = "KauriVPN", version = "${project.version}", authors = {"funkemunky"})
+@Plugin(id = "kaurivpn", name = "KauriVPN", version = "1.5.0", authors = {"funkemunky"})
 public class VelocityPlugin {
 
     private final ProxyServer server;
     private final Logger logger;
+    private Metrics.Factory metricsFactory;
+
     public static VelocityPlugin INSTANCE;
 
     @Inject
@@ -37,9 +40,10 @@ public class VelocityPlugin {
     private Config config;
 
     @Inject
-    public VelocityPlugin(ProxyServer server, Logger logger) {
+    public VelocityPlugin(ProxyServer server, Logger logger, Metrics.Factory metricsFactory) {
         this.server = server;
         this.logger = logger;
+        this.metricsFactory = metricsFactory;
     }
 
     @Subscribe
@@ -52,6 +56,12 @@ public class VelocityPlugin {
         logger.info("Starting AntiVPN services...");
         AntiVPN.start(new VelocityConfig(), new VelocityListener(), new VelocityPlayerExecutor());
 
+        if(AntiVPN.getInstance().getConfig().metrics()) {
+            logger.info("Starting metrics...");
+            Metrics metrics = metricsFactory.make(this, 12791);
+        }
+
+        logger.info("Registering commands...");
         for (Command command : AntiVPN.getInstance().getCommands()) {
             server.getCommandManager().register(server.getCommandManager().metaBuilder(command.name())
                             .aliases(command.aliases()).build(), (SimpleCommand) invocation -> {
