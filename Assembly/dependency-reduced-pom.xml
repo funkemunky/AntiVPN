@@ -3,7 +3,7 @@
   <parent>
     <artifactId>AntiVPN</artifactId>
     <groupId>dev.brighten.antivpn</groupId>
-    <version>1.5.0</version>
+    <version>1.5.1</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>Assembly</artifactId>
@@ -35,8 +35,8 @@
     </dependency>
   </dependencies>
   <properties>
-    <maven.compiler.source>8</maven.compiler.source>
     <maven.compiler.target>8</maven.compiler.target>
+    <maven.compiler.source>8</maven.compiler.source>
   </properties>
 </project>
 
