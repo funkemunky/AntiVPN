@@ -64,6 +64,10 @@ public class BukkitConfig implements VPNConfig {
         return kickMessage;
     }
 
+    public boolean isBukkit() {
+        return true;
+    }
+
     @Override
     public String alertMessage() {
         return alertMsg;

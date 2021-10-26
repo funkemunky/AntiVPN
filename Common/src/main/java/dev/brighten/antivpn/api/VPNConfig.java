@@ -40,4 +40,6 @@ public interface VPNConfig {
 
     void update();
 
+    boolean isBukkit();
+
 }

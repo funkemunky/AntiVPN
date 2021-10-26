@@ -20,6 +20,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+// For logging using getLogger if Bukkit;
+import org.bukkit.Bukkit;
+
 @Getter
 @Setter(AccessLevel.PRIVATE)
 public class AntiVPN {
@@ -50,7 +53,10 @@ public class AntiVPN {
         switch(INSTANCE.config.getDatabaseType().toLowerCase()) {
             case "mysql":
             case "sql":{
-                System.out.println("Using databaseType MySQL...");
+                if (INSTANCE.config.isBukkit())
+                    Bukkit.getLogger().info("Using databaseType MySQL...");
+                else
+                    System.out.println("Using databaseType MySQL...");
                 INSTANCE.database = new MySqlVPN();
                 INSTANCE.database.init();
                 break;
@@ -58,11 +64,18 @@ public class AntiVPN {
             case "mongo":
             case "mongodb":
             case "mongod": {
-                System.out.println("We currently do not support Mongo, but this is coming in future updates.");
+                if (INSTANCE.config.isBukkit())
+                    Bukkit.getLogger().info("We currently do not support Mongo, but this is coming in future updates.");
+                else
+                    System.out.println("We currently do not support Mongo, but this is coming in future updates.");
                 break;
             }
             default: {
-                System.out.println("Could not find database type \"" + INSTANCE.config.getDatabaseType() + "\". " +
+                if (INSTANCE.config.isBukkit())
+                    Bukkit.getLogger().info("Could not find database type \"" + INSTANCE.config.getDatabaseType() + "\". " +
+                    "Options: [MySQL]");
+                else
+                    System.out.println("Could not find database type \"" + INSTANCE.config.getDatabaseType() + "\". " +
                         "Options: [MySQL]");
                 break;
             }

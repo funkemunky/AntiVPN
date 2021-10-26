@@ -62,6 +62,10 @@ public class VelocityConfig implements VPNConfig {
         return kickMessage;
     }
 
+    public boolean isBukkit() {
+        return false;
+    }
+
     @Override
     public String alertMessage() {
         return alertMsg;

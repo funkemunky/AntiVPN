@@ -61,6 +61,10 @@ public class BungeeConfig implements VPNConfig {
     public String getKickString() {
         return kickMessage;
     }
+    
+    public boolean isBukkit() {
+        return false;
+    }
 
     @Override
     public String alertMessage() {
