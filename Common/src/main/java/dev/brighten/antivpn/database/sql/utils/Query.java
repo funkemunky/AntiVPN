@@ -13,6 +13,7 @@ public class Query {
 
     @SneakyThrows
     public static ExecutableStatement prepare(String query) {
+        if (conn.isClosed()) return null;
         return new ExecutableStatement(conn.prepareStatement(query));
     }
 
@@ -20,6 +21,7 @@ public class Query {
 
     @SneakyThrows
     public static ExecutableStatement prepare(String query, Connection con) {
+        if (con.isClosed()) return null;
         return new ExecutableStatement(con.prepareStatement(query));
     }
 }
