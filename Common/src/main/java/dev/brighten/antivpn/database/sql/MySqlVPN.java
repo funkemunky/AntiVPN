@@ -224,7 +224,7 @@ public class MySqlVPN implements VPNDatabase {
         Query.prepare("create table if not exists `alerts` (`uuid` varchar(36) not null)").execute();
 
         if (AntiVPN.getInstance().getConfig().isBukkit())
-            Bukkit.getlogger().info("Creating indexes...");
+            Bukkit.getLogger().info("Creating indexes...");
         else
             System.out.println("Creating indexes...");
         try {

@@ -26,13 +26,13 @@ public class MySQL {
                         + AntiVPN.getInstance().getConfig().getDatabaseName() + "`").execute();
                 Query.prepare("USE `" + AntiVPN.getInstance().getConfig().getDatabaseName() + "`").execute();
                 if (AntiVPN.getInstance().getConfig().isBukkit())
-                    Bukkit.getlogger().info("Connection to MySQL has been established.");
+                    Bukkit.getLogger().info("Connection to MySQL has been established.");
                 else
                     System.out.println("Connection to MySQL has been established.");
             }
         } catch (Exception e) {
             if (AntiVPN.getInstance().getConfig().isBukkit())
-                Bukkit.getlogger().info("Connection to MySQL has been established.");
+                Bukkit.getLogger().info("Connection to MySQL has been established.");
             else
                 System.out.println("Failed to load mysql: " + e.getMessage());
             e.printStackTrace();
