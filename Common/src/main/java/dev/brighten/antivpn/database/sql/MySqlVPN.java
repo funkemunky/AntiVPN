@@ -223,7 +223,10 @@ public class MySqlVPN implements VPNDatabase {
                 + "`latitude` double, `longitude` double)").execute();
         Query.prepare("create table if not exists `alerts` (`uuid` varchar(36) not null)").execute();
 
-        System.out.println("Creating indexes...");
+        if (AntiVPN.getInstance().getConfig().isBukkit())
+            Bukkit.getlogger().info("Creating indexes...");
+        else
+            System.out.println("Creating indexes...");
         try {
             // Ref:
             // https://dba.stackexchange.com/questions/24531/mysql-create-index-if-not-exists

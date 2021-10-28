@@ -6,6 +6,9 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+// For logger
+import org.bukkit.Bukkit;
+
 public class MySQL {
     private static Connection conn;
 
@@ -22,10 +25,16 @@ public class MySQL {
                 Query.prepare("CREATE DATABASE IF NOT EXISTS `"
                         + AntiVPN.getInstance().getConfig().getDatabaseName() + "`").execute();
                 Query.prepare("USE `" + AntiVPN.getInstance().getConfig().getDatabaseName() + "`").execute();
-                System.out.println("Connection to MySQL has been established.");
+                if (AntiVPN.getInstance().getConfig().isBukkit())
+                    Bukkit.getlogger().info("Connection to MySQL has been established.");
+                else
+                    System.out.println("Connection to MySQL has been established.");
             }
         } catch (Exception e) {
-            System.out.println("Failed to load mysql: " + e.getMessage());
+            if (AntiVPN.getInstance().getConfig().isBukkit())
+                Bukkit.getlogger().info("Connection to MySQL has been established.");
+            else
+                System.out.println("Failed to load mysql: " + e.getMessage());
             e.printStackTrace();
         }
     }
