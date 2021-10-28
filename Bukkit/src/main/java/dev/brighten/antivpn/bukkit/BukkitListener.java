@@ -53,12 +53,12 @@ public class BukkitListener extends VPNExecutor implements Listener {
                 .ifPresent(player -> {
                     AntiVPN.getInstance().getDatabase().alertsState(player.getUuid(), enabled -> {
                         if(enabled) {
-                            System.out.println("Enabled");
+                            Bukkit.getLogger().info("Enabled");
                             player.setAlertsEnabled(true);
                             player.sendMessage(AntiVPN.getInstance().getMessageHandler()
                                     .getString("command-alerts-toggled")
                                     .getFormattedMessage(new VpnString.Var<>("state", true)));
-                        } else System.out.println("Not enabled");
+                        } else Bukkit.getLogger().info("Not enabled");
                     });
                 });
     }

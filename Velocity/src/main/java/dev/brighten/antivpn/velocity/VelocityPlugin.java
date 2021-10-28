@@ -24,7 +24,7 @@ import java.util.logging.Logger;
 import java.util.stream.IntStream;
 
 @Getter
-@Plugin(id = "kaurivpn", name = "KauriVPN", version = "1.5.0", authors = {"funkemunky"})
+@Plugin(id = "kaurivpn", name = "KauriVPN", version = "1.5.1", authors = {"funkemunky"})
 public class VelocityPlugin {
 
     private final ProxyServer server;

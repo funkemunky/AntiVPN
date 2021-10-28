@@ -13,6 +13,9 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
+// For logging using getLogger if Bukkit;
+import org.bukkit.Bukkit;
+
 public class MySqlVPN implements VPNDatabase {
 
     private Thread whitelistedThread;
@@ -188,10 +191,16 @@ public class MySqlVPN implements VPNDatabase {
     public void init() {
         if (!AntiVPN.getInstance().getConfig().isDatabaseEnabled())
             return;
-        System.out.println("Initializing MySQL...");
+        if (AntiVPN.getInstance().getConfig().isBukkit())
+            Bukkit.getLogger().info("Initializing MySQL...");
+        else
+            System.out.println("Initializing MySQL...");
         MySQL.init();
 
-        System.out.println("Creating tables...");
+        if (AntiVPN.getInstance().getConfig().isBukkit())
+            Bukkit.getLogger().info("Creating tables...");
+        else
+            System.out.println("Creating tables...");
 
         //Running check for old table types to update
         oldTableCheck: {
