@@ -22,10 +22,10 @@ public class MySQL {
                 Query.prepare("CREATE DATABASE IF NOT EXISTS `"
                         + AntiVPN.getInstance().getConfig().getDatabaseName() + "`").execute();
                 Query.prepare("USE `" + AntiVPN.getInstance().getConfig().getDatabaseName() + "`").execute();
-                System.out.println("Connection to MySQL has been established.");
+                AntiVPN.getInstance().getExecutor().log("Connection to MySQL has been established.");
             }
         } catch (Exception e) {
-            System.out.println("Failed to load mysql: " + e.getMessage());
+            AntiVPN.getInstance().getExecutor().log("Failed to load mysql: " + e.getMessage());
             e.printStackTrace();
         }
     }

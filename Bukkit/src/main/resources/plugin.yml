@@ -1,4 +1,4 @@
-name: AntiVPN
+name: KauriVPN
 main: dev.brighten.antivpn.bukkit.BukkitPlugin
 version: ${project.version}
 author: funkemunky

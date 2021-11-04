@@ -88,4 +88,9 @@ public class VelocityListener extends VPNExecutor {
         threadExecutor.shutdown();
         VelocityPlugin.INSTANCE.getServer().getEventManager().unregisterListener(VelocityPlugin.INSTANCE, this);
     }
+
+    @Override
+    public void log(String log, Object... objects) {
+        VelocityPlugin.INSTANCE.getLogger().log(Level.INFO, String.format(log, objects));
+    }
 }

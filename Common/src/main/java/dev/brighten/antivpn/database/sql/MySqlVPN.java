@@ -188,20 +188,20 @@ public class MySqlVPN implements VPNDatabase {
     public void init() {
         if (!AntiVPN.getInstance().getConfig().isDatabaseEnabled())
             return;
-        System.out.println("Initializing MySQL...");
+        AntiVPN.getInstance().getExecutor().log("Initializing MySQL...");
         MySQL.init();
 
-        System.out.println("Creating tables...");
+        AntiVPN.getInstance().getExecutor().log("Creating tables...");
 
         //Running check for old table types to update
         oldTableCheck: {
             Query.prepare("select `DATA_TYPE` from INFORMATION_SCHEMA.COLUMNS " +
                     "WHERE table_name = 'responses' AND COLUMN_NAME = 'isp';").execute(set -> {
                         if(set.getObject("DATA_TYPE").toString().contains("varchar")) {
-                            System.out.println("Using old database format for storing responses! " +
+                            AntiVPN.getInstance().getExecutor().log("Using old database format for storing responses! " +
                                     "Dropping table and creating a new one...");
                             if(Query.prepare("drop table `responses`").execute() > 0) {
-                                System.out.println("Successfully dropped table!");
+                                AntiVPN.getInstance().getExecutor().log("Successfully dropped table!");
                             }
                         }
             });
@@ -214,7 +214,7 @@ public class MySqlVPN implements VPNDatabase {
                 + "`latitude` double, `longitude` double)").execute();
         Query.prepare("create table if not exists `alerts` (`uuid` varchar(36) not null)").execute();
 
-        System.out.println("Creating indexes...");
+        AntiVPN.getInstance().getExecutor().log("Creating indexes...");
         try {
             // Ref:
             // https://dba.stackexchange.com/questions/24531/mysql-create-index-if-not-exists

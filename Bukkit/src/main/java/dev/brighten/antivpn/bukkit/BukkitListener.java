@@ -47,18 +47,23 @@ public class BukkitListener extends VPNExecutor implements Listener {
         if(cacheResetTask != null && !cacheResetTask.isCancelled()) cacheResetTask.cancel();
     }
 
+    @Override
+    public void log(String log, Object... objects) {
+        Bukkit.getLogger().log(Level.INFO, String.format(log, objects));
+    }
+
     @EventHandler
     public void onJoin(final PlayerJoinEvent event) {
         AntiVPN.getInstance().getPlayerExecutor().getPlayer(event.getPlayer().getUniqueId())
                 .ifPresent(player -> {
                     AntiVPN.getInstance().getDatabase().alertsState(player.getUuid(), enabled -> {
                         if(enabled) {
-                            System.out.println("Enabled");
+                            AntiVPN.getInstance().getExecutor().log("Enabled");
                             player.setAlertsEnabled(true);
                             player.sendMessage(AntiVPN.getInstance().getMessageHandler()
                                     .getString("command-alerts-toggled")
                                     .getFormattedMessage(new VpnString.Var<>("state", true)));
-                        } else System.out.println("Not enabled");
+                        } else AntiVPN.getInstance().getExecutor().log("Not enabled");
                     });
                 });
     }

@@ -50,7 +50,7 @@ public class AntiVPN {
         switch(INSTANCE.config.getDatabaseType().toLowerCase()) {
             case "mysql":
             case "sql":{
-                System.out.println("Using databaseType MySQL...");
+                AntiVPN.getInstance().getExecutor().log("Using databaseType MySQL...");
                 INSTANCE.database = new MySqlVPN();
                 INSTANCE.database.init();
                 break;
@@ -58,11 +58,11 @@ public class AntiVPN {
             case "mongo":
             case "mongodb":
             case "mongod": {
-                System.out.println("We currently do not support Mongo, but this is coming in future updates.");
+                AntiVPN.getInstance().getExecutor().log("We currently do not support Mongo, but this is coming in future updates.");
                 break;
             }
             default: {
-                System.out.println("Could not find database type \"" + INSTANCE.config.getDatabaseType() + "\". " +
+                AntiVPN.getInstance().getExecutor().log("Could not find database type \"" + INSTANCE.config.getDatabaseType() + "\". " +
                         "Options: [MySQL]");
                 break;
             }
