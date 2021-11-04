@@ -16,6 +16,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,12 +33,14 @@ public class AntiVPN {
     private MessageHandler messageHandler;
     private List<Command> commands = new ArrayList<>();
     public int detections, checked;
+    private File pluginFolder;
 
-    public static void start(VPNConfig config, VPNExecutor executor, PlayerExecutor playerExecutor) {
+    public static void start(VPNConfig config, VPNExecutor executor, PlayerExecutor playerExecutor, File pluginFolder) {
         //Initializing
 
         INSTANCE = new AntiVPN();
 
+        INSTANCE.pluginFolder = pluginFolder;
         INSTANCE.config = config;
         INSTANCE.executor = executor;
         INSTANCE.playerExecutor = playerExecutor;

@@ -38,7 +38,7 @@ public class BukkitPlugin extends JavaPlugin {
         saveDefaultConfig();
 
         Bukkit.getLogger().info("Starting AntiVPN services...");
-        AntiVPN.start(new BukkitConfig(), new BukkitListener(), new BukkitPlayerExecutor());
+        AntiVPN.start(new BukkitConfig(), new BukkitListener(), new BukkitPlayerExecutor(), getDataFolder());
 
         if(AntiVPN.getInstance().getConfig().metrics()) {
             Bukkit.getLogger().info("Starting bStats metrics...");

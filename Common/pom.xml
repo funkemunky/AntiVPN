@@ -37,4 +37,20 @@
         </resources>
     </build>
 
+    <repositories>
+        <repository>
+            <id>funkemunky-releases</id>
+            <url>https://nexus.funkemunky.cc/content/repositories/releases/</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>8.0.22</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
 </project>

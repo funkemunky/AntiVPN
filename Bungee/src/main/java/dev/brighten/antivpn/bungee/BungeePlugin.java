@@ -42,7 +42,7 @@ public class BungeePlugin extends Plugin {
 
         //Loading plugin
         BungeeCord.getInstance().getLogger().info("Starting AntiVPN services...");
-        AntiVPN.start(new BungeeConfig(), new BungeeListener(), new BungeePlayerExecutor());
+        AntiVPN.start(new BungeeConfig(), new BungeeListener(), new BungeePlayerExecutor(), getDataFolder());
 
         if(AntiVPN.getInstance().getConfig().metrics()) {
             BungeeCord.getInstance().getLogger().info("Starting bStats metrics...");

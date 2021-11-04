@@ -20,7 +20,7 @@ public class MySqlVPN implements VPNDatabase {
     public MySqlVPN() {
         whitelistedThread = new Thread(() -> {
             try {
-                Thread.sleep(TimeUnit.SECONDS.toMillis(8));
+                Thread.sleep(TimeUnit.SECONDS.toMillis(2));
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -30,6 +30,9 @@ public class MySqlVPN implements VPNDatabase {
                     AntiVPN.getInstance().getExecutor().getWhitelisted().clear();
                     AntiVPN.getInstance().getExecutor().getWhitelisted()
                             .addAll(AntiVPN.getInstance().getDatabase().getAllWhitelisted());
+                    AntiVPN.getInstance().getExecutor().getWhitelistedIps().clear();
+                    AntiVPN.getInstance().getExecutor().getWhitelistedIps()
+                            .addAll(AntiVPN.getInstance().getDatabase().getAllWhitelistedIps());
                 }
                 try {
                     Thread.sleep(TimeUnit.SECONDS.toMillis(4));
@@ -95,15 +98,28 @@ public class MySqlVPN implements VPNDatabase {
     public boolean isWhitelisted(UUID uuid) {
         if (!AntiVPN.getInstance().getConfig().isDatabaseEnabled() || MySQL.isClosed())
             return false;
-        ResultSet set = Query.prepare("select uuid from `whitelisted` where `uuid` = ? limit 1").append(uuid.toString())
-                .executeQuery();
+        ResultSet set = Query.prepare("select uuid from `whitelisted` where `uuid` = ? limit 1")
+                .append(uuid.toString()).executeQuery();
 
         return set != null && set.next() && set.getString("uuid") != null;
     }
 
+    @SneakyThrows
+    @Override
+    public boolean isWhitelisted(String ip) {
+        if (!AntiVPN.getInstance().getConfig().isDatabaseEnabled() || MySQL.isClosed())
+            return false;
+        ResultSet set = Query.prepare("select `ip` from `whitelisted-ips` where `ip` = ? limit 1")
+                .append(ip).executeQuery();
+
+
+        return set != null && set.next() && set.getString("ip") != null;
+    }
+
     @Override
     public void setWhitelisted(UUID uuid, boolean whitelisted) {
-        if(MySQL.isClosed()) return;
+        if (!AntiVPN.getInstance().getConfig().isDatabaseEnabled() || MySQL.isClosed())
+            return;
 
         if (whitelisted) {
             if (!isWhitelisted(uuid)) {
@@ -117,21 +133,39 @@ public class MySqlVPN implements VPNDatabase {
     }
 
     @Override
+    public void setWhitelisted(String ip, boolean whitelisted) {
+        if (!AntiVPN.getInstance().getConfig().isDatabaseEnabled() || MySQL.isClosed())
+            return;
+
+        if(whitelisted) {
+            if(!isWhitelisted(ip)) {
+                Query.prepare("insert into `whitelisted-ips` (`ip`) values (?)").append(ip).execute();
+            }
+            AntiVPN.getInstance().getExecutor().getWhitelistedIps().add(ip);
+        } else {
+            Query.prepare("delete from `whitelisted-ips` where `ip` = ?").append(ip).execute();
+            AntiVPN.getInstance().getExecutor().getWhitelistedIps().remove(ip);
+        }
+    }
+
+    @Override
     public List<UUID> getAllWhitelisted() {
         List<UUID> uuids = new ArrayList<>();
 
-        if(MySQL.isClosed()) return uuids;
+        if(!MySQL.isClosed()) Query.prepare("select uuid from `whitelisted`")
+                .execute(set -> uuids.add(UUID.fromString(set.getString("uuid"))));
 
-        ResultSet set = Query.prepare("select uuid from `whitelisted`").executeQuery();
-
-        try {
-            while (set.next()) {
-                uuids.add(UUID.fromString(set.getString("uuid")));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
         return uuids;
+    }
+
+    @Override
+    public List<String> getAllWhitelistedIps() {
+        List<String> ips = new ArrayList<>();
+
+        if(!MySQL.isClosed()) Query.prepare("select `ip` from `whitelisted-ips`")
+                    .execute(set -> ips.add(set.getString("ip")));
+
+        return ips;
     }
 
     @Override
@@ -146,6 +180,13 @@ public class MySqlVPN implements VPNDatabase {
         if(MySQL.isClosed()) return;
 
         VPNExecutor.threadExecutor.execute(() -> result.accept(isWhitelisted(uuid)));
+    }
+
+    @Override
+    public void isWhitelistedAsync(String ip, Consumer<Boolean> result) {
+        if(MySQL.isClosed()) return;
+
+        VPNExecutor.threadExecutor.execute(() -> result.accept(isWhitelisted(ip)));
     }
 
     @Override
@@ -208,6 +249,7 @@ public class MySqlVPN implements VPNDatabase {
         }
 
         Query.prepare("create table if not exists `whitelisted` (`uuid` varchar(36) not null)").execute();
+        Query.prepare("create table if not exists `whitelisted-ips` (`ip` varchar(45) not null)").execute();
         Query.prepare("create table if not exists `responses` (`ip` varchar(45) not null, `asn` varchar(12),"
                 + "`countryName` text, `countryCode` varchar(10), `city` text, `timeZone` varchar(64), "
                 + "`method` varchar(32), `isp` text, `proxy` boolean, `cached` boolean, `inserted` timestamp,"
@@ -218,41 +260,62 @@ public class MySqlVPN implements VPNDatabase {
         try {
             // Ref:
             // https://dba.stackexchange.com/questions/24531/mysql-create-index-if-not-exists
-            String query = "SELECT COUNT(1) IndexExists FROM INFORMATION_SCHEMA.STATISTICS WHERE table_schema=DATABASE() AND table_name='whitelisted' AND index_name='uuid_1';";
+
+            String query = "SELECT COUNT(1) IndexExists FROM INFORMATION_SCHEMA.STATISTICS WHERE table_schema=DATABASE()" +
+                    " AND table_name='whitelisted' AND index_name='uuid_1';";
             ResultSet rs = Query.prepare(query).executeQuery();
             int id = 0;
-            while (rs.next()) {
-                id = rs.getInt("IndexExists");
+            whitelistedIndex: {
+                while (rs.next()) {
+                    id = rs.getInt("IndexExists");
+                }
+                if (id == 0) {
+                    Query.prepare("create index `uuid_1` on `whitelisted` (`uuid`)").execute();
+                }
+                id = 0;
             }
-            if (id == 0) {
-                Query.prepare("create index `uuid_1` on `whitelisted` (`uuid`)").execute();
+            responsesIndex: {
+                query = "SELECT COUNT(1) IndexExists FROM INFORMATION_SCHEMA.STATISTICS WHERE table_schema=DATABASE() " +
+                        "AND table_name='responses' AND index_name='ip_1';";
+                rs = Query.prepare(query).executeQuery();
+                while (rs.next()) {
+                    id = rs.getInt("IndexExists");
+                }
+                if (id == 0) {
+                    Query.prepare("create index `ip_1` on `responses` (`ip`)").execute();
+                }
+                id = 0;
+                query = "SELECT COUNT(1) IndexExists FROM INFORMATION_SCHEMA.STATISTICS WHERE table_schema=DATABASE() " +
+                        "AND table_name='responses' AND index_name='proxy_1';";
+                rs = Query.prepare(query).executeQuery();
+                while (rs.next()) {
+                    id = rs.getInt("IndexExists");
+                }
+                if (id == 0) {
+                    Query.prepare("create index `proxy_1` on `responses` (`proxy`)").execute();
+                }
+                id = 0;
+                query = "SELECT COUNT(1) IndexExists FROM INFORMATION_SCHEMA.STATISTICS WHERE table_schema=DATABASE()" +
+                        " AND table_name='responses' AND index_name='inserted_1';";
+                rs = Query.prepare(query).executeQuery();
+                while (rs.next()) {
+                    id = rs.getInt("IndexExists");
+                }
+                if (id == 0) {
+                    Query.prepare("create index `inserted_1` on `responses` (`inserted`)").execute();
+                }
+                id = 0;
             }
-            id = 0;
-            query = "SELECT COUNT(1) IndexExists FROM INFORMATION_SCHEMA.STATISTICS WHERE table_schema=DATABASE() AND table_name='responses' AND index_name='ip_1';";
-            rs = Query.prepare(query).executeQuery();
-            while (rs.next()) {
-                id = rs.getInt("IndexExists");
-            }
-            if (id == 0) {
-                Query.prepare("create index `ip_1` on `responses` (`ip`)").execute();
-            }
-            id = 0;
-            query = "SELECT COUNT(1) IndexExists FROM INFORMATION_SCHEMA.STATISTICS WHERE table_schema=DATABASE() AND table_name='responses' AND index_name='proxy_1';";
-            rs = Query.prepare(query).executeQuery();
-            while (rs.next()) {
-                id = rs.getInt("IndexExists");
-            }
-            if (id == 0) {
-                Query.prepare("create index `proxy_1` on `responses` (`proxy`)").execute();
-            }
-            id = 0;
-            query = "SELECT COUNT(1) IndexExists FROM INFORMATION_SCHEMA.STATISTICS WHERE table_schema=DATABASE() AND table_name='responses' AND index_name='inserted_1';";
-            rs = Query.prepare(query).executeQuery();
-            while (rs.next()) {
-                id = rs.getInt("IndexExists");
-            }
-            if (id == 0) {
-                Query.prepare("create index `inserted_1` on `responses` (`inserted`)").execute();
+            whitelistedIpsIndex: {
+                query = "SELECT COUNT(1) IndexExists FROM INFORMATION_SCHEMA.STATISTICS WHERE table_schema=DATABASE()" +
+                        " AND table_name='whitelisted-ips' AND index_name='ip_1';";
+                rs = Query.prepare(query).executeQuery();
+                while (rs.next()) {
+                    id = rs.getInt("IndexExists");
+                }
+                if (id == 0) {
+                    Query.prepare("create index `ip_1` on `whitelisted-ips` (`ip`)").execute();
+                }
             }
         } catch (Exception e) {
             System.err.println("MySQL Excepton created" + e.getMessage());

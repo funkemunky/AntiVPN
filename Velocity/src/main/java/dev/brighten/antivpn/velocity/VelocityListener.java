@@ -26,6 +26,8 @@ public class VelocityListener extends VPNExecutor {
                 if(event.getPlayer().hasPermission("antivpn.bypass") //Has bypass permission
                         || AntiVPN.getInstance().getExecutor().isWhitelisted(event.getPlayer().getUniqueId()) //Is exempt
                         //Or has a name that starts with a certain prefix. This is for Bedrock exempting.
+                        || AntiVPN.getInstance().getExecutor().isWhitelisted(event.getPlayer().getRemoteAddress()
+                                .getAddress().getHostAddress())
                         || AntiVPN.getInstance().getConfig().getPrefixWhitelists().stream()
                         .anyMatch(prefix -> event.getPlayer().getUsername().startsWith(prefix))) return;
 

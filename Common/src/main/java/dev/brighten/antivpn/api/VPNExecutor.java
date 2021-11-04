@@ -18,6 +18,8 @@ public abstract class VPNExecutor {
     private static final Map<String, VPNResponse> responseCache = new HashMap<>();
     @Getter
     private final Set<UUID> whitelisted = Collections.synchronizedSet(new HashSet<>());
+    @Getter
+    private final Set<String> whitelistedIps = Collections.synchronizedSet(new HashSet<>());
 
     public abstract void registerListeners();
 
@@ -33,6 +35,10 @@ public abstract class VPNExecutor {
 
     public boolean isWhitelisted(UUID uuid) {
         return whitelisted.contains(uuid);
+    }
+
+    public boolean isWhitelisted(String ip) {
+        return whitelistedIps.contains(ip);
     }
 
     public void checkIp(String ip, boolean cachedResults, Consumer<VPNResponse> result) {
