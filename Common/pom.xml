@@ -5,7 +5,7 @@
     <parent>
         <artifactId>AntiVPN</artifactId>
         <groupId>dev.brighten.antivpn</groupId>
-        <version>1.5.2</version>
+        <version>1.5.2.1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -49,6 +49,13 @@
             <groupId>com.moandjiezana.toml</groupId>
             <artifactId>toml4j</artifactId>
             <version>0.7.2</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>8.0.27</version>
+            <type>jar</type>
             <scope>compile</scope>
         </dependency>
     </dependencies>

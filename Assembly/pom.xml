@@ -5,7 +5,7 @@
     <parent>
         <artifactId>AntiVPN</artifactId>
         <groupId>dev.brighten.antivpn</groupId>
-        <version>1.5.2</version>
+        <version>1.5.2.1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -46,13 +46,13 @@
         </dependency>
         <dependency>
             <groupId>dev.brighten.antivpn</groupId>
-            <artifactId>Common</artifactId>
+            <artifactId>Velocity</artifactId>
             <version>${version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>dev.brighten.antivpn</groupId>
-            <artifactId>Velocity</artifactId>
+            <artifactId>Common</artifactId>
             <version>${version}</version>
             <scope>compile</scope>
         </dependency>
