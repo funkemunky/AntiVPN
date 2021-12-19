@@ -1,1 +1,1 @@
-{"id":"kaurivpn","name":"KauriVPN","version":"1.5.0","authors":["funkemunky"],"dependencies":[],"main":"dev.brighten.antivpn.velocity.VelocityPlugin"}
+{"id":"kaurivpn","name":"KauriVPN","version":"${project.version}","authors":["funkemunky"],"dependencies":[],"main":"dev.brighten.antivpn.velocity.VelocityPlugin"}
