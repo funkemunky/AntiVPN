@@ -29,10 +29,6 @@ public class Config {
                     dataFolder.mkdir();
                 }
                 this.file.createNewFile();
-                try (final InputStream is =VelocityPlugin.INSTANCE.getClass().getResourceAsStream("config.yml");
-                     final OutputStream os = new FileOutputStream(this.file)) {
-                    ByteStreams.copy(is, os);
-                }
             }
             this.configuration = ConfigurationProvider.getProvider(YamlConfiguration.class).load(this.file);
         }
