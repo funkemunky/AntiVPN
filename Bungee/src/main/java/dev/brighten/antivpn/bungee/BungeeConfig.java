@@ -16,12 +16,11 @@ public class BungeeConfig implements VPNConfig {
                     "database.type", BungeePlugin.pluginInstance),
             defaultDatabaseName = new ConfigDefault<>("kaurivpn",
                     "database.database", BungeePlugin.pluginInstance),
+            defaultMongoURL = new ConfigDefault<>("", "database.mongoURL", BungeePlugin.pluginInstance),
             defaultUsername = new ConfigDefault<>("root",
                     "database.username", BungeePlugin.pluginInstance),
             defaultPassword = new ConfigDefault<>("password",
                     "database.password", BungeePlugin.pluginInstance),
-            defaultAuthDatabase = new ConfigDefault<>("admin",
-                    "database.auth", BungeePlugin.pluginInstance),
             defaultIp = new ConfigDefault<>("localhost", "database.ip", BungeePlugin.pluginInstance),
             defaultAlertMsg = new ConfigDefault<>("&8[&6KauriVPN&8] &e%player% &7has joined on a VPN/proxy" +
                     " &8(&f%reason%&8) &7in location &8(&f%city%&7, &f%country%&8)", "alerts.message",
@@ -34,6 +33,8 @@ public class BungeeConfig implements VPNConfig {
             = new ConfigDefault<>(true, "kickPlayers", BungeePlugin.pluginInstance),
             defaultAlertToStaff = new ConfigDefault<>(true, "alerts.enabled",
                     BungeePlugin.pluginInstance),
+            defaultUseCredentials = new ConfigDefault<>(true,
+                    "database.useCredentials", BungeePlugin.pluginInstance),
             defaultMetrics = new ConfigDefault<>(true, "bstats", BungeePlugin.pluginInstance);
     private final ConfigDefault<Integer>
             defaultPort = new ConfigDefault<>(-1, "database.port", BungeePlugin.pluginInstance);
@@ -42,10 +43,10 @@ public class BungeeConfig implements VPNConfig {
             Collections.singletonList("kick %player% VPNs are not allowed on our server!"), "commands.execute",
             BungeePlugin.pluginInstance);
 
-    private String license, kickMessage, databaseType, databaseName, username, password, ip, alertMsg;
+    private String license, kickMessage, databaseType, databaseName, mongoURL, username, password, ip, alertMsg;
     private List<String> prefixWhitelists, commands;
     private int port;
-    private boolean cacheResults, databaseEnabled, commandsEnabled, kickPlayers, alertToStaff, metrics;
+    private boolean cacheResults, useCredentials, databaseEnabled, commandsEnabled, kickPlayers, alertToStaff, metrics;
 
     @Override
     public String getLicense() {
@@ -95,6 +96,16 @@ public class BungeeConfig implements VPNConfig {
     @Override
     public boolean isDatabaseEnabled() {
         return databaseEnabled;
+    }
+
+    @Override
+    public boolean useDatabaseCreds() {
+        return useCredentials;
+    }
+
+    @Override
+    public String mongoDatabaseURL() {
+        return mongoURL;
     }
 
     @Override
@@ -150,8 +161,10 @@ public class BungeeConfig implements VPNConfig {
         cacheResults = cacheResultsDefault.get();
         prefixWhitelists = prefixWhitelistsDefault.get();
         databaseEnabled = defaultDatabaseEnabled.get();
+        useCredentials = defaultUseCredentials.get();
         databaseType = defaultDatabaseType.get();
         databaseName = defaultDatabaseName.get();
+        mongoURL = defaultMongoURL.get();
         username = defaultUsername.get();
         password = defaultPassword.get();
         ip = defaultIp.get();

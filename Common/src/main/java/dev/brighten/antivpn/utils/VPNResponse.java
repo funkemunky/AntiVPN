@@ -2,15 +2,13 @@ package dev.brighten.antivpn.utils;
 
 import dev.brighten.antivpn.utils.json.JSONException;
 import dev.brighten.antivpn.utils.json.JSONObject;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @RequiredArgsConstructor
+@Builder
 public class VPNResponse {
     private String asn, ip, countryName, countryCode, city, timeZone, method, isp, failureReason = "N/A";
     private boolean proxy, cached;

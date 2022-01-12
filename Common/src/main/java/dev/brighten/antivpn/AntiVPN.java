@@ -6,6 +6,7 @@ import dev.brighten.antivpn.api.VPNExecutor;
 import dev.brighten.antivpn.command.Command;
 import dev.brighten.antivpn.command.impl.AntiVPNCommand;
 import dev.brighten.antivpn.database.VPNDatabase;
+import dev.brighten.antivpn.database.mongo.MongoVPN;
 import dev.brighten.antivpn.database.sql.MySqlVPN;
 import dev.brighten.antivpn.message.MessageHandler;
 import dev.brighten.antivpn.utils.VPNResponse;
@@ -61,7 +62,8 @@ public class AntiVPN {
             case "mongo":
             case "mongodb":
             case "mongod": {
-                AntiVPN.getInstance().getExecutor().log("We currently do not support Mongo, but this is coming in future updates.");
+                INSTANCE.database = new MongoVPN();
+                INSTANCE.database.init();
                 break;
             }
             default: {

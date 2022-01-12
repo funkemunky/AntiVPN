@@ -15,7 +15,7 @@ import java.util.function.Consumer;
 public abstract class VPNExecutor {
     public static ExecutorService threadExecutor = Executors.newSingleThreadExecutor();
 
-    private static final Map<String, VPNResponse> responseCache = new HashMap<>();
+    public static final Map<String, VPNResponse> responseCache = new HashMap<>();
     @Getter
     private final Set<UUID> whitelisted = Collections.synchronizedSet(new HashSet<>());
     @Getter

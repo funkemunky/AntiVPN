@@ -34,6 +34,8 @@ public interface VPNDatabase {
 
     void updateAlertsState(UUID uuid, boolean state);
 
+    void clearResponses();
+
     void init();
 
     void shutdown();

@@ -24,6 +24,10 @@ public interface VPNConfig {
 
     boolean isDatabaseEnabled();
 
+    boolean useDatabaseCreds();
+
+    String mongoDatabaseURL();
+
     String getDatabaseType();
 
     String getDatabaseName();

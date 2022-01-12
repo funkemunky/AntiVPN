@@ -226,6 +226,13 @@ public class MySqlVPN implements VPNDatabase {
     }
 
     @Override
+    public void clearResponses() {
+        if(MySQL.isClosed()) return;
+
+        VPNExecutor.threadExecutor.execute(() -> Query.prepare("delete from `responses`").execute());
+    }
+
+    @Override
     public void init() {
         if (!AntiVPN.getInstance().getConfig().isDatabaseEnabled())
             return;
