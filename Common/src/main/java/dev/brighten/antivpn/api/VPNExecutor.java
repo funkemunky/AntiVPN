@@ -1,6 +1,7 @@
 package dev.brighten.antivpn.api;
 
 import dev.brighten.antivpn.AntiVPN;
+import dev.brighten.antivpn.utils.EvictingMap;
 import dev.brighten.antivpn.utils.VPNResponse;
 import dev.brighten.antivpn.utils.json.JSONException;
 import lombok.Getter;
@@ -15,7 +16,7 @@ import java.util.function.Consumer;
 public abstract class VPNExecutor {
     public static ExecutorService threadExecutor = Executors.newSingleThreadExecutor();
 
-    public static final Map<String, VPNResponse> responseCache = new HashMap<>();
+    public static final Map<String, VPNResponse> responseCache = new EvictingMap<>(5000);
     @Getter
     private final Set<UUID> whitelisted = Collections.synchronizedSet(new HashSet<>());
     @Getter
