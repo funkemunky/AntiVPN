@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 public class BukkitPlayerExecutor implements PlayerExecutor {
 
-    private final Map<Player, BukkitPlayer> cachedPlayers = new WeakHashMap<>();
+    private final Map<UUID, BukkitPlayer> cachedPlayers = new WeakHashMap<>();
 
     @Override
     public Optional<APIPlayer> getPlayer(String name) {
@@ -21,7 +21,7 @@ public class BukkitPlayerExecutor implements PlayerExecutor {
             return Optional.empty();
         }
 
-        return Optional.of(cachedPlayers.computeIfAbsent(player, BukkitPlayer::new));
+        return Optional.of(cachedPlayers.getOrDefault(player.getUniqueId(), new BukkitPlayer(player)));
     }
 
     @Override
@@ -32,14 +32,14 @@ public class BukkitPlayerExecutor implements PlayerExecutor {
             return Optional.empty();
         }
 
-        return Optional.of(cachedPlayers.computeIfAbsent(player, BukkitPlayer::new));
+        return Optional.of(cachedPlayers.getOrDefault(player.getUniqueId(), new BukkitPlayer(player)));
     }
 
 
     @Override
     public List<APIPlayer> getOnlinePlayers() {
         return Bukkit.getOnlinePlayers().stream()
-                .map(pl -> cachedPlayers.computeIfAbsent(pl, BukkitPlayer::new))
+                .map(pl -> cachedPlayers.getOrDefault(pl.getUniqueId(), new BukkitPlayer(pl)))
                 .collect(Collectors.toList());
     }
 
