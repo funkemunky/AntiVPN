@@ -21,7 +21,7 @@ public class BukkitPlayerExecutor implements PlayerExecutor {
             return Optional.empty();
         }
 
-        return Optional.of(cachedPlayers.getOrDefault(player.getUniqueId(), new BukkitPlayer(player)));
+        return Optional.of(cachedPlayers.computeIfAbsent(player.getUniqueId(), k -> new BukkitPlayer(player)));
     }
 
     @Override
@@ -32,14 +32,14 @@ public class BukkitPlayerExecutor implements PlayerExecutor {
             return Optional.empty();
         }
 
-        return Optional.of(cachedPlayers.getOrDefault(player.getUniqueId(), new BukkitPlayer(player)));
+        return Optional.of(cachedPlayers.computeIfAbsent(player.getUniqueId(), k -> new BukkitPlayer(player)));
     }
 
 
     @Override
     public List<APIPlayer> getOnlinePlayers() {
         return Bukkit.getOnlinePlayers().stream()
-                .map(pl -> cachedPlayers.getOrDefault(pl.getUniqueId(), new BukkitPlayer(pl)))
+                .map(pl -> cachedPlayers.computeIfAbsent(pl.getUniqueId(), k -> new BukkitPlayer(pl)))
                 .collect(Collectors.toList());
     }
 
