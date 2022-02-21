@@ -65,13 +65,16 @@ public class AllowlistCommand extends Command {
         if(MiscUtils.isIpv4(args[1])) {
             if(!databaseEnabled) {
                 switch(args[0].toLowerCase()) {
-                    case "add": {
+                    case "add":
+                    case "insert": {
                         AntiVPN.getInstance().getExecutor().getWhitelistedIps().add(args[1]);
+                        AntiVPN.getInstance().getDatabase().setWhitelisted(args[1], true);
                         return String.format("&aAdded &6%s &ato the exemption allowlist.", args[1]);
                     }
                     case "remove":
                     case "delete": {
                         AntiVPN.getInstance().getExecutor().getWhitelistedIps().remove(args[1]);
+                        AntiVPN.getInstance().getDatabase().setWhitelisted(args[1], false);
                         return String.format("&cRemoved &6%s &cfrom the exemption allowlist.", args[1]);
                     }
                     default: {
@@ -80,7 +83,8 @@ public class AllowlistCommand extends Command {
                 }
             } else {
                 switch(args[0].toLowerCase()) {
-                    case "add": {
+                    case "add":
+                    case "insert": {
                         AntiVPN.getInstance().getDatabase().setWhitelisted(args[1], true);
                         return String.format("&aAdded &6%s &a to the exemption allowlist.", args[1]);
                     }

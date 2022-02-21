@@ -11,8 +11,11 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
+import java.util.regex.Pattern;
 
 public class MiscUtils {
+
+    private static final Pattern ipv4 = Pattern.compile("[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}");
 
     public static void close(Closeable... closeables) {
         try {
@@ -32,13 +35,6 @@ public class MiscUtils {
 
     public static boolean isIpv4(String ip)
     {
-
-        try {
-            InetAddress address = InetAddress.getByName(ip);
-
-            return address instanceof Inet4Address;
-        } catch(Exception e) {
-            return false;
-        }
+        return ipv4.matcher(ip).matches();
     }
 }

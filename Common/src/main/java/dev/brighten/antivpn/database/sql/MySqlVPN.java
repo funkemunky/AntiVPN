@@ -237,7 +237,9 @@ public class MySqlVPN implements VPNDatabase {
         if (!AntiVPN.getInstance().getConfig().isDatabaseEnabled())
             return;
         AntiVPN.getInstance().getExecutor().log("Initializing MySQL...");
-        MySQL.init();
+        if(AntiVPN.getInstance().getConfig().getDatabaseType().contains("sql")) {
+            MySQL.init();
+        } else MySQL.initH2();
 
         AntiVPN.getInstance().getExecutor().log("Creating tables...");
 

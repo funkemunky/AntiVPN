@@ -53,6 +53,7 @@ public class AntiVPN {
 
         switch(INSTANCE.config.getDatabaseType().toLowerCase()) {
             case "mysql":
+            case "h2":
             case "sql":{
                 AntiVPN.getInstance().getExecutor().log("Using databaseType MySQL...");
                 INSTANCE.database = new MySqlVPN();
