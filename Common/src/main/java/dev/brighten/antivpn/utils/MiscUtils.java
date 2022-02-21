@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 
 public class MiscUtils {
 
-    private static final Pattern ipv4 = Pattern.compile("[1-9]{1,3}\\.[1-9]{1,3}\\.[1-9]{1,3}.[1-9]{1,3}");
+    private static final Pattern ipv4 = Pattern.compile("[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}");
 
     public static void close(Closeable... closeables) {
         try {

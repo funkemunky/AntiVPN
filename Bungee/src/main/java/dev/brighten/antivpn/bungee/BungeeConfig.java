@@ -12,7 +12,7 @@ public class BungeeConfig implements VPNConfig {
             "license", BungeePlugin.pluginInstance), kickStringDefault =
             new ConfigDefault<>("Proxies are not allowed on our server",
                     "kickMessage", BungeePlugin.pluginInstance),
-            defaultDatabaseType = new ConfigDefault<>("MySQL",
+            defaultDatabaseType = new ConfigDefault<>("H2",
                     "database.type", BungeePlugin.pluginInstance),
             defaultDatabaseName = new ConfigDefault<>("kaurivpn",
                     "database.database", BungeePlugin.pluginInstance),

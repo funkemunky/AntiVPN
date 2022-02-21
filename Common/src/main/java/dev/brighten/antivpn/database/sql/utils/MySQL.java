@@ -1,10 +1,13 @@
 package dev.brighten.antivpn.database.sql.utils;
 
+import org.h2.jdbc.JdbcConnection;
 import dev.brighten.antivpn.AntiVPN;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Properties;
 
 public class MySQL {
     private static Connection conn;
@@ -35,12 +38,13 @@ public class MySQL {
         }
     }
 
-    /*public static void initH2() {
+    public static void initH2() {
         File dataFolder = new File(AntiVPN.getInstance().getPluginFolder(), "databases" + File.separator + "database");
         try {
             Class.forName("org.h2.Driver");
-            conn = new NonClosableConnection(new JdbcConnection("jdbc:h2:file:" +
-                    dataFolder.getAbsolutePath(), new Properties()));
+            conn = new NonClosableConnection(DriverManager.getConnection ("jdbc:h2:file:" +
+                    dataFolder.getAbsolutePath(),
+                    AntiVPN.getInstance().getConfig().getUsername(),AntiVPN.getInstance().getConfig().getPassword()));
             conn.setAutoCommit(true);
             Query.use(conn);
             AntiVPN.getInstance().getExecutor().log("Connection to SQlLite has been established.");
@@ -50,7 +54,7 @@ public class MySQL {
         } catch (ClassNotFoundException ex) {
             AntiVPN.getInstance().getExecutor().log("No H2 library found!");
         }
-    }*/
+    }
 
     public static void use() {
         try {

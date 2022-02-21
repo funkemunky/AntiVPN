@@ -14,7 +14,7 @@ public class BukkitConfig implements VPNConfig {
             "license", BukkitPlugin.pluginInstance), kickStringDefault =
                     new ConfigDefault<>("Proxies are not allowed on our server",
                     "kickMessage", BukkitPlugin.pluginInstance),
-            defaultDatabaseType = new ConfigDefault<>("MySQL",
+            defaultDatabaseType = new ConfigDefault<>("H2",
                     "database.type", BukkitPlugin.pluginInstance),
             defaultDatabaseName = new ConfigDefault<>("kaurivpn",
                     "database.database", BukkitPlugin.pluginInstance),

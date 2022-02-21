@@ -12,7 +12,7 @@ public class VelocityConfig implements VPNConfig {
             "license", VelocityPlugin.INSTANCE), kickStringDefault =
             new ConfigDefault<>("Proxies are not allowed on our server",
                     "kickMessage", VelocityPlugin.INSTANCE),
-            defaultDatabaseType = new ConfigDefault<>("MySQL",
+            defaultDatabaseType = new ConfigDefault<>("H2",
                     "database.type", VelocityPlugin.INSTANCE),
             defaultDatabaseName = new ConfigDefault<>("kaurivpn",
                     "database.database", VelocityPlugin.INSTANCE),
