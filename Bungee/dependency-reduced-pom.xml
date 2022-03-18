@@ -3,7 +3,7 @@
   <parent>
     <artifactId>AntiVPN</artifactId>
     <groupId>dev.brighten.antivpn</groupId>
-    <version>1.6.1</version>
+    <version>1.7</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>Bungee</artifactId>
@@ -50,7 +50,7 @@
     <dependency>
       <groupId>dev.brighten.antivpn</groupId>
       <artifactId>Common</artifactId>
-      <version>1.6.1</version>
+      <version>1.7</version>
       <scope>provided</scope>
       <exclusions>
         <exclusion>
@@ -64,6 +64,10 @@
         <exclusion>
           <artifactId>h2</artifactId>
           <groupId>com.h2database</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>snakeyaml</artifactId>
+          <groupId>org.yaml</groupId>
         </exclusion>
         <exclusion>
           <artifactId>mongo-java-driver</artifactId>

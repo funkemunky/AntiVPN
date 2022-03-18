@@ -5,7 +5,7 @@
     <parent>
         <artifactId>AntiVPN</artifactId>
         <groupId>dev.brighten.antivpn</groupId>
-        <version>1.6.1</version>
+        <version>1.7</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -62,6 +62,12 @@
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <version>2.1.210</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <version>1.15</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

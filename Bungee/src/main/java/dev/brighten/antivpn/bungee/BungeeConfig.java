@@ -41,10 +41,14 @@ public class BungeeConfig implements VPNConfig {
     private final ConfigDefault<List<String>> prefixWhitelistsDefault = new ConfigDefault<>(new ArrayList<>(),
             "prefixWhitelists", BungeePlugin.pluginInstance), defaultCommands = new ConfigDefault<>(
             Collections.singletonList("kick %player% VPNs are not allowed on our server!"), "commands.execute",
-            BungeePlugin.pluginInstance);
+            BungeePlugin.pluginInstance),
+            defBlockedCountries = new ConfigDefault<>(new ArrayList<>(), "blockedCountries",
+                    BungeePlugin.pluginInstance),
+            defAllowedCountries = new ConfigDefault<>(new ArrayList<>(), "allowedCountries",
+                    BungeePlugin.pluginInstance);
 
     private String license, kickMessage, databaseType, databaseName, mongoURL, username, password, ip, alertMsg;
-    private List<String> prefixWhitelists, commands;
+    private List<String> prefixWhitelists, commands, allowedCountries, blockedCountries;
     private int port;
     private boolean cacheResults, useCredentials, databaseEnabled, commandsEnabled, kickPlayers, alertToStaff, metrics;
 
@@ -134,6 +138,16 @@ public class BungeeConfig implements VPNConfig {
     }
 
     @Override
+    public List<String> allowedCountries() {
+        return allowedCountries;
+    }
+
+    @Override
+    public List<String> blockedCountries() {
+        return blockedCountries;
+    }
+
+    @Override
     public int getPort() {
         if(port == -1) {
             switch (getDatabaseType().toLowerCase()) {
@@ -175,5 +189,7 @@ public class BungeeConfig implements VPNConfig {
         alertToStaff = defaultAlertToStaff.get();
         alertMsg = defaultAlertMsg.get();
         metrics = defaultMetrics.get();
+        blockedCountries = defBlockedCountries.get();
+        allowedCountries = defAllowedCountries.get();
     }
 }

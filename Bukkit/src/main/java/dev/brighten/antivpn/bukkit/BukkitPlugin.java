@@ -3,6 +3,8 @@ package dev.brighten.antivpn.bukkit;
 import dev.brighten.antivpn.AntiVPN;
 import dev.brighten.antivpn.bukkit.util.ConfigDefault;
 import dev.brighten.antivpn.command.Command;
+import dev.brighten.antivpn.utils.MiscUtils;
+import dev.brighten.antivpn.utils.config.Configuration;
 import lombok.val;
 import net.md_5.bungee.api.ChatColor;
 import org.bstats.bukkit.Metrics;
@@ -16,6 +18,7 @@ import org.bukkit.plugin.SimplePluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.io.File;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,7 +38,12 @@ public class BukkitPlugin extends JavaPlugin {
 
         //Loading config
         Bukkit.getLogger().info("Loading config...");
-        saveDefaultConfig();
+        Configuration config = new Configuration();
+        File configFile = new File(getDataFolder(), "config.yml");
+        if(!configFile.exists()){
+            configFile.getParentFile().mkdirs();
+            MiscUtils.copy(getResource( "config.yml"), configFile);
+        }
 
         Bukkit.getLogger().info("Starting AntiVPN services...");
         AntiVPN.start(new BukkitConfig(), new BukkitListener(), new BukkitPlayerExecutor(), getDataFolder());

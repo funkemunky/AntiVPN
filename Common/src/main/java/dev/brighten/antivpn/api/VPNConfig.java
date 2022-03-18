@@ -38,6 +38,10 @@ public interface VPNConfig {
 
     String getIp();
 
+    List<String> allowedCountries();
+
+    List<String> blockedCountries();
+
     int getPort();
 
     boolean metrics();

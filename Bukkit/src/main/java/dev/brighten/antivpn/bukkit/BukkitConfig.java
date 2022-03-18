@@ -23,6 +23,8 @@ public class BukkitConfig implements VPNConfig {
                     "database.username", BukkitPlugin.pluginInstance),
             defaultPassword = new ConfigDefault<>("password",
                     "database.password", BukkitPlugin.pluginInstance),
+
+
             defaultIp = new ConfigDefault<>("localhost", "database.ip", BukkitPlugin.pluginInstance),
             defaultAlertMsg = new ConfigDefault<>("&8[&6KauriVPN&8] &e%player% &7has joined on a VPN/proxy" +
                     " &8(&f%reason%&8) &7in location &8(&f%city%&7, &f%country%&8)", "alerts.message",
@@ -43,10 +45,14 @@ public class BukkitConfig implements VPNConfig {
     private final ConfigDefault<List<String>> prefixWhitelistsDefault = new ConfigDefault<>(new ArrayList<>(),
             "prefixWhitelists", BukkitPlugin.pluginInstance), defaultCommands = new ConfigDefault<>(
             Collections.singletonList("kick %player% VPNs are not allowed on our server!"), "commands.execute",
+            BukkitPlugin.pluginInstance),
+            defBlockedCountries = new ConfigDefault<>(new ArrayList<>(), "blockedCountries",
+                    BukkitPlugin.pluginInstance),
+            defAllowedCountries = new ConfigDefault<>(new ArrayList<>(), "allowedCountries",
             BukkitPlugin.pluginInstance);
 
     private String license, kickMessage, databaseType, databaseName, mongoURL, username, password, ip, alertMsg;
-    private List<String> prefixWhitelists, commands;
+    private List<String> prefixWhitelists, commands, allowedCountries, blockedCountries;
     private int port;
     private boolean cacheResults, databaseEnabled, useCredentials, commandsEnabled, kickPlayers, alertToStaff, metrics;
 
@@ -136,6 +142,16 @@ public class BukkitConfig implements VPNConfig {
     }
 
     @Override
+    public List<String> allowedCountries() {
+        return allowedCountries;
+    }
+
+    @Override
+    public List<String> blockedCountries() {
+        return blockedCountries;
+    }
+
+    @Override
     public int getPort() {
         if(port == -1) {
             switch (getDatabaseType().toLowerCase()) {
@@ -177,5 +193,7 @@ public class BukkitConfig implements VPNConfig {
         alertToStaff = defaultAlertToStaff.get();
         alertMsg = defaultAlertMsg.get();
         metrics = defaultMetrics.get();
+        blockedCountries = defBlockedCountries.get();
+        allowedCountries = defAllowedCountries.get();
     }
 }

@@ -1,0 +1,46 @@
+#####################################################
+#                  KauriVPN Config                  #
+#              by Brighten Development              #
+#####################################################
+# If you find that you run out of your free 20,000 queries, you may purchase a license on https://funkemunky.cc/shop
+license: ''
+# Message only sent with commands disabled below. Supports color codes ('&')
+kickMessage: Proxies are not allowed on our server
+# Caching results will lower your query usage, but results may be out of date.
+cachedResults: true
+# All players with any of the following characters in the beginning of their name will be whitelisted
+# This is a useful feature for servers that allow players through Geyser and their IPs are not forwarded, causing
+# players to be removed falsely for use of proxy.
+prefixWhitelists: []
+# Configure your database here.
+database:
+  enabled: false # Enable to cache queries and save alerts state beyond restarts
+  useCredentials: true
+  type: MySQL #Options Mongo and MySQL
+  database: kaurivpn # The database name you would like to use
+  mongoURL: '' # Can be used if you prefer to authenticate via Mongo URL
+  username: root # Your database username
+  password: password # Your database password
+  ip: localhost #The IP of your database goes here
+  port: -1 #-1 will use default port of databases (MySQL:3306, Mongo:27017). Otherwise, enter alternative ports here.
+commands:
+  # Enable this to override the default kick function of the plugin with your own commands
+  enabled: false
+  # List of commands to run when a player is detected to be using a proxy. Supports color codes ('&')
+  execute:
+    - kick %player% VPNs are not allowed on our server!
+# Enable/disable the default kicking feature of KauriVPN.
+kickPlayers: true
+# Configure all alerting functionality
+alerts:
+  # You may set to 'false' to disable all alerts functionality
+  enabled: true
+  # Message to send to users with alerts enabled
+  # Placeholders: %country% (Country name), %player% (Player name), %reason% (Proxy detection method),
+  # %city% (City name).
+  message: '&8[&6KauriVPN&8] &e%player% &7has joined on a VPN/proxy &8(&f%reason%&8)
+    &7in location &8(&f%city%&7, &f%country%&8)'
+# This will disable any information being sent to https://bstats.org. We recommend you keep this enabled as it helps
+# us understand our users and put effort where it is needed. All information sent goes under their privacy as seen
+# here: https://bstats.org/privacy-policy
+bstats: true
