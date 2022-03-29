@@ -51,7 +51,7 @@ public abstract class VPNExecutor {
                 else {
                     try {
                         VPNResponse response =  AntiVPN
-                                .getVPNResponse(ip, AntiVPN.getInstance().getConfig().getLicense(), cachedResults);
+                                .getVPNResponse(ip, AntiVPN.getInstance().getVpnConfig().getLicense(), cachedResults);
 
                         if(response.isSuccess()) {
                             AntiVPN.getInstance().getDatabase().cacheResponse(response);
@@ -80,7 +80,7 @@ public abstract class VPNExecutor {
                 else {
                     try {
                         VPNResponse response =  AntiVPN
-                                .getVPNResponse(ip, AntiVPN.getInstance().getConfig().getLicense(), cachedResults);
+                                .getVPNResponse(ip, AntiVPN.getInstance().getVpnConfig().getLicense(), cachedResults);
 
                         if(response.isSuccess()) {
                             threadExecutor.execute(() -> AntiVPN.getInstance().getDatabase().cacheResponse(response));

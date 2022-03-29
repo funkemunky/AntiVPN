@@ -26,7 +26,7 @@ public class MySqlVPN implements VPNDatabase {
             }
             while (true) {
                 // Updating from database
-                if (AntiVPN.getInstance().getConfig().isDatabaseEnabled()) {
+                if (AntiVPN.getInstance().getVpnConfig().isDatabaseEnabled()) {
                     AntiVPN.getInstance().getExecutor().getWhitelisted().clear();
                     AntiVPN.getInstance().getExecutor().getWhitelisted()
                             .addAll(AntiVPN.getInstance().getDatabase().getAllWhitelisted());
@@ -47,7 +47,7 @@ public class MySqlVPN implements VPNDatabase {
 
     @Override
     public Optional<VPNResponse> getStoredResponse(String ip) {
-        if (!AntiVPN.getInstance().getConfig().isDatabaseEnabled()|| MySQL.isClosed())
+        if (!AntiVPN.getInstance().getVpnConfig().isDatabaseEnabled()|| MySQL.isClosed())
             return Optional.empty();
 
         ResultSet rs = Query.prepare("select * from `responses` where `ip` = ? limit 1").append(ip).executeQuery();
@@ -81,7 +81,7 @@ public class MySqlVPN implements VPNDatabase {
      */
     @Override
     public void cacheResponse(VPNResponse toCache) {
-        if (!AntiVPN.getInstance().getConfig().isDatabaseEnabled() || MySQL.isClosed())
+        if (!AntiVPN.getInstance().getVpnConfig().isDatabaseEnabled() || MySQL.isClosed())
             return;
 
         Query.prepare("insert into `responses` (`ip`,`asn`,`countryName`,`countryCode`,`city`,`timeZone`,"
@@ -96,7 +96,7 @@ public class MySqlVPN implements VPNDatabase {
     @SneakyThrows
     @Override
     public boolean isWhitelisted(UUID uuid) {
-        if (!AntiVPN.getInstance().getConfig().isDatabaseEnabled() || MySQL.isClosed())
+        if (!AntiVPN.getInstance().getVpnConfig().isDatabaseEnabled() || MySQL.isClosed())
             return false;
         ResultSet set = Query.prepare("select uuid from `whitelisted` where `uuid` = ? limit 1")
                 .append(uuid.toString()).executeQuery();
@@ -107,7 +107,7 @@ public class MySqlVPN implements VPNDatabase {
     @SneakyThrows
     @Override
     public boolean isWhitelisted(String ip) {
-        if (!AntiVPN.getInstance().getConfig().isDatabaseEnabled() || MySQL.isClosed())
+        if (!AntiVPN.getInstance().getVpnConfig().isDatabaseEnabled() || MySQL.isClosed())
             return false;
         ResultSet set = Query.prepare("select `ip` from `whitelisted-ips` where `ip` = ? limit 1")
                 .append(ip).executeQuery();
@@ -118,7 +118,7 @@ public class MySqlVPN implements VPNDatabase {
 
     @Override
     public void setWhitelisted(UUID uuid, boolean whitelisted) {
-        if (!AntiVPN.getInstance().getConfig().isDatabaseEnabled() || MySQL.isClosed())
+        if (!AntiVPN.getInstance().getVpnConfig().isDatabaseEnabled() || MySQL.isClosed())
             return;
 
         if (whitelisted) {
@@ -134,7 +134,7 @@ public class MySqlVPN implements VPNDatabase {
 
     @Override
     public void setWhitelisted(String ip, boolean whitelisted) {
-        if (!AntiVPN.getInstance().getConfig().isDatabaseEnabled() || MySQL.isClosed())
+        if (!AntiVPN.getInstance().getVpnConfig().isDatabaseEnabled() || MySQL.isClosed())
             return;
 
         if(whitelisted) {
@@ -234,10 +234,10 @@ public class MySqlVPN implements VPNDatabase {
 
     @Override
     public void init() {
-        if (!AntiVPN.getInstance().getConfig().isDatabaseEnabled())
+        if (!AntiVPN.getInstance().getVpnConfig().isDatabaseEnabled())
             return;
         AntiVPN.getInstance().getExecutor().log("Initializing MySQL...");
-        if(AntiVPN.getInstance().getConfig().getDatabaseType().contains("sql")) {
+        if(AntiVPN.getInstance().getVpnConfig().getDatabaseType().contains("sql")) {
             MySQL.init();
         } else MySQL.initH2();
 
@@ -333,7 +333,7 @@ public class MySqlVPN implements VPNDatabase {
 
     @Override
     public void shutdown() {
-        if (!AntiVPN.getInstance().getConfig().isDatabaseEnabled())
+        if (!AntiVPN.getInstance().getVpnConfig().isDatabaseEnabled())
             return;
         MySQL.shutdown();
     }

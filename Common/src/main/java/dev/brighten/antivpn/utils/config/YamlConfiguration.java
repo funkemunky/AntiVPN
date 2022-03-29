@@ -2,13 +2,19 @@ package dev.brighten.antivpn.utils.config;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import lombok.SneakyThrows;
 import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.error.YAMLException;
+import org.yaml.snakeyaml.nodes.Node;
+import org.yaml.snakeyaml.representer.Represent;
+import org.yaml.snakeyaml.representer.Representer;
 
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.util.*;
 
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
@@ -20,11 +26,17 @@ public class YamlConfiguration extends ConfigurationProvider
         @Override
         protected Yaml initialValue()
         {
+            Representer representer = new Representer()
+            {
+                {
+                    representers.put( Configuration.class, data -> represent( ( (Configuration) data ).self ));
+                }
+            };
 
             DumperOptions options = new DumperOptions();
             options.setDefaultFlowStyle( DumperOptions.FlowStyle.BLOCK );
-
-            return new Yaml(options);
+            representer.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+            return new Yaml( new Constructor(), representer, options );
         }
     };
 
@@ -41,6 +53,9 @@ public class YamlConfiguration extends ConfigurationProvider
     public void save(Configuration config, Writer writer)
     {
         String contents = this.yaml.get().dump(config.self);
+        if (contents.equals("{}\n")) {
+            contents = "";
+        }
 
         List<String> list = new ArrayList<>();
         Collections.addAll(list, contents.split("\n"));
@@ -85,7 +100,7 @@ public class YamlConfiguration extends ConfigurationProvider
         }
 
         try {
-            writer.write(contents);
+            writer.write(sb.toString());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -111,34 +126,37 @@ public class YamlConfiguration extends ConfigurationProvider
         return load( reader, null );
     }
 
+    @SneakyThrows
     @Override
-    @SuppressWarnings("unchecked")
     public Configuration load(Reader reader, Configuration defaults)
     {
-        Map<String, Object> map = yaml.get().loadAs( reader, LinkedHashMap.class );
-        if ( map == null )
-        {
-            map = new LinkedHashMap<>();
+        BufferedReader input = reader instanceof BufferedReader ? (BufferedReader)reader : new BufferedReader(reader);
+        StringBuilder builder = new StringBuilder();
+
+        String line;
+        try {
+            while((line = input.readLine()) != null) {
+                builder.append(line);
+                builder.append('\n');
+            }
+        } finally {
+            input.close();
         }
-        return new Configuration( map, defaults );
+
+
+        return load(builder.toString(), defaults);
     }
 
     @Override
     public Configuration load(InputStream is)
     {
-        return load( is, null );
+        return this.load(new InputStreamReader(is, Charset.defaultCharset()));
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public Configuration load(InputStream is, Configuration defaults)
     {
-        Map<String, Object> map = yaml.get().loadAs( is, LinkedHashMap.class );
-        if ( map == null )
-        {
-            map = new LinkedHashMap<>();
-        }
-        return new Configuration( map, defaults );
+        return this.load(new InputStreamReader(is, Charset.defaultCharset()), defaults);
     }
 
     @Override
@@ -147,15 +165,20 @@ public class YamlConfiguration extends ConfigurationProvider
         return load( string, null );
     }
 
+
     @Override
     @SuppressWarnings("unchecked")
-    public Configuration load(String string, Configuration defaults)
+    public Configuration load(String contents, Configuration defaults)
     {
-        Map<String, Object> map = yaml.get().loadAs( string, LinkedHashMap.class );
-        if ( map == null )
-        {
-            map = new LinkedHashMap<>();
-        }
-        return new Configuration( map, defaults );
+        Map<String, Object> map;
+        LoaderOptions loaderOptions = new LoaderOptions();
+        loaderOptions.setMaxAliasesForCollections(2147483647);
+        map = this.yaml.get().loadAs(contents, LinkedHashMap.class);
+
+        Configuration config = new Configuration( map, defaults );
+        config.loadFromString(contents);
+
+        return config;
     }
+
 }

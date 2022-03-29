@@ -9,7 +9,11 @@ import dev.brighten.antivpn.database.VPNDatabase;
 import dev.brighten.antivpn.database.mongo.MongoVPN;
 import dev.brighten.antivpn.database.sql.MySqlVPN;
 import dev.brighten.antivpn.message.MessageHandler;
+import dev.brighten.antivpn.utils.MiscUtils;
 import dev.brighten.antivpn.utils.VPNResponse;
+import dev.brighten.antivpn.utils.config.Configuration;
+import dev.brighten.antivpn.utils.config.ConfigurationProvider;
+import dev.brighten.antivpn.utils.config.YamlConfiguration;
 import dev.brighten.antivpn.utils.json.JSONException;
 import dev.brighten.antivpn.utils.json.JSONObject;
 import dev.brighten.antivpn.utils.json.JsonReader;
@@ -19,6 +23,9 @@ import lombok.Setter;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,31 +34,44 @@ import java.util.List;
 public class AntiVPN {
 
     private static AntiVPN INSTANCE;
-    private VPNConfig config;
+    private VPNConfig vpnConfig;
     private VPNExecutor executor;
     private PlayerExecutor playerExecutor;
     private VPNDatabase database;
     private MessageHandler messageHandler;
+    private Configuration config;
     private List<Command> commands = new ArrayList<>();
     public int detections, checked;
     private File pluginFolder;
 
-    public static void start(VPNConfig config, VPNExecutor executor, PlayerExecutor playerExecutor, File pluginFolder) {
+    public static void start(VPNExecutor executor, PlayerExecutor playerExecutor, File pluginFolder) {
         //Initializing
 
         INSTANCE = new AntiVPN();
 
         INSTANCE.pluginFolder = pluginFolder;
-        INSTANCE.config = config;
         INSTANCE.executor = executor;
         INSTANCE.playerExecutor = playerExecutor;
+        try {
+            File configFile = new File(pluginFolder, "config.yml");
+            if(!configFile.exists()){
+                configFile.getParentFile().mkdirs();
+                MiscUtils.copy(INSTANCE.getResource( "config.yml"), configFile);
+            }
+            INSTANCE.config = ConfigurationProvider.getProvider(YamlConfiguration.class)
+                    .load(configFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        INSTANCE.vpnConfig = new VPNConfig();
 
         INSTANCE.executor.registerListeners();
-        INSTANCE.config.update();
+        INSTANCE.vpnConfig.update();
 
         INSTANCE.messageHandler = new MessageHandler();
 
-        switch(INSTANCE.config.getDatabaseType().toLowerCase()) {
+        switch(INSTANCE.vpnConfig.getDatabaseType().toLowerCase()) {
             case "mysql":
             case "h2":
             case "sql":{
@@ -68,7 +88,7 @@ public class AntiVPN {
                 break;
             }
             default: {
-                AntiVPN.getInstance().getExecutor().log("Could not find database type \"" + INSTANCE.config.getDatabaseType() + "\". " +
+                AntiVPN.getInstance().getExecutor().log("Could not find database type \"" + INSTANCE.vpnConfig.getDatabaseType() + "\". " +
                         "Options: [MySQL]");
                 break;
             }
@@ -88,6 +108,25 @@ public class AntiVPN {
         });
     }
 
+    public InputStream getResource(String filename) {
+        if (filename == null) {
+            throw new IllegalArgumentException("Filename cannot be null");
+        } else {
+            try {
+                URL url = executor.getClass().getClassLoader().getResource(filename);
+                if (url == null) {
+                    return null;
+                } else {
+                    URLConnection connection = url.openConnection();
+                    connection.setUseCaches(false);
+                    return connection.getInputStream();
+                }
+            } catch (IOException var4) {
+                return null;
+            }
+        }
+    }
+
     public void stop() {
         executor.shutdown();
         if(database != null) database.shutdown();
@@ -97,6 +136,15 @@ public class AntiVPN {
         assert INSTANCE != null: "AntiVPN has not been initialized!";
 
         return INSTANCE;
+    }
+
+    public void saveConfig() {
+        try {
+            ConfigurationProvider.getProvider(YamlConfiguration.class)
+                    .save(getConfig(), new File(pluginFolder.getPath() + File.separator + "config.yml"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public static VPNResponse getVPNResponse(String ip, String license, boolean cachedResults /* faster if set to true*/)

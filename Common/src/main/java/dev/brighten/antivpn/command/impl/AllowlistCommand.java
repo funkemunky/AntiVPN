@@ -57,7 +57,7 @@ public class AllowlistCommand extends Command {
         if(args.length == 1)
             return "&cYou have to provide a player to allow or deny exemption.";
 
-        boolean databaseEnabled = AntiVPN.getInstance().getConfig().isDatabaseEnabled();
+        boolean databaseEnabled = AntiVPN.getInstance().getVpnConfig().isDatabaseEnabled();
 
         if(!databaseEnabled) executor.sendMessage("&cThe database is currently not setup, " +
                 "so any changes here will disappear after a restart.");

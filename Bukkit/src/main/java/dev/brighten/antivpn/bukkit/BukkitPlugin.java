@@ -1,14 +1,13 @@
 package dev.brighten.antivpn.bukkit;
 
 import dev.brighten.antivpn.AntiVPN;
-import dev.brighten.antivpn.bukkit.util.ConfigDefault;
 import dev.brighten.antivpn.command.Command;
+import dev.brighten.antivpn.utils.ConfigDefault;
 import dev.brighten.antivpn.utils.MiscUtils;
 import dev.brighten.antivpn.utils.config.Configuration;
 import lombok.val;
 import net.md_5.bungee.api.ChatColor;
 import org.bstats.bukkit.Metrics;
-import org.bstats.charts.MultiLineChart;
 import org.bstats.charts.SingleLineChart;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -46,9 +45,9 @@ public class BukkitPlugin extends JavaPlugin {
         }
 
         Bukkit.getLogger().info("Starting AntiVPN services...");
-        AntiVPN.start(new BukkitConfig(), new BukkitListener(), new BukkitPlayerExecutor(), getDataFolder());
+        AntiVPN.start(new BukkitListener(), new BukkitPlayerExecutor(), getDataFolder());
 
-        if(AntiVPN.getInstance().getConfig().metrics()) {
+        if(AntiVPN.getInstance().getVpnConfig().metrics()) {
             Bukkit.getLogger().info("Starting bStats metrics...");
             Metrics metrics = new Metrics(this, 12615);
             metrics.addCustomChart(vpnDetections = new SingleLineChart("vpn_detections",
@@ -136,7 +135,7 @@ public class BukkitPlugin extends JavaPlugin {
         }
 
         AntiVPN.getInstance().getMessageHandler().initStrings(vpnString -> new ConfigDefault<>
-                (vpnString.getDefaultMessage(), "messages." + vpnString.getKey(), BukkitPlugin.pluginInstance)
+                (vpnString.getDefaultMessage(), "messages." + vpnString.getKey(), AntiVPN.getInstance())
                 .get());
         //TODO Finish system before implementing on startup
         /*Bukkit.getLogger().info("Getting strings...");

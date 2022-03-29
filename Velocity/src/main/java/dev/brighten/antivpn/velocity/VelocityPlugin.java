@@ -10,7 +10,6 @@ import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
 import dev.brighten.antivpn.AntiVPN;
 import dev.brighten.antivpn.command.Command;
-import dev.brighten.antivpn.velocity.util.Config;
 import lombok.Getter;
 import lombok.val;
 import net.kyori.adventure.text.Component;
@@ -37,8 +36,6 @@ public class VelocityPlugin {
     @DataDirectory
     private Path configDir;
 
-    private Config config;
-
     @Inject
     public VelocityPlugin(ProxyServer server, Logger logger, Metrics.Factory metricsFactory) {
         this.server = server;
@@ -50,13 +47,12 @@ public class VelocityPlugin {
     public void onInit(ProxyInitializeEvent event) {
         INSTANCE = this;
         logger.info("Loading config...");
-        config = new Config();
 
         //Loading plugin
         logger.info("Starting AntiVPN services...");
-        AntiVPN.start(new VelocityConfig(), new VelocityListener(), new VelocityPlayerExecutor(), configDir.toFile());
+        AntiVPN.start(new VelocityListener(), new VelocityPlayerExecutor(), configDir.toFile());
 
-        if(AntiVPN.getInstance().getConfig().metrics()) {
+        if(AntiVPN.getInstance().getVpnConfig().metrics()) {
             logger.info("Starting metrics...");
             Metrics metrics = metricsFactory.make(this, 12791);
         }

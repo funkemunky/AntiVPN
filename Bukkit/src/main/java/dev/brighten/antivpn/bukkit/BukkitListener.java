@@ -73,7 +73,7 @@ public class BukkitListener extends VPNExecutor implements Listener {
         //If they're exempt, don't check.
         if(AntiVPN.getInstance().getExecutor().isWhitelisted(event.getPlayer().getUniqueId())
                 || AntiVPN.getInstance().getExecutor().isWhitelisted(event.getAddress().getHostAddress())) return;
-        checkIp(event.getAddress().getHostAddress(), AntiVPN.getInstance().getConfig().cachedResults(), result -> {
+        checkIp(event.getAddress().getHostAddress(), AntiVPN.getInstance().getVpnConfig().cachedResults(), result -> {
             if(result.isSuccess() && result.isProxy()) {
                 new BukkitRunnable() {
                     public void run() {
@@ -81,25 +81,25 @@ public class BukkitListener extends VPNExecutor implements Listener {
 
                         if(!player.hasPermission("antivpn.bypass") //Has bypass permission
                                 //Or has a name that starts with a certain prefix. This is for Bedrock exempting.
-                                && AntiVPN.getInstance().getConfig().getPrefixWhitelists().stream()
+                                && AntiVPN.getInstance().getVpnConfig().getPrefixWhitelists().stream()
                                 .noneMatch(prefix -> player.getName().startsWith(prefix))) {
-                            if (AntiVPN.getInstance().getConfig().kickPlayersOnDetect())
+                            if (AntiVPN.getInstance().getVpnConfig().kickPlayersOnDetect())
                                 player.kickPlayer(ChatColor.translateAlternateColorCodes('&',
-                                        AntiVPN.getInstance().getConfig().getKickString()));
+                                        AntiVPN.getInstance().getVpnConfig().getKickString()));
 
                             //Ensuring the user wishes to alert to staff
-                            if(AntiVPN.getInstance().getConfig().alertToStaff())
+                            if(AntiVPN.getInstance().getVpnConfig().alertToStaff())
                                 AntiVPN.getInstance().getPlayerExecutor().getOnlinePlayers().stream()
                                         .filter(APIPlayer::isAlertsEnabled)
-                                        .forEach(pl -> pl.sendMessage(AntiVPN.getInstance().getConfig()
+                                        .forEach(pl -> pl.sendMessage(AntiVPN.getInstance().getVpnConfig()
                                                 .alertMessage().replace("%player%", event.getPlayer().getName())
                                                 .replace("%reason%", result.getMethod())
                                                 .replace("%country%", result.getCountryName())
                                                 .replace("%city%", result.getCity())));
 
                             //In case the user wants to run their own commands instead of using the built in kicking
-                            if(AntiVPN.getInstance().getConfig().runCommands())
-                                for (String command : AntiVPN.getInstance().getConfig().commands()) {
+                            if(AntiVPN.getInstance().getVpnConfig().runCommands())
+                                for (String command : AntiVPN.getInstance().getVpnConfig().commands()) {
                                     Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
                                             ChatColor.translateAlternateColorCodes('&',
                                                     command.replace("%player%", event.getPlayer().getName())));

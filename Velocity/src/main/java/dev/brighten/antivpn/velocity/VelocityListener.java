@@ -28,30 +28,30 @@ public class VelocityListener extends VPNExecutor {
                         //Or has a name that starts with a certain prefix. This is for Bedrock exempting.
                         || AntiVPN.getInstance().getExecutor().isWhitelisted(event.getPlayer().getRemoteAddress()
                                 .getAddress().getHostAddress())
-                        || AntiVPN.getInstance().getConfig().getPrefixWhitelists().stream()
+                        || AntiVPN.getInstance().getVpnConfig().getPrefixWhitelists().stream()
                         .anyMatch(prefix -> event.getPlayer().getUsername().startsWith(prefix))) return;
 
                 checkIp(event.getPlayer().getRemoteAddress().getAddress().getHostAddress(),
-                        AntiVPN.getInstance().getConfig().cachedResults(), result -> {
+                        AntiVPN.getInstance().getVpnConfig().cachedResults(), result -> {
                             if(result.isSuccess() && result.isProxy()) {
-                                if(AntiVPN.getInstance().getConfig().kickPlayersOnDetect())
+                                if(AntiVPN.getInstance().getVpnConfig().kickPlayersOnDetect())
                                     event.getPlayer().disconnect(LegacyComponentSerializer.builder().character('&')
-                                            .build().deserialize(AntiVPN.getInstance().getConfig().getKickString()));
+                                            .build().deserialize(AntiVPN.getInstance().getVpnConfig().getKickString()));
                                 VelocityPlugin.INSTANCE.getLogger().info(event.getPlayer().getUsername()
                                         + " joined on a VPN/Proxy (" + result.getMethod() + ")");
 
-                                if(AntiVPN.getInstance().getConfig().alertToStaff()) //Ensuring the user wishes to alert to staff
+                                if(AntiVPN.getInstance().getVpnConfig().alertToStaff()) //Ensuring the user wishes to alert to staff
                                     AntiVPN.getInstance().getPlayerExecutor().getOnlinePlayers().stream()
                                             .filter(APIPlayer::isAlertsEnabled)
-                                            .forEach(pl -> pl.sendMessage(AntiVPN.getInstance().getConfig().alertMessage()
+                                            .forEach(pl -> pl.sendMessage(AntiVPN.getInstance().getVpnConfig().alertMessage()
                                                     .replace("%player%", event.getPlayer().getUsername())
                                                     .replace("%reason%", result.getMethod())
                                                     .replace("%country%", result.getCountryName())
                                                     .replace("%city%", result.getCity())));
 
                                 //In case the user wants to run their own commands instead of using the built in kicking
-                                if(AntiVPN.getInstance().getConfig().runCommands()) {
-                                    for (String command : AntiVPN.getInstance().getConfig().commands()) {
+                                if(AntiVPN.getInstance().getVpnConfig().runCommands()) {
+                                    for (String command : AntiVPN.getInstance().getVpnConfig().commands()) {
                                         VelocityPlugin.INSTANCE.getServer().getCommandManager()
                                                 .executeAsync(VelocityPlugin.INSTANCE.getServer()
                                                                 .getConsoleCommandSource(),

@@ -1,10 +1,8 @@
 package dev.brighten.antivpn.bungee;
 
 import dev.brighten.antivpn.AntiVPN;
-import dev.brighten.antivpn.bungee.util.Config;
-import dev.brighten.antivpn.bungee.util.ConfigDefault;
 import dev.brighten.antivpn.command.Command;
-import lombok.Getter;
+import dev.brighten.antivpn.utils.ConfigDefault;
 import lombok.val;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.api.ChatColor;
@@ -24,8 +22,6 @@ public class BungeePlugin extends Plugin {
 
     public static BungeePlugin pluginInstance;
 
-    @Getter
-    private Config config;
     private SingleLineChart vpnDetections, ipsChecked;
 
     private static final BaseComponent[] noPermission = new ComponentBuilder("No permission").color(ChatColor.RED)
@@ -37,14 +33,13 @@ public class BungeePlugin extends Plugin {
 
         //Setting up config
         BungeeCord.getInstance().getLogger().info("Loading config...");
-        config = new Config();
 
 
         //Loading plugin
         BungeeCord.getInstance().getLogger().info("Starting AntiVPN services...");
-        AntiVPN.start(new BungeeConfig(), new BungeeListener(), new BungeePlayerExecutor(), getDataFolder());
+        AntiVPN.start(new BungeeListener(), new BungeePlayerExecutor(), getDataFolder());
 
-        if(AntiVPN.getInstance().getConfig().metrics()) {
+        if(AntiVPN.getInstance().getVpnConfig().metrics()) {
             BungeeCord.getInstance().getLogger().info("Starting bStats metrics...");
             Metrics metrics = new Metrics(this, 12616);
             metrics.addCustomChart(vpnDetections = new SingleLineChart("vpn_detections",
@@ -103,7 +98,7 @@ public class BungeePlugin extends Plugin {
 
         BungeeCord.getInstance().getLogger().info("Getting strings...");
         AntiVPN.getInstance().getMessageHandler().initStrings(vpnString -> new ConfigDefault<>
-                (vpnString.getDefaultMessage(), "messages." + vpnString.getKey(), BungeePlugin.pluginInstance)
+                (vpnString.getDefaultMessage(), "messages." + vpnString.getKey(), AntiVPN.getInstance())
                 .get());
         //TODO Finish system before implementing on startup
         /*BungeeCord.getInstance().getLogger().info("Getting strings...");

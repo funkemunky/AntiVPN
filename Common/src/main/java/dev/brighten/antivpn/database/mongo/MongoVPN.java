@@ -170,26 +170,26 @@ public class MongoVPN implements VPNDatabase {
 
     @Override
     public void init() {
-        if(AntiVPN.getInstance().getConfig().mongoDatabaseURL().length() > 0) { //URL
-            ConnectionString cs = new ConnectionString(AntiVPN.getInstance().getConfig().mongoDatabaseURL());
+        if(AntiVPN.getInstance().getVpnConfig().mongoDatabaseURL().length() > 0) { //URL
+            ConnectionString cs = new ConnectionString(AntiVPN.getInstance().getVpnConfig().mongoDatabaseURL());
             MongoClientSettings settings = MongoClientSettings.builder().applyConnectionString(cs).build();
             client = MongoClients.create(settings);
         } else {
             MongoClientSettings.Builder settingsBld = MongoClientSettings.builder().readPreference(ReadPreference.nearest())
                     .applyToClusterSettings(builder -> {
-                        builder.hosts(Collections.singletonList(new ServerAddress(AntiVPN.getInstance().getConfig().getIp(),
-                                AntiVPN.getInstance().getConfig().getPort())));
+                        builder.hosts(Collections.singletonList(new ServerAddress(AntiVPN.getInstance().getVpnConfig().getIp(),
+                                AntiVPN.getInstance().getVpnConfig().getPort())));
                     });
-            if(AntiVPN.getInstance().getConfig().useDatabaseCreds()) {
+            if(AntiVPN.getInstance().getVpnConfig().useDatabaseCreds()) {
                 settingsBld = settingsBld.credential(MongoCredential
-                        .createCredential(AntiVPN.getInstance().getConfig().getUsername(),
-                                AntiVPN.getInstance().getConfig().getDatabaseName(),
-                                AntiVPN.getInstance().getConfig().getPassword().toCharArray()));
+                        .createCredential(AntiVPN.getInstance().getVpnConfig().getUsername(),
+                                AntiVPN.getInstance().getVpnConfig().getDatabaseName(),
+                                AntiVPN.getInstance().getVpnConfig().getPassword().toCharArray()));
             }
 
             client = MongoClients.create(settingsBld.build());
         }
-        antivpnDatabase = client.getDatabase(AntiVPN.getInstance().getConfig().getDatabaseName());
+        antivpnDatabase = client.getDatabase(AntiVPN.getInstance().getVpnConfig().getDatabaseName());
 
         settingsDocument = antivpnDatabase.getCollection("settings");
         if(settingsDocument.listIndexes().first() == null) {

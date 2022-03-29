@@ -20,16 +20,16 @@ public class MySQL {
                 } catch (ClassNotFoundException e) {
                     Class.forName("com.mysql.jdbc.Driver");
                 }
-                conn = DriverManager.getConnection("jdbc:mysql://" + AntiVPN.getInstance().getConfig().getIp()
-                                + ":" + AntiVPN.getInstance().getConfig().getPort()
+                conn = DriverManager.getConnection("jdbc:mysql://" + AntiVPN.getInstance().getVpnConfig().getIp()
+                                + ":" + AntiVPN.getInstance().getVpnConfig().getPort()
                                 + "/?useSSL=true&autoReconnect=true",
-                        AntiVPN.getInstance().getConfig().getUsername(),
-                        AntiVPN.getInstance().getConfig().getPassword());
+                        AntiVPN.getInstance().getVpnConfig().getUsername(),
+                        AntiVPN.getInstance().getVpnConfig().getPassword());
                 conn.setAutoCommit(true);
                 Query.use(conn);
                 Query.prepare("CREATE DATABASE IF NOT EXISTS `"
-                        + AntiVPN.getInstance().getConfig().getDatabaseName() + "`").execute();
-                Query.prepare("USE `" + AntiVPN.getInstance().getConfig().getDatabaseName() + "`").execute();
+                        + AntiVPN.getInstance().getVpnConfig().getDatabaseName() + "`").execute();
+                Query.prepare("USE `" + AntiVPN.getInstance().getVpnConfig().getDatabaseName() + "`").execute();
                 AntiVPN.getInstance().getExecutor().log("Connection to MySQL has been established.");
             }
         } catch (Exception e) {
@@ -44,7 +44,7 @@ public class MySQL {
             Class.forName("org.h2.Driver");
             conn = new NonClosableConnection(DriverManager.getConnection ("jdbc:h2:file:" +
                     dataFolder.getAbsolutePath(),
-                    AntiVPN.getInstance().getConfig().getUsername(),AntiVPN.getInstance().getConfig().getPassword()));
+                    AntiVPN.getInstance().getVpnConfig().getUsername(),AntiVPN.getInstance().getVpnConfig().getPassword()));
             conn.setAutoCommit(true);
             Query.use(conn);
             AntiVPN.getInstance().getExecutor().log("Connection to SQlLite has been established.");

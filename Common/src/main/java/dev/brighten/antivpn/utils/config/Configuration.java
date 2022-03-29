@@ -53,7 +53,7 @@ public final class Configuration
             String line = iterator.next();
 
             String trimmed = line.trim();
-            if(trimmed.startsWith("##") || trimmed.isEmpty()) {
+            if(trimmed.startsWith("#") || trimmed.isEmpty()) {
                 addCommentLine(currentPath, line);
                 continue;
             }
