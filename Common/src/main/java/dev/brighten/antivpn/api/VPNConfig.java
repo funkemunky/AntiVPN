@@ -4,6 +4,7 @@ import dev.brighten.antivpn.AntiVPN;
 import dev.brighten.antivpn.utils.ConfigDefault;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -37,6 +38,8 @@ public class VPNConfig {
             = new ConfigDefault<>(true, "kickPlayers", AntiVPN.getInstance()),
             defaultAlertToStaff = new ConfigDefault<>(true, "alerts.enabled",
                     AntiVPN.getInstance()),
+            defaultWhitelistCountries = new ConfigDefault<>(true, "countries.whitelist",
+                    AntiVPN.getInstance()),
             defaultMetrics = new ConfigDefault<>(true, "bstats", AntiVPN.getInstance());
     private final ConfigDefault<Integer>
             defaultPort = new ConfigDefault<>(-1, "database.port", AntiVPN.getInstance());
@@ -44,95 +47,184 @@ public class VPNConfig {
             "prefixWhitelists", AntiVPN.getInstance()), defaultCommands = new ConfigDefault<>(
             Collections.singletonList("kick %player% VPNs are not allowed on our server!"), "commands.execute",
             AntiVPN.getInstance()),
-            defBlockedCountries = new ConfigDefault<>(new ArrayList<>(), "blockedCountries",
-                    AntiVPN.getInstance()),
-            defAllowedCountries = new ConfigDefault<>(new ArrayList<>(), "allowedCountries",
+            defCountryKickCommands = new ConfigDefault<>(Collections.singletonList(
+                    "&cSorry, but our server does not allow connections from\n&f%name%"),
+                    "countries.kickMessage", AntiVPN.getInstance()),
+            defCountrylist = new ConfigDefault<>(new ArrayList<>(), " countries.list",
                     AntiVPN.getInstance());
 
     private String license, kickMessage, databaseType, databaseName, mongoURL, username, password, ip, alertMsg;
-    private List<String> prefixWhitelists, commands, allowedCountries, blockedCountries;
+    private List<String> prefixWhitelists, commands, countryList, countryKickCommands;
     private int port;
-    private boolean cacheResults, databaseEnabled, useCredentials, commandsEnabled, kickPlayers, alertToStaff, metrics;
+    private boolean cacheResults, databaseEnabled, useCredentials, commandsEnabled, kickPlayers, alertToStaff,
+            metrics, whitelistCountries;
 
+    /**
+     * License from https://funkemunky.cc/shop to be used for more queries.
+     * @return String
+     */
     public String getLicense() {
         return license;
     }
 
+    /**
+     * If true, results will be cached to reduce queries to https://funkemunky.cc
+     * @return boolean
+     */
     public boolean cachedResults() {
         return cacheResults;
     }
 
+    /**
+     * Will be used for vanilla kick message when {@link VPNConfig#runCommands()} is true.
+     * @return String
+     */
     public String getKickString() {
         return kickMessage;
     }
-    
+
+    /**
+     * Message to send staff on proxy detection.
+     * @return String
+     */
     public String alertMessage() {
         return alertMsg;
     }
-    
+
+    /**
+     * If true, staff will be alerted on proxy detection.
+     * @return boolean
+     */
     public boolean alertToStaff() {
         return alertToStaff;
     }
 
+    /**
+     * If true, will run {@link VPNConfig#commands()} on detect. If not, it will use vanilla kicking methods.
+     * @return boolean
+     */
     public boolean runCommands() {
         return commandsEnabled;
     }
-    
+
+    /**
+     * Commands to run on proxy detection.
+     * @return List
+     */
     public List<String> commands() {
         return commands;
     }
 
+    /**
+     * If false, no commands nor kick will be run on proxy detection.
+     * @return boolean
+     */
     public boolean kickPlayersOnDetect() {
         return kickPlayers;
     }
-    
+
+    /**
+     * Returns Strings of which are checked against the beginning of player names. Used to
+     * allow Geyser-connected players to join.
+     * @return List
+     */
     public List<String> getPrefixWhitelists() {
         return prefixWhitelists;
     }
-    
+
+    /**
+     * Returns true if we want to use a database
+     * @return boolean
+     */
     public boolean isDatabaseEnabled() {
         return databaseEnabled;
     }
 
+    /**
+     * Whether or not the database we want to connect to requires credentials.
+     * @return boolean
+     */
     public boolean useDatabaseCreds() {
         return useCredentials;
     }
 
+    /**
+     * Only for Mongo only. URL used for connecting to database. Overrides other fields
+     * @return String
+     */
     public String mongoDatabaseURL() {
         return mongoURL;
     }
-    
+
+    /**
+     * Database type. Either MySQL and Mongo.
+     * @return String
+     */
     public String getDatabaseType() {
         return databaseType;
     }
-    
+
+    /**
+     * Database name
+     * @return String
+     */
     public String getDatabaseName() {
         return databaseName;
     }
 
+    /**
+     * Database username
+     * @return String
+     */
     public String getUsername() {
         return username;
     }
-    
+
+    /**
+     * Database Password
+     * @return String
+     */
     public String getPassword() {
         return password;
     }
 
+    /**
+     * Database IP
+     * @return String
+     */
     public String getIp() {
         return ip;
     }
 
-    
-    public List<String> allowedCountries() {
-        return allowedCountries;
+    /**
+     * Returns the list of ISO country codes we need to check.
+     * @return List
+     */
+    public List<String> countryList() {
+        return countryList;
     }
 
-    
-    public List<String> blockedCountries() {
-        return blockedCountries;
+    /**
+     * If true, we only allow the {@link VPNConfig#countryKickCommands()}. If false, we blacklist them.
+     * @return boolean
+     */
+    public boolean whitelistCountries() {
+        return whitelistCountries;
     }
 
-    
+    /**
+     * Returns our configured commands to run on player country detection.
+     * @return List
+     */
+    public List<String> countryKickCommands() {
+        return countryKickCommands;
+    }
+
+    /**
+     * Gets the port based on configuration. If {@link VPNConfig#port} is -1, will get default port
+     * based on {@link VPNConfig#getDatabaseType()} lowerCase().
+     * @return int
+     */
     public int getPort() {
         if(port == -1) {
             switch (getDatabaseType().toLowerCase()) {
@@ -149,11 +241,18 @@ public class VPNConfig {
         return port;
     }
 
-    
+
+    /**
+     * If true, https://bstats.org metrics will be collected to improve KauriVPN.
+     * @return boolean
+     */
     public boolean metrics() {
         return metrics;
     }
 
+    /**
+     * Grabs all information from the config.yml
+     */
     public void update() {
         license = licenseDefault.get();
         kickMessage = kickStringDefault.get();
@@ -174,8 +273,9 @@ public class VPNConfig {
         alertToStaff = defaultAlertToStaff.get();
         alertMsg = defaultAlertMsg.get();
         metrics = defaultMetrics.get();
-        blockedCountries = defBlockedCountries.get();
-        allowedCountries = defAllowedCountries.get();
+        countryList = defCountrylist.get();
+        whitelistCountries = defaultWhitelistCountries.get();
+        countryKickCommands = defCountryKickCommands.get();
     }
 
 }

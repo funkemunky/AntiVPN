@@ -57,34 +57,55 @@ public class BungeeListener extends VPNExecutor implements Listener {
 
         checkIp(event.getPlayer().getAddress().getAddress().getHostAddress(),
                 AntiVPN.getInstance().getVpnConfig().cachedResults(), result -> {
-            if(result.isSuccess() && result.isProxy()) {
-                if(AntiVPN.getInstance().getVpnConfig().kickPlayersOnDetect())
-                event.getPlayer().disconnect(TextComponent.fromLegacyText(ChatColor
-                        .translateAlternateColorCodes('&',
-                                AntiVPN.getInstance().getVpnConfig().getKickString())));
-                BungeeCord.getInstance().getLogger().info(event.getPlayer().getName()
-                        + " joined on a VPN/Proxy (" + result.getMethod() + ")");
+            if(result.isSuccess()) {
+                if(result.isProxy()) {
+                    if(AntiVPN.getInstance().getVpnConfig().kickPlayersOnDetect())
+                        event.getPlayer().disconnect(TextComponent.fromLegacyText(ChatColor
+                                .translateAlternateColorCodes('&',
+                                        AntiVPN.getInstance().getVpnConfig().getKickString())));
+                    BungeeCord.getInstance().getLogger().info(event.getPlayer().getName()
+                            + " joined on a VPN/Proxy (" + result.getMethod() + ")");
 
-                if(AntiVPN.getInstance().getVpnConfig().alertToStaff()) //Ensuring the user wishes to alert to staff
-                AntiVPN.getInstance().getPlayerExecutor().getOnlinePlayers().stream()
-                        .filter(APIPlayer::isAlertsEnabled)
-                        .forEach(pl -> pl.sendMessage(AntiVPN.getInstance().getVpnConfig().alertMessage()
-                                .replace("%player%", event.getPlayer().getName())
-                                .replace("%reason%", result.getMethod())
-                                .replace("%country%", result.getCountryName())
-                                .replace("%city%", result.getCity())));
+                    if(AntiVPN.getInstance().getVpnConfig().alertToStaff()) //Ensuring the user wishes to alert to staff
+                        AntiVPN.getInstance().getPlayerExecutor().getOnlinePlayers().stream()
+                                .filter(APIPlayer::isAlertsEnabled)
+                                .forEach(pl -> pl.sendMessage(AntiVPN.getInstance().getVpnConfig().alertMessage()
+                                        .replace("%player%", event.getPlayer().getName())
+                                        .replace("%reason%", result.getMethod())
+                                        .replace("%country%", result.getCountryName())
+                                        .replace("%city%", result.getCity())));
 
-                //In case the user wants to run their own commands instead of using the built in kicking
-                if(AntiVPN.getInstance().getVpnConfig().runCommands()) {
-                    for (String command : AntiVPN.getInstance().getVpnConfig().commands()) {
-                        BungeeCord.getInstance().getPluginManager()
-                                .dispatchCommand(BungeeCord.getInstance().getConsole(),
-                                        ChatColor.translateAlternateColorCodes('&',
-                                                command.replace("%player%", event.getPlayer().getName())));
+                    //In case the user wants to run their own commands instead of using the built in kicking
+                    if(AntiVPN.getInstance().getVpnConfig().runCommands()) {
+                        for (String command : AntiVPN.getInstance().getVpnConfig().commands()) {
+                            BungeeCord.getInstance().getPluginManager()
+                                    .dispatchCommand(BungeeCord.getInstance().getConsole(),
+                                            ChatColor.translateAlternateColorCodes('&',
+                                                    command.replace("%player%", event.getPlayer().getName())));
+                        }
+                    }
+                    AntiVPN.getInstance().detections++;
+                }
+
+                // If the countryList() size is zero, no need to check.
+                if(AntiVPN.getInstance().getVpnConfig().countryList().size() > 0
+                        // This bit of code will decide whether or not to kick the player
+                        // If it contains the code and it is set to whitelist, it will not kick as they are equal
+                        // and vise versa. However, if the contains does not match the state, it will kick.
+                        && AntiVPN.getInstance().getVpnConfig().countryList()
+                        .contains(result.getCountryCode()) != AntiVPN.getInstance().getVpnConfig().whitelistCountries()) {
+                    for (String cmd : AntiVPN.getInstance().getVpnConfig().countryKickCommands()) {
+                        final String formattedCommand = ChatColor.translateAlternateColorCodes('&',
+                                cmd.replace("%player%", event.getPlayer().getName())
+                                        .replace("%country%", result.getCountryName())
+                                        .replace("%code%", result.getCountryCode()));
+
+                        BungeeCord.getInstance().getPluginManager().dispatchCommand(
+                                BungeeCord.getInstance().getConsole(), formattedCommand);
                     }
                 }
-                AntiVPN.getInstance().detections++;
-            } else if(!result.isSuccess()) {
+
+            } else {
                 BungeeCord.getInstance().getLogger()
                         .log(Level.WARNING,
                                 "The API query was not a success! " +
