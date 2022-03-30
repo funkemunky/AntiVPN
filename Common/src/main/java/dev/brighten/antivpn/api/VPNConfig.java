@@ -48,9 +48,9 @@ public class VPNConfig {
             Collections.singletonList("kick %player% VPNs are not allowed on our server!"), "commands.execute",
             AntiVPN.getInstance()),
             defCountryKickCommands = new ConfigDefault<>(Collections.singletonList(
-                    "&cSorry, but our server does not allow connections from\n&f%name%"),
-                    "countries.kickMessage", AntiVPN.getInstance()),
-            defCountrylist = new ConfigDefault<>(new ArrayList<>(), " countries.list",
+                    "kick %player% &cSorry, but our server does not allow connections from\\n&f%country%"),
+                    "countries.commands", AntiVPN.getInstance()),
+            defCountrylist = new ConfigDefault<>(new ArrayList<>(), "countries.list",
                     AntiVPN.getInstance());
 
     private String license, kickMessage, databaseType, databaseName, mongoURL, username, password, ip, alertMsg;

@@ -4,6 +4,7 @@ import com.velocitypowered.api.event.connection.LoginEvent;
 import com.velocitypowered.api.scheduler.ScheduledTask;
 import dev.brighten.antivpn.AntiVPN;
 import dev.brighten.antivpn.api.APIPlayer;
+import dev.brighten.antivpn.api.VPNConfig;
 import dev.brighten.antivpn.api.VPNExecutor;
 import dev.brighten.antivpn.velocity.util.StringUtils;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -73,6 +74,14 @@ public class VelocityListener extends VPNExecutor {
                                     AntiVPN.getInstance().detections++;
                                 }
 
+                                for (String s : AntiVPN.getInstance().getVpnConfig().countryList()) {
+                                    VelocityPlugin.INSTANCE.getLogger().info(s);
+                                }
+
+                                System.out.println("Code: '" + result.getCountryCode() + "'");
+                                System.out.println("Contains: " + AntiVPN.getInstance().getVpnConfig().countryList()
+                                        .contains(result.getCountryCode()) + ", "
+                                        + AntiVPN.getInstance().getVpnConfig().whitelistCountries());
                                 // If the countryList() size is zero, no need to check.
                                 if(AntiVPN.getInstance().getVpnConfig().countryList().size() > 0
                                         // This bit of code will decide whether or not to kick the player
@@ -88,6 +97,7 @@ public class VelocityListener extends VPNExecutor {
                                                         cmd.replace("%player%", event.getPlayer().getUsername())
                                                                 .replace("%country%", result.getCountryName())
                                                                 .replace("%code%", result.getCountryCode()));
+                                        System.out.println(formattedCommand);
                                         VelocityPlugin.INSTANCE.getServer().getCommandManager()
                                                 .executeAsync(VelocityPlugin.INSTANCE.getServer()
                                                                 .getConsoleCommandSource(),
