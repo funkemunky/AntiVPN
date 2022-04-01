@@ -48,6 +48,20 @@ alerts:
   # %city% (City name).
   message: '&8[&6KauriVPN&8] &e%player% &7has joined on a VPN/proxy &8(&f%reason%&8)
     &7in location &8(&f%city%&7, &f%country%&8)'
+# Configuration for country gatekeepings
+countries:
+  # You must use ISO codes for country configuration: https://www.iban.com/country-code
+  # Leave empty to disable this configuration
+  list: []
+  # Set whitelist to true to only allow listed country codes, and false to deny listed country codes.
+  whitelist: true
+  # The commands to be run if the player is not allowed on the server with the above configured conditions
+  # Placeholders: %country% (Country name), %player% (Player name), %code% (Country ISO Code)
+  # Keep this empty with "[]" if you want to use the built in kicking system.
+  commands: []
+  # The kick message that will be used if commands are configured to use the built-in kicking sytem.
+  # PlaceHolders: %country% (Country name), %player% (Player name), %code% (Country ISO Code)
+  vanillaKickReason: "&cSorry, but our server does not allow connections from\n&f%country%"
 # This will disable any information being sent to https://bstats.org. We recommend you keep this enabled as it helps
 # us understand our users and put effort where it is needed. All information sent goes under their privacy as seen
 # here: https://bstats.org/privacy-policy
