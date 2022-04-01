@@ -17,8 +17,8 @@ database:
   # Enable to cache queries and save alerts state beyond restarts
   enabled: false
   useCredentials: true
-  #Options Mongo and MySQL
-  type: MySQL
+  #Options Mongo, MySQL, or H2
+  type: H2
   # The database name you would like to use
   database: kaurivpn
   # Can be used if you prefer to authenticate via Mongo URL

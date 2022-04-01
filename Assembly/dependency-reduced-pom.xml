@@ -11,7 +11,7 @@
     <plugins>
       <plugin>
         <artifactId>maven-shade-plugin</artifactId>
-        <version>3.1.0</version>
+        <version>3.2.4</version>
         <executions>
           <execution>
             <phase>package</phase>
@@ -20,6 +20,32 @@
             </goals>
             <configuration>
               <minimizeJar>false</minimizeJar>
+              <relocations>
+                <relocation>
+                  <pattern>org.yaml.snakeyaml</pattern>
+                  <shadedPattern>dev.brighten.antivpn.utils.shaded.org.yaml.snakeyaml</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>com.mongodb</pattern>
+                  <shadedPattern>dev.brighten.antivpn.utils.shaded.com.mongodb</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>org.bson</pattern>
+                  <shadedPattern>dev.brighten.antivpn.utils.shaded.org.bson</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>com.mysql</pattern>
+                  <shadedPattern>dev.brighten.antivpn.utils.shaded.com.mysql</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>com.google</pattern>
+                  <shadedPattern>dev.brighten.antivpn.utils.shaded.com.google</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>com.moandjiezana</pattern>
+                  <shadedPattern>dev.brighten.antivpn.utils.shaded.com.moandjiezana</shadedPattern>
+                </relocation>
+              </relocations>
             </configuration>
           </execution>
         </executions>
@@ -39,4 +65,3 @@
     <maven.compiler.source>8</maven.compiler.source>
   </properties>
 </project>
-
