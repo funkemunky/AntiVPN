@@ -37,6 +37,7 @@ public class VelocityListener extends VPNExecutor {
                         AntiVPN.getInstance().getVpnConfig().cachedResults(), result -> {
                             if(result.isSuccess()) {
                                 // If the countryList() size is zero, no need to check.
+                                // Running country check first
                                 if(AntiVPN.getInstance().getVpnConfig().countryList().size() > 0
                                         // This bit of code will decide whether or not to kick the player
                                         // If it contains the code and it is set to whitelist, it will not kick
@@ -45,18 +46,31 @@ public class VelocityListener extends VPNExecutor {
                                         && AntiVPN.getInstance().getVpnConfig().countryList()
                                         .contains(result.getCountryCode())
                                         != AntiVPN.getInstance().getVpnConfig().whitelistCountries()) {
-                                    for (String cmd : AntiVPN.getInstance().getVpnConfig().countryKickCommands()) {
-                                        final String formattedCommand = StringUtils
-                                                .translateAlternateColorCodes('&',
-                                                        cmd.replace("%player%", event.getPlayer().getUsername())
-                                                                .replace("%country%", result.getCountryName())
-                                                                .replace("%code%", result.getCountryCode()));
-                                        System.out.println(formattedCommand);
-                                        VelocityPlugin.INSTANCE.getServer().getCommandManager()
-                                                .executeAsync(VelocityPlugin.INSTANCE.getServer()
-                                                                .getConsoleCommandSource(),
-                                                        StringUtils.translateAlternateColorCodes('&',
-                                                                formattedCommand));
+                                    //Using our built in kicking system if no commands are configured
+                                    if(AntiVPN.getInstance().getVpnConfig().countryKickCommands().size() == 0) {
+                                        final String kickReason = AntiVPN.getInstance().getVpnConfig()
+                                                .countryVanillaKickReason();
+                                        // Kicking our player
+                                        event.getPlayer().disconnect(LegacyComponentSerializer.builder().character('&')
+                                                .build().deserialize(kickReason
+                                                        .replace("%player%", event.getPlayer().getUsername())
+                                                        .replace("%country%", result.getCountryName())
+                                                        .replace("%code%", result.getCountryCode())));
+                                    } else {
+                                        for (String cmd : AntiVPN.getInstance().getVpnConfig().countryKickCommands()) {
+                                            final String formattedCommand = StringUtils
+                                                    .translateAlternateColorCodes('&',
+                                                            cmd.replace("%player%",
+                                                                            event.getPlayer().getUsername())
+                                                                    .replace("%country%", result.getCountryName())
+                                                                    .replace("%code%", result.getCountryCode()));
+                                            // Running the command from console
+                                            VelocityPlugin.INSTANCE.getServer().getCommandManager()
+                                                    .executeAsync(VelocityPlugin.INSTANCE.getServer()
+                                                                    .getConsoleCommandSource(),
+                                                            StringUtils.translateAlternateColorCodes('&',
+                                                                    formattedCommand));
+                                        }
                                     }
                                 } else if(result.isProxy()) {
                                     if(AntiVPN.getInstance().getVpnConfig().kickPlayersOnDetect())

@@ -57,8 +57,11 @@ countries:
   whitelist: true
   # The commands to be run if the player is not allowed on the server with the above configured conditions
   # Placeholders: %country% (Country name), %player% (Player name), %code% (Country ISO Code)
-  commands:
-    - "kick %player% &cSorry, but our server does not allow connections from\n&f%country%"
+  # Keep this empty with "[]" if you want to use the built in kicking system.
+  commands: []
+  # The kick message that will be used if commands are configured to use the built-in kicking sytem.
+  # PlaceHolders: %country% (Country name), %player% (Player name), %code% (Country ISO Code)
+  vanillaKickReason: "&cSorry, but our server does not allow connections from\n&f%country%"
 # This will disable any information being sent to https://bstats.org. We recommend you keep this enabled as it helps
 # us understand our users and put effort where it is needed. All information sent goes under their privacy as seen
 # here: https://bstats.org/privacy-policy

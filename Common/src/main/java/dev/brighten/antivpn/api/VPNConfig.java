@@ -22,9 +22,10 @@ public class VPNConfig {
                     "database.username", AntiVPN.getInstance()),
             defaultPassword = new ConfigDefault<>("password",
                     "database.password", AntiVPN.getInstance()),
-
-
-    defaultIp = new ConfigDefault<>("localhost", "database.ip", AntiVPN.getInstance()),
+            defaultCountryKickReason = new ConfigDefault<>(
+                    "&cSorry, but our server does not allow connections from\n&f%country%",
+                    "countries.vanillaKickReason", AntiVPN.getInstance()),
+            defaultIp = new ConfigDefault<>("localhost", "database.ip", AntiVPN.getInstance()),
             defaultAlertMsg = new ConfigDefault<>("&8[&6KauriVPN&8] &e%player% &7has joined on a VPN/proxy" +
                     " &8(&f%reason%&8) &7in location &8(&f%city%&7, &f%country%&8)", "alerts.message",
                     AntiVPN.getInstance());
@@ -47,13 +48,13 @@ public class VPNConfig {
             "prefixWhitelists", AntiVPN.getInstance()), defaultCommands = new ConfigDefault<>(
             Collections.singletonList("kick %player% VPNs are not allowed on our server!"), "commands.execute",
             AntiVPN.getInstance()),
-            defCountryKickCommands = new ConfigDefault<>(Collections.singletonList(
-                    "kick %player% &cSorry, but our server does not allow connections from\\n&f%country%"),
+            defCountryKickCommands = new ConfigDefault<>(Collections.emptyList(),
                     "countries.commands", AntiVPN.getInstance()),
             defCountrylist = new ConfigDefault<>(new ArrayList<>(), "countries.list",
                     AntiVPN.getInstance());
 
-    private String license, kickMessage, databaseType, databaseName, mongoURL, username, password, ip, alertMsg;
+    private String license, kickMessage, databaseType, databaseName, mongoURL, username, password, ip, alertMsg,
+            countryVanillaKickReason;
     private List<String> prefixWhitelists, commands, countryList, countryKickCommands;
     private int port;
     private boolean cacheResults, databaseEnabled, useCredentials, commandsEnabled, kickPlayers, alertToStaff,
@@ -221,6 +222,14 @@ public class VPNConfig {
     }
 
     /**
+     * Returns the vanilla kick reason for bad country locations
+     * @return String
+     */
+    public String countryVanillaKickReason() {
+        return countryVanillaKickReason;
+    }
+
+    /**
      * Gets the port based on configuration. If {@link VPNConfig#port} is -1, will get default port
      * based on {@link VPNConfig#getDatabaseType()} lowerCase().
      * @return int
@@ -276,6 +285,7 @@ public class VPNConfig {
         countryList = defCountrylist.get();
         whitelistCountries = defaultWhitelistCountries.get();
         countryKickCommands = defCountryKickCommands.get();
+        countryVanillaKickReason = defaultCountryKickReason.get();
     }
 
 }
