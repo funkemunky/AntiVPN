@@ -36,7 +36,29 @@ public class VelocityListener extends VPNExecutor {
                 checkIp(event.getPlayer().getRemoteAddress().getAddress().getHostAddress(),
                         AntiVPN.getInstance().getVpnConfig().cachedResults(), result -> {
                             if(result.isSuccess()) {
-                                if(result.isProxy()) {
+                                // If the countryList() size is zero, no need to check.
+                                if(AntiVPN.getInstance().getVpnConfig().countryList().size() > 0
+                                        // This bit of code will decide whether or not to kick the player
+                                        // If it contains the code and it is set to whitelist, it will not kick
+                                        // as they are equal and vise versa. However, if the contains does not match
+                                        // the state, it will kick.
+                                        && AntiVPN.getInstance().getVpnConfig().countryList()
+                                        .contains(result.getCountryCode())
+                                        != AntiVPN.getInstance().getVpnConfig().whitelistCountries()) {
+                                    for (String cmd : AntiVPN.getInstance().getVpnConfig().countryKickCommands()) {
+                                        final String formattedCommand = StringUtils
+                                                .translateAlternateColorCodes('&',
+                                                        cmd.replace("%player%", event.getPlayer().getUsername())
+                                                                .replace("%country%", result.getCountryName())
+                                                                .replace("%code%", result.getCountryCode()));
+                                        System.out.println(formattedCommand);
+                                        VelocityPlugin.INSTANCE.getServer().getCommandManager()
+                                                .executeAsync(VelocityPlugin.INSTANCE.getServer()
+                                                                .getConsoleCommandSource(),
+                                                        StringUtils.translateAlternateColorCodes('&',
+                                                                formattedCommand));
+                                    }
+                                } else if(result.isProxy()) {
                                     if(AntiVPN.getInstance().getVpnConfig().kickPlayersOnDetect())
                                         event.getPlayer().disconnect(LegacyComponentSerializer.builder().character('&')
                                                 .build().deserialize(AntiVPN.getInstance().getVpnConfig()
@@ -73,39 +95,6 @@ public class VelocityListener extends VPNExecutor {
                                     }
                                     AntiVPN.getInstance().detections++;
                                 }
-
-                                for (String s : AntiVPN.getInstance().getVpnConfig().countryList()) {
-                                    VelocityPlugin.INSTANCE.getLogger().info(s);
-                                }
-
-                                System.out.println("Code: '" + result.getCountryCode() + "'");
-                                System.out.println("Contains: " + AntiVPN.getInstance().getVpnConfig().countryList()
-                                        .contains(result.getCountryCode()) + ", "
-                                        + AntiVPN.getInstance().getVpnConfig().whitelistCountries());
-                                // If the countryList() size is zero, no need to check.
-                                if(AntiVPN.getInstance().getVpnConfig().countryList().size() > 0
-                                        // This bit of code will decide whether or not to kick the player
-                                        // If it contains the code and it is set to whitelist, it will not kick
-                                        // as they are equal and vise versa. However, if the contains does not match
-                                        // the state, it will kick.
-                                        && AntiVPN.getInstance().getVpnConfig().countryList()
-                                        .contains(result.getCountryCode())
-                                        != AntiVPN.getInstance().getVpnConfig().whitelistCountries()) {
-                                    for (String cmd : AntiVPN.getInstance().getVpnConfig().countryKickCommands()) {
-                                        final String formattedCommand = StringUtils
-                                                .translateAlternateColorCodes('&',
-                                                        cmd.replace("%player%", event.getPlayer().getUsername())
-                                                                .replace("%country%", result.getCountryName())
-                                                                .replace("%code%", result.getCountryCode()));
-                                        System.out.println(formattedCommand);
-                                        VelocityPlugin.INSTANCE.getServer().getCommandManager()
-                                                .executeAsync(VelocityPlugin.INSTANCE.getServer()
-                                                                .getConsoleCommandSource(),
-                                                        StringUtils.translateAlternateColorCodes('&',
-                                                                formattedCommand));
-                                    }
-                                }
-
                             } else {
                                 VelocityPlugin.INSTANCE.getLogger()
                                         .log(Level.WARNING,

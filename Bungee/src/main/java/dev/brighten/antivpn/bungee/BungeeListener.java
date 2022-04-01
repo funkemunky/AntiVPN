@@ -58,7 +58,23 @@ public class BungeeListener extends VPNExecutor implements Listener {
         checkIp(event.getPlayer().getAddress().getAddress().getHostAddress(),
                 AntiVPN.getInstance().getVpnConfig().cachedResults(), result -> {
             if(result.isSuccess()) {
-                if(result.isProxy()) {
+                // If the countryList() size is zero, no need to check.
+                if(AntiVPN.getInstance().getVpnConfig().countryList().size() > 0
+                        // This bit of code will decide whether or not to kick the player
+                        // If it contains the code and it is set to whitelist, it will not kick as they are equal
+                        // and vise versa. However, if the contains does not match the state, it will kick.
+                        && AntiVPN.getInstance().getVpnConfig().countryList()
+                        .contains(result.getCountryCode()) != AntiVPN.getInstance().getVpnConfig().whitelistCountries()) {
+                    for (String cmd : AntiVPN.getInstance().getVpnConfig().countryKickCommands()) {
+                        final String formattedCommand = ChatColor.translateAlternateColorCodes('&',
+                                cmd.replace("%player%", event.getPlayer().getName())
+                                        .replace("%country%", result.getCountryName())
+                                        .replace("%code%", result.getCountryCode()));
+
+                        BungeeCord.getInstance().getPluginManager().dispatchCommand(
+                                BungeeCord.getInstance().getConsole(), formattedCommand);
+                    }
+                } else if(result.isProxy()) {
                     if(AntiVPN.getInstance().getVpnConfig().kickPlayersOnDetect())
                         event.getPlayer().disconnect(TextComponent.fromLegacyText(ChatColor
                                 .translateAlternateColorCodes('&',
@@ -85,24 +101,6 @@ public class BungeeListener extends VPNExecutor implements Listener {
                         }
                     }
                     AntiVPN.getInstance().detections++;
-                }
-
-                // If the countryList() size is zero, no need to check.
-                if(AntiVPN.getInstance().getVpnConfig().countryList().size() > 0
-                        // This bit of code will decide whether or not to kick the player
-                        // If it contains the code and it is set to whitelist, it will not kick as they are equal
-                        // and vise versa. However, if the contains does not match the state, it will kick.
-                        && AntiVPN.getInstance().getVpnConfig().countryList()
-                        .contains(result.getCountryCode()) != AntiVPN.getInstance().getVpnConfig().whitelistCountries()) {
-                    for (String cmd : AntiVPN.getInstance().getVpnConfig().countryKickCommands()) {
-                        final String formattedCommand = ChatColor.translateAlternateColorCodes('&',
-                                cmd.replace("%player%", event.getPlayer().getName())
-                                        .replace("%country%", result.getCountryName())
-                                        .replace("%code%", result.getCountryCode()));
-
-                        BungeeCord.getInstance().getPluginManager().dispatchCommand(
-                                BungeeCord.getInstance().getConsole(), formattedCommand);
-                    }
                 }
 
             } else {
