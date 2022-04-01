@@ -75,62 +75,63 @@ public class BukkitListener extends VPNExecutor implements Listener {
         if(event.getPlayer().hasPermission("antivpn.bypass") //Has bypass permission
                 || AntiVPN.getInstance().getExecutor().isWhitelisted(event.getPlayer().getUniqueId()) //Is exempt
                 //Or has a name that starts with a certain prefix. This is for Bedrock exempting.
-                || AntiVPN.getInstance().getExecutor().isWhitelisted(event.getPlayer().getAddress().getAddress()
-                .getHostAddress())
+                || AntiVPN.getInstance().getExecutor().isWhitelisted(event.getAddress().getHostAddress())
                 || AntiVPN.getInstance().getVpnConfig().getPrefixWhitelists().stream()
                 .anyMatch(prefix -> event.getPlayer().getName().startsWith(prefix))) return;
 
         final Player player = event.getPlayer();
-        checkIp(player.getAddress().getAddress().getHostAddress(),
+        checkIp(event.getAddress().getHostAddress(),
                 AntiVPN.getInstance().getVpnConfig().cachedResults(), result -> {
                     if(result.isSuccess()) {
-                        if(result.isProxy()) {
-                            if(AntiVPN.getInstance().getVpnConfig().kickPlayersOnDetect())
-                                player.kickPlayer(org.bukkit.ChatColor.translateAlternateColorCodes('&',
-                                        AntiVPN.getInstance().getVpnConfig().getKickString()));
-                            Bukkit.getLogger().info(event.getPlayer().getName()
-                                    + " joined on a VPN/Proxy (" + result.getMethod() + ")");
+                        //We need to run on main thread or kicking and running commands will cause errors
+                        new BukkitRunnable() {
+                            public void run() {
+                                // If the countryList() size is zero, no need to check.
+                                if(AntiVPN.getInstance().getVpnConfig().countryList().size() > 0
+                                        // This bit of code will decide whether or not to kick the player
+                                        // If it contains the code and it is set to whitelist, it will not kick as they are equal
+                                        // and vise versa. However, if the contains does not match the state, it will kick.
+                                        && AntiVPN.getInstance().getVpnConfig().countryList()
+                                        .contains(result.getCountryCode())
+                                        != AntiVPN.getInstance().getVpnConfig().whitelistCountries()) {
+                                    for (String cmd : AntiVPN.getInstance().getVpnConfig().countryKickCommands()) {
+                                        final String formattedCommand = ChatColor.translateAlternateColorCodes('&',
+                                                cmd.replace("%player%", event.getPlayer().getName())
+                                                        .replace("%country%", result.getCountryName())
+                                                        .replace("%code%", result.getCountryCode()));
 
-                            //Ensuring the user wishes to alert to staff
-                            if(AntiVPN.getInstance().getVpnConfig().alertToStaff())
-                                AntiVPN.getInstance().getPlayerExecutor().getOnlinePlayers().stream()
-                                        .filter(APIPlayer::isAlertsEnabled)
-                                        .forEach(pl -> pl.sendMessage(AntiVPN.getInstance().getVpnConfig().alertMessage()
-                                                .replace("%player%", event.getPlayer().getName())
-                                                .replace("%reason%", result.getMethod())
-                                                .replace("%country%", result.getCountryName())
-                                                .replace("%city%", result.getCity())));
+                                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), formattedCommand);
+                                    }
+                                } else if(result.isProxy()) {
+                                    if(AntiVPN.getInstance().getVpnConfig().kickPlayersOnDetect())
+                                        player.kickPlayer(org.bukkit.ChatColor.translateAlternateColorCodes('&',
+                                                AntiVPN.getInstance().getVpnConfig().getKickString()));
+                                    Bukkit.getLogger().info(event.getPlayer().getName()
+                                            + " joined on a VPN/Proxy (" + result.getMethod() + ")");
 
-                            //In case the user wants to run their own commands instead of using the built in kicking
-                            if(AntiVPN.getInstance().getVpnConfig().runCommands()) {
-                                for (String command : AntiVPN.getInstance().getVpnConfig().commands()) {
-                                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
+                                    //Ensuring the user wishes to alert to staff
+                                    if(AntiVPN.getInstance().getVpnConfig().alertToStaff())
+                                        AntiVPN.getInstance().getPlayerExecutor().getOnlinePlayers().stream()
+                                                .filter(APIPlayer::isAlertsEnabled)
+                                                .forEach(pl -> pl.sendMessage(AntiVPN.getInstance().getVpnConfig().alertMessage()
+                                                        .replace("%player%", event.getPlayer().getName())
+                                                        .replace("%reason%", result.getMethod())
+                                                        .replace("%country%", result.getCountryName())
+                                                        .replace("%city%", result.getCity())));
+
+                                    //In case the user wants to run their own commands instead of using the built in kicking
+                                    if(AntiVPN.getInstance().getVpnConfig().runCommands()) {
+                                        for (String command : AntiVPN.getInstance().getVpnConfig().commands()) {
+                                            Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
                                                     ChatColor.translateAlternateColorCodes('&',
                                                             command.replace("%player%",
                                                                     event.getPlayer().getName())));
+                                        }
+                                    }
+                                    AntiVPN.getInstance().detections++;
                                 }
                             }
-                            AntiVPN.getInstance().detections++;
-                        }
-
-                        // If the countryList() size is zero, no need to check.
-                        if(AntiVPN.getInstance().getVpnConfig().countryList().size() > 0
-                                // This bit of code will decide whether or not to kick the player
-                                // If it contains the code and it is set to whitelist, it will not kick as they are equal
-                                // and vise versa. However, if the contains does not match the state, it will kick.
-                                && AntiVPN.getInstance().getVpnConfig().countryList()
-                                .contains(result.getCountryCode())
-                                != AntiVPN.getInstance().getVpnConfig().whitelistCountries()) {
-                            for (String cmd : AntiVPN.getInstance().getVpnConfig().countryKickCommands()) {
-                                final String formattedCommand = ChatColor.translateAlternateColorCodes('&',
-                                        cmd.replace("%player%", event.getPlayer().getName())
-                                                .replace("%country%", result.getCountryName())
-                                                .replace("%code%", result.getCountryCode()));
-
-                                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), formattedCommand);
-                            }
-                        }
-
+                        }.runTask(BukkitPlugin.pluginInstance);
                     } else {
                         Bukkit.getLogger()
                                 .log(Level.WARNING,
