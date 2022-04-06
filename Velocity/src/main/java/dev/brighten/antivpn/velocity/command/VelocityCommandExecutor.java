@@ -1,4 +1,4 @@
-package dev.brighten.antivpn.velocity;
+package dev.brighten.antivpn.velocity.command;
 
 import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.proxy.Player;
