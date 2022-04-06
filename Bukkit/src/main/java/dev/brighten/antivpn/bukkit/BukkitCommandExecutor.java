@@ -2,7 +2,6 @@ package dev.brighten.antivpn.bukkit;
 
 import dev.brighten.antivpn.AntiVPN;
 import dev.brighten.antivpn.api.APIPlayer;
-import dev.brighten.antivpn.api.PlayerExecutor;
 import dev.brighten.antivpn.command.CommandExecutor;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.ChatColor;

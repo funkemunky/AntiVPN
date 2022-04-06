@@ -8,8 +8,13 @@ import dev.brighten.antivpn.database.sql.utils.Query;
 import dev.brighten.antivpn.utils.VPNResponse;
 import lombok.SneakyThrows;
 
-import java.sql.*;
-import java.util.*;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 

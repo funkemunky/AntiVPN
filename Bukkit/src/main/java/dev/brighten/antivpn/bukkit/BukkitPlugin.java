@@ -1,29 +1,22 @@
 package dev.brighten.antivpn.bukkit;
 
 import dev.brighten.antivpn.AntiVPN;
+import dev.brighten.antivpn.bukkit.command.BukkitCommand;
 import dev.brighten.antivpn.command.Command;
 import dev.brighten.antivpn.utils.ConfigDefault;
-import dev.brighten.antivpn.utils.MiscUtils;
-import dev.brighten.antivpn.utils.config.Configuration;
-import lombok.val;
-import net.md_5.bungee.api.ChatColor;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SingleLineChart;
 import org.bukkit.Bukkit;
-import org.bukkit.command.CommandSender;
 import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.SimplePluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.io.File;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.IntStream;
 
 public class BukkitPlugin extends JavaPlugin {
 
@@ -35,18 +28,10 @@ public class BukkitPlugin extends JavaPlugin {
     public void onEnable() {
         pluginInstance = this;
 
-        //Loading config
-        Bukkit.getLogger().info("Loading config...");
-        Configuration config = new Configuration();
-        File configFile = new File(getDataFolder(), "config.yml");
-        if(!configFile.exists()){
-            configFile.getParentFile().mkdirs();
-            MiscUtils.copy(getResource( "config.yml"), configFile);
-        }
-
         Bukkit.getLogger().info("Starting AntiVPN services...");
         AntiVPN.start(new BukkitListener(), new BukkitPlayerExecutor(), getDataFolder());
 
+        // Loading our bStats metrics to be pushed to https://bstats.org
         if(AntiVPN.getInstance().getVpnConfig().metrics()) {
             Bukkit.getLogger().info("Starting bStats metrics...");
             Metrics metrics = new Metrics(this, 12615);
@@ -62,6 +47,7 @@ public class BukkitPlugin extends JavaPlugin {
         }
 
         Bukkit.getLogger().info("Setting up and registering commands...");
+        // We need access to the commandMap to register our commands without using the "proper" method
         if (pluginInstance.getServer().getPluginManager() instanceof SimplePluginManager) {
             SimplePluginManager manager = (SimplePluginManager) pluginInstance.getServer().getPluginManager();
             try {
@@ -73,64 +59,15 @@ public class BukkitPlugin extends JavaPlugin {
             }
         }
 
+        // Registering commands
         for (Command command : AntiVPN.getInstance().getCommands()) {
-            val newCommand = new org.bukkit.command.Command(command.name(), command.description(), command.usage(),
-                    Arrays.asList(command.aliases())) {
-                @Override
-                public List<String> tabComplete(CommandSender sender, String alias, String[] args)
-                        throws IllegalArgumentException {
-                    val children = command.children();
+            // Wraps our general command API to Bukkit specific calls
+            BukkitCommand newCommand = new BukkitCommand(command);
 
-                    if(children.length > 0 && args.length > 0) {
-                        for (Command child : children) {
-                            if(child.name().equalsIgnoreCase(args[0])  || Arrays.stream(child.aliases())
-                                    .anyMatch(alias2 -> alias2.equalsIgnoreCase(args[0]))) {
-                                return child.tabComplete(new BukkitCommandExecutor(sender), alias, IntStream
-                                        .range(0, args.length - 1)
-                                        .mapToObj(i -> args[i + 1]).toArray(String[]::new));
-                            }
-                        }
-                    }
-                    return command.tabComplete(new BukkitCommandExecutor(sender), alias, args);
-                }
-
-                @Override
-                public boolean execute(CommandSender sender, String s, String[] args) {
-                    if(!sender.hasPermission("antivpn.command.*")
-                            && !sender.hasPermission(command.permission())) {
-                        sender.sendMessage(ChatColor.RED + "No permission.");
-                        return true;
-                    }
-
-                    val children = command.children();
-
-                    if(children.length > 0 && args.length > 0) {
-                        for (Command child : children) {
-                            if(child.name().equalsIgnoreCase(args[0])  || Arrays.stream(child.aliases())
-                                    .anyMatch(alias -> alias.equalsIgnoreCase(args[0]))) {
-                                if(!sender.hasPermission("antivpn.command.*")
-                                        && !sender.hasPermission(child.permission())) {
-                                    sender.sendMessage(ChatColor.RED + "No permission.");
-                                    return true;
-                                }
-
-                                sender.sendMessage(ChatColor.translateAlternateColorCodes('&',
-                                        child.execute(new BukkitCommandExecutor(sender), IntStream
-                                                .range(0, args.length - 1)
-                                                .mapToObj(i -> args[i + 1]).toArray(String[]::new))));
-                                return true;
-                            }
-                        }
-                    }
-
-                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&',
-                            command.execute(new BukkitCommandExecutor(sender), args)));
-
-                    return true;
-                }
-            };
-
+            // Adding to our own list for later referencing
             registeredCommands.add(newCommand);
+
+            // This tells Bukkit to register our command for use.
             commandMap.register(pluginInstance.getName(), newCommand);
         }
 

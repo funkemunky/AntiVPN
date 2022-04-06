@@ -1,10 +1,11 @@
 package dev.brighten.antivpn.message;
 
 import dev.brighten.antivpn.api.APIPlayer;
-import lombok.*;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.SneakyThrows;
 
-import java.util.concurrent.Callable;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 @Getter

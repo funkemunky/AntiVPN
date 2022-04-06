@@ -4,7 +4,6 @@ import com.velocitypowered.api.event.connection.LoginEvent;
 import com.velocitypowered.api.scheduler.ScheduledTask;
 import dev.brighten.antivpn.AntiVPN;
 import dev.brighten.antivpn.api.APIPlayer;
-import dev.brighten.antivpn.api.VPNConfig;
 import dev.brighten.antivpn.api.VPNExecutor;
 import dev.brighten.antivpn.velocity.util.StringUtils;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;

@@ -5,7 +5,10 @@ import dev.brighten.antivpn.command.Command;
 import dev.brighten.antivpn.command.CommandExecutor;
 import dev.brighten.antivpn.utils.StringUtil;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class AntiVPNCommand extends Command {

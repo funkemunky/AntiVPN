@@ -1,13 +1,6 @@
 package dev.brighten.antivpn.utils;
 
 import java.io.*;
-import java.lang.reflect.Method;
-import java.net.Inet4Address;
-import java.net.InetAddress;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
 import java.util.regex.Pattern;
 
 public class MiscUtils {

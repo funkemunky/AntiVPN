@@ -1,10 +1,7 @@
 package dev.brighten.antivpn.api;
 
 import dev.brighten.antivpn.AntiVPN;
-import dev.brighten.antivpn.message.VpnString;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
 import java.net.InetAddress;
 import java.util.UUID;
