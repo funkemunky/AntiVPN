@@ -1,13 +1,11 @@
 package dev.brighten.antivpn.database.sql.utils;
 
-import org.h2.jdbc.JdbcConnection;
 import dev.brighten.antivpn.AntiVPN;
 
 import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.Properties;
 
 public class MySQL {
     private static Connection conn;

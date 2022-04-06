@@ -1,8 +1,6 @@
 package dev.brighten.antivpn.velocity;
 
 import com.google.inject.Inject;
-import com.velocitypowered.api.command.CommandSource;
-import com.velocitypowered.api.command.SimpleCommand;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.plugin.Plugin;
@@ -11,18 +9,11 @@ import com.velocitypowered.api.proxy.ProxyServer;
 import dev.brighten.antivpn.AntiVPN;
 import dev.brighten.antivpn.command.Command;
 import dev.brighten.antivpn.velocity.command.VelocityCommand;
-import dev.brighten.antivpn.velocity.command.VelocityCommandExecutor;
 import lombok.Getter;
-import lombok.val;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.TextColor;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bstats.velocity.Metrics;
 
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.logging.Logger;
-import java.util.stream.IntStream;
 
 @Getter
 @Plugin(id = "kaurivpn", name = "KauriVPN", version = "1.5.0", authors = {"funkemunky"})

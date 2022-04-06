@@ -4,7 +4,6 @@ import dev.brighten.antivpn.AntiVPN;
 import dev.brighten.antivpn.utils.ConfigDefault;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
