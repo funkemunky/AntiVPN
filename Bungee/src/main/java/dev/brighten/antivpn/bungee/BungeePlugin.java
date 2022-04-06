@@ -4,20 +4,12 @@ import dev.brighten.antivpn.AntiVPN;
 import dev.brighten.antivpn.bungee.command.BungeeCommand;
 import dev.brighten.antivpn.command.Command;
 import dev.brighten.antivpn.utils.ConfigDefault;
-import lombok.val;
 import net.md_5.bungee.BungeeCord;
-import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.CommandSender;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.plugin.Plugin;
 import org.bstats.bungeecord.Metrics;
 import org.bstats.charts.SingleLineChart;
 
-import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.IntStream;
 
 public class BungeePlugin extends Plugin {
 
