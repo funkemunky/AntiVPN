@@ -16,23 +16,21 @@ import java.nio.file.Path;
 import java.util.logging.Logger;
 
 @Getter
-@Plugin(id = "kaurivpn", name = "KauriVPN", version = "1.5.0", authors = {"funkemunky"})
+@Plugin(id = "kaurivpn", name = "KauriVPN", version = "1.7.1", authors = {"funkemunky"})
 public class VelocityPlugin {
 
     private final ProxyServer server;
     private final Logger logger;
     private final Metrics.Factory metricsFactory;
+    private final Path configDir;
 
     public static VelocityPlugin INSTANCE;
 
     @Inject
-    @DataDirectory
-    private Path configDir;
-
-    @Inject
-    public VelocityPlugin(ProxyServer server, Logger logger, Metrics.Factory metricsFactory) {
+    public VelocityPlugin(ProxyServer server, Logger logger, @DataDirectory Path path, Metrics.Factory metricsFactory) {
         this.server = server;
         this.logger = logger;
+        this.configDir = path;
         this.metricsFactory = metricsFactory;
     }
 
