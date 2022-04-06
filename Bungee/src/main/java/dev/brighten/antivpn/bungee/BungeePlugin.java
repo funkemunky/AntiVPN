@@ -1,6 +1,7 @@
 package dev.brighten.antivpn.bungee;
 
 import dev.brighten.antivpn.AntiVPN;
+import dev.brighten.antivpn.bungee.command.BungeeCommand;
 import dev.brighten.antivpn.command.Command;
 import dev.brighten.antivpn.utils.ConfigDefault;
 import lombok.val;
@@ -23,9 +24,6 @@ public class BungeePlugin extends Plugin {
     public static BungeePlugin pluginInstance;
 
     private SingleLineChart vpnDetections, ipsChecked;
-
-    private static final BaseComponent[] noPermission = new ComponentBuilder("No permission").color(ChatColor.RED)
-            .create();
 
     @Override
     public void onEnable() {
@@ -51,49 +49,8 @@ public class BungeePlugin extends Plugin {
                     10, 10, TimeUnit.MINUTES);
         }
 
-        //TODO Add command functionality for BungeeCord
         for (Command command : AntiVPN.getInstance().getCommands()) {
-            BungeeCord.getInstance().getPluginManager().registerCommand(pluginInstance, new net.md_5.bungee.api.plugin
-                    .Command(command.name(), command.permission(), command.aliases()) {
-
-                @Override
-                public void execute(CommandSender sender, String[] args) {
-                    if(!sender.hasPermission("antivpn.command.*")
-                            && !sender.hasPermission(command.permission())) {
-                        sender.sendMessage(noPermission);
-                        return;
-                    }
-
-                    val children = command.children();
-
-                    if(children.length > 0 && args.length > 0) {
-                        for (Command child : children) {
-                            if(child.name().equalsIgnoreCase(args[0]) || Arrays.stream(child.aliases())
-                                    .anyMatch(alias -> alias.equalsIgnoreCase(args[0]))) {
-                                if(!sender.hasPermission("antivpn.command.*")
-                                        && !sender.hasPermission(child.permission())) {
-                                    sender.sendMessage(noPermission);
-                                    return;
-                                }
-
-                                sender.sendMessage(TextComponent
-                                        .fromLegacyText(ChatColor
-                                                .translateAlternateColorCodes('&',
-                                                        child.execute(new BungeeCommandExecutor(sender),  IntStream
-                                                                .range(0, args.length - 1)
-                                                                .mapToObj(i -> args[i + 1]).toArray(String[]::new)))));
-                                return;
-                            }
-                        }
-                    }
-
-
-                    sender.sendMessage(TextComponent
-                            .fromLegacyText(ChatColor
-                                    .translateAlternateColorCodes('&',
-                                            command.execute(new BungeeCommandExecutor(sender), args))));
-                }
-            });
+            BungeeCord.getInstance().getPluginManager().registerCommand(pluginInstance, new BungeeCommand(command));
         }
 
         BungeeCord.getInstance().getLogger().info("Getting strings...");

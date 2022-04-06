@@ -1,4 +1,4 @@
-package dev.brighten.antivpn.bungee;
+package dev.brighten.antivpn.bungee.command;
 
 import dev.brighten.antivpn.AntiVPN;
 import dev.brighten.antivpn.api.APIPlayer;
