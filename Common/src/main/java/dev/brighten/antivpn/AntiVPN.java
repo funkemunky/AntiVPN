@@ -6,9 +6,11 @@ import dev.brighten.antivpn.api.VPNExecutor;
 import dev.brighten.antivpn.command.Command;
 import dev.brighten.antivpn.command.impl.AntiVPNCommand;
 import dev.brighten.antivpn.database.VPNDatabase;
+import dev.brighten.antivpn.database.local.H2VPN;
 import dev.brighten.antivpn.database.mongo.MongoVPN;
 import dev.brighten.antivpn.database.sql.MySqlVPN;
 import dev.brighten.antivpn.message.MessageHandler;
+import dev.brighten.antivpn.utils.ConfigDefault;
 import dev.brighten.antivpn.utils.MiscUtils;
 import dev.brighten.antivpn.utils.VPNResponse;
 import dev.brighten.antivpn.utils.config.Configuration;
@@ -72,8 +74,15 @@ public class AntiVPN {
         INSTANCE.messageHandler = new MessageHandler();
 
         switch(INSTANCE.vpnConfig.getDatabaseType().toLowerCase()) {
-            case "mysql":
             case "h2":
+            case "local":
+            case "flatfile": {
+                AntiVPN.getInstance().getExecutor().log("Using databaseType H2...");
+                INSTANCE.database = new H2VPN();
+                INSTANCE.database.init();
+                break;
+            }
+            case "mysql":
             case "sql":{
                 AntiVPN.getInstance().getExecutor().log("Using databaseType MySQL...");
                 INSTANCE.database = new MySqlVPN();
@@ -106,6 +115,10 @@ public class AntiVPN {
                 INSTANCE.database.alertsState(player.getUuid(), player::setAlertsEnabled);
             }
         });
+
+        AntiVPN.getInstance().getMessageHandler().initStrings(vpnString -> new ConfigDefault<>
+                (vpnString.getDefaultMessage(), "messages." + vpnString.getKey(), AntiVPN.getInstance())
+                .get());
     }
 
     public InputStream getResource(String filename) {
