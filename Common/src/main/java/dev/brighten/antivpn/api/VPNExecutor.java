@@ -2,8 +2,9 @@ package dev.brighten.antivpn.api;
 
 import dev.brighten.antivpn.AntiVPN;
 import dev.brighten.antivpn.utils.EvictingMap;
-import dev.brighten.antivpn.utils.VPNResponse;
+import dev.brighten.antivpn.web.objects.VPNResponse;
 import dev.brighten.antivpn.utils.json.JSONException;
+import dev.brighten.antivpn.web.FunkemunkyAPI;
 import lombok.Getter;
 
 import java.io.IOException;
@@ -49,7 +50,7 @@ public abstract class VPNExecutor {
                 if(cachedRes.isPresent()) return cachedRes.get();
                 else {
                     try {
-                        VPNResponse response =  AntiVPN
+                        VPNResponse response =  FunkemunkyAPI
                                 .getVPNResponse(ip, AntiVPN.getInstance().getVpnConfig().getLicense(), cachedResults);
 
                         if(response.isSuccess()) {
@@ -78,7 +79,7 @@ public abstract class VPNExecutor {
                 if(cachedRes.isPresent()) return cachedRes.get();
                 else {
                     try {
-                        VPNResponse response =  AntiVPN
+                        VPNResponse response =  FunkemunkyAPI
                                 .getVPNResponse(ip, AntiVPN.getInstance().getVpnConfig().getLicense(), cachedResults);
 
                         if(response.isSuccess()) {

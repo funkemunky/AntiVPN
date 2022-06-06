@@ -5,7 +5,7 @@ import dev.brighten.antivpn.api.VPNExecutor;
 import dev.brighten.antivpn.database.VPNDatabase;
 import dev.brighten.antivpn.database.sql.utils.MySQL;
 import dev.brighten.antivpn.database.sql.utils.Query;
-import dev.brighten.antivpn.utils.VPNResponse;
+import dev.brighten.antivpn.web.objects.VPNResponse;
 import lombok.SneakyThrows;
 
 import java.sql.ResultSet;

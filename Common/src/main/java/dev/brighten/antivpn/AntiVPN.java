@@ -12,13 +12,9 @@ import dev.brighten.antivpn.database.sql.MySqlVPN;
 import dev.brighten.antivpn.message.MessageHandler;
 import dev.brighten.antivpn.utils.ConfigDefault;
 import dev.brighten.antivpn.utils.MiscUtils;
-import dev.brighten.antivpn.utils.VPNResponse;
 import dev.brighten.antivpn.utils.config.Configuration;
 import dev.brighten.antivpn.utils.config.ConfigurationProvider;
 import dev.brighten.antivpn.utils.config.YamlConfiguration;
-import dev.brighten.antivpn.utils.json.JSONException;
-import dev.brighten.antivpn.utils.json.JSONObject;
-import dev.brighten.antivpn.utils.json.JsonReader;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -158,15 +154,6 @@ public class AntiVPN {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    public static VPNResponse getVPNResponse(String ip, String license, boolean cachedResults /* faster if set to true*/)
-            throws JSONException, IOException {
-        JSONObject result = JsonReader.readJsonFromUrl(String
-                .format("https://funkemunky.cc/vpn?ip=%s&license=%s&cache=%s",
-                        ip, license.length() == 0 ? "none" : license, cachedResults));
-
-        return VPNResponse.fromJson(result);
     }
 
     private void registerCommands() {

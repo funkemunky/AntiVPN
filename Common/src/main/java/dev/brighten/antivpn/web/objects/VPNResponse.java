@@ -1,11 +1,10 @@
-package dev.brighten.antivpn.utils;
+package dev.brighten.antivpn.web.objects;
 
 import dev.brighten.antivpn.utils.json.JSONException;
 import dev.brighten.antivpn.utils.json.JSONObject;
 import lombok.*;
 
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
 @RequiredArgsConstructor
 @Builder

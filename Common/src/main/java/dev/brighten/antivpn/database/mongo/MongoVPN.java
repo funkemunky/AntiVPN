@@ -10,7 +10,7 @@ import com.mongodb.client.model.Indexes;
 import dev.brighten.antivpn.AntiVPN;
 import dev.brighten.antivpn.api.VPNExecutor;
 import dev.brighten.antivpn.database.VPNDatabase;
-import dev.brighten.antivpn.utils.VPNResponse;
+import dev.brighten.antivpn.web.objects.VPNResponse;
 import org.bson.Document;
 
 import java.util.*;

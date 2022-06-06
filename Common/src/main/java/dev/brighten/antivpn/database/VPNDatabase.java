@@ -1,6 +1,6 @@
 package dev.brighten.antivpn.database;
 
-import dev.brighten.antivpn.utils.VPNResponse;
+import dev.brighten.antivpn.web.objects.VPNResponse;
 
 import java.util.List;
 import java.util.Optional;
