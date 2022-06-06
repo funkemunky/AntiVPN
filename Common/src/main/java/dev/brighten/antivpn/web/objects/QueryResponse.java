@@ -19,24 +19,22 @@ public class QueryResponse {
     private long queriesMax;
 
     /**
-     *
      * Takes a JSON String and feeds it into {@link QueryResponse#fromJson(JSONObject)}
      *
      * @param jsonString String (formatted in JSON)
      * @return QueryResponse
-     * @throws JSONException Will throw if JSON is not formatted properly.
+     * @throws JSONException Throws when JSON is not formatted properly.
      */
     public static QueryResponse fromJson(String jsonString) throws JSONException {
         return fromJson(new JSONObject(jsonString));
     }
 
     /**
+     * Formats response from https://funkemunky.cc/vpn/queryCheck into {@link QueryResponse} for project use.
      *
-     * Will format response from https://funkemunky.cc/vpn/queryCheck into an Object for use.
-     *
-     * @param object JSOnObject
+     * @param object JSONObject
      * @return QueryResponse
-     * @throws JSONException If there is an error with the API.
+     * @throws JSONException Throws when JSON is not formatted properly.
      */
     public static QueryResponse fromJson(JSONObject object) throws JSONException {
         boolean validPlan = object.getBoolean("validPlan");
@@ -48,6 +46,6 @@ public class QueryResponse {
         return QueryResponse.builder().validPlan(object.getBoolean("validPlan"))
                 .planType(object.getString("planType"))
                 .queries(object.getLong("queries"))
-                .queriesMax(object.getLong("queriesMax")).build();
+                .queriesMax(object.getLong("queryLimit")).build();
     }
 }

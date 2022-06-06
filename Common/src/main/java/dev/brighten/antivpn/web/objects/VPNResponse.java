@@ -6,7 +6,6 @@ import lombok.*;
 
 @Data
 @AllArgsConstructor
-@RequiredArgsConstructor
 @Builder
 public class VPNResponse {
     private String asn, ip, countryName, countryCode, city, timeZone, method, isp, failureReason = "N/A";
@@ -28,34 +27,31 @@ public class VPNResponse {
         json.put("proxy", proxy);
         json.put("success", success);
         json.put("timeZone", timeZone);
-        json.put("success", true);
         json.put("queriesLeft", queriesLeft);
         json.put("cached", cached);
 
         return json;
     }
 
+    /**
+     * Feeds into {@link VPNResponse#fromJson(JSONObject)} formatting the JSON {@link String} into
+     * a {@link JSONObject}
+     *
+     * @param json String
+     * @return VPNResponse
+     * @throws JSONException
+     */
     public static VPNResponse fromJson(String json) throws JSONException {
-        JSONObject jsonObject = new JSONObject(json);
-
-        if(jsonObject.getBoolean("success")) {
-            return new VPNResponse(jsonObject.getString("asn"), jsonObject.getString("ip"),
-                    jsonObject.getString("countryName"), jsonObject.getString("countryCode"),
-                    jsonObject.getString("city"), jsonObject.getString("timeZone"),
-                    jsonObject.has("method") ? jsonObject.getString("method") : "N/A",
-                    jsonObject.getString("isp"), "N/A", jsonObject.getBoolean("proxy"),
-                    jsonObject.getBoolean("cached"), jsonObject.getBoolean("success"),
-                    jsonObject.getDouble("latitude"), jsonObject.getDouble("longitude"),
-                    jsonObject.getLong("lastAccess"), jsonObject.getInt("queriesLeft"));
-        } else {
-            VPNResponse response = new VPNResponse(false);
-
-            response.failureReason = jsonObject.getString("failureReason");
-
-            return response;
-        }
+        return fromJson(new JSONObject(json));
     }
 
+    /**
+     * Formats response from https://funkemunky.cc/vpn into {@link VPNResponse} for project use.
+     *
+     * @param jsonObject JSONObject
+     * @return VPNResponse
+     * @throws JSONException Throws when JSON is not formatted properly.
+     */
     public static VPNResponse fromJson(JSONObject jsonObject) throws JSONException {
         if(jsonObject.getBoolean("success")) {
             return new VPNResponse(jsonObject.getString("asn"), jsonObject.getString("ip"),
@@ -67,11 +63,8 @@ public class VPNResponse {
                     jsonObject.getDouble("latitude"), jsonObject.getDouble("longitude"),
                     jsonObject.getLong("lastAccess"), jsonObject.getInt("queriesLeft"));
         } else {
-            VPNResponse response = new VPNResponse(false);
-
-            response.failureReason = jsonObject.getString("failureReason");
-
-            return response;
+            return VPNResponse.builder().success(false)
+                    .failureReason(jsonObject.getString("failureReason")).build();
         }
     }
 }

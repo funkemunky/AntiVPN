@@ -67,13 +67,13 @@ public class LookupCommand extends Command {
                 executor.sendMessage(StringUtil.line("&8"));
                 executor.sendMessage("&6&l" + player.get().getName() + "&7&l's Connection Information");
                 executor.sendMessage("");
-                executor.sendMessage(String.format("&e%s&8: &f%s", "Proxy", result.isProxy()
-                        ? "&a" + result.getMethod() : "&cNo"));
-                executor.sendMessage(String.format("&e%s&8: &f%s", "ISP", result.getIsp()));
-                executor.sendMessage(String.format("&e%s&8: &f%s", "Country", result.getCountryName()));
-                executor.sendMessage(String.format("&e%s&8: &f%s", "City", result.getCity()));
-                executor.sendMessage(String.format("&e%s&8: &f%s", "Coordinates", result.getLatitude()
-                        + "&7/&f" + result.getLongitude()));
+                executor.sendMessage("&e%s&8: &f%s", "Proxy", result.isProxy()
+                        ? "&a" + result.getMethod() : "&cNo");
+                executor.sendMessage("&e%s&8: &f%s", "ISP", result.getIsp());
+                executor.sendMessage("&e%s&8: &f%s", "Country", result.getCountryName());
+                executor.sendMessage("&e%s&8: &f%s", "City", result.getCity());
+                executor.sendMessage("&e%s&8: &f%s", "Coordinates", result.getLatitude()
+                        + "&7/&f" + result.getLongitude());
                 executor.sendMessage(StringUtil.line("&8"));
             }
         });

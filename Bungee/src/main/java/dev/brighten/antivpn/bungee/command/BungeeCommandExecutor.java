@@ -17,9 +17,9 @@ public class BungeeCommandExecutor implements CommandExecutor {
     private final CommandSender sender;
 
     @Override
-    public void sendMessage(String message) {
+    public void sendMessage(String message, Object... objects) {
         sender.sendMessage(TextComponent.fromLegacyText(ChatColor
-                .translateAlternateColorCodes('&', message)));
+                .translateAlternateColorCodes('&', String.format(message, objects))));
     }
 
     @Override

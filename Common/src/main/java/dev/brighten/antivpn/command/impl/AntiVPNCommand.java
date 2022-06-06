@@ -45,7 +45,7 @@ public class AntiVPNCommand extends Command {
     @Override
     public Command[] children() {
         return new Command[] {new LookupCommand(), new AllowlistCommand(), new AlertsCommand(),
-                new ClearCacheCommand()};
+                new ClearCacheCommand(), new PlanCommand()};
     }
 
     @Override

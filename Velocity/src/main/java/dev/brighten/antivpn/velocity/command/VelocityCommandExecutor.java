@@ -16,8 +16,9 @@ public class VelocityCommandExecutor implements CommandExecutor {
     private final CommandSource sender;
 
     @Override
-    public void sendMessage(String message) {
-        sender.sendMessage(LegacyComponentSerializer.builder().character('&').build().deserialize(message));
+    public void sendMessage(String message, Object... objects) {
+        sender.sendMessage(LegacyComponentSerializer.builder().character('&').build()
+                .deserialize(String.format(message, objects)));
     }
 
     @Override

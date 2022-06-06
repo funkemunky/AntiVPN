@@ -16,8 +16,9 @@ public class BukkitCommandExecutor implements CommandExecutor {
     private final CommandSender sender;
 
     @Override
-    public void sendMessage(String message) {
-        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
+    public void sendMessage(String message, Object... objects) {
+        sender.sendMessage(ChatColor.translateAlternateColorCodes('&',
+                String.format(message, objects)));
     }
 
     @Override
