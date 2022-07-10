@@ -48,10 +48,6 @@ public class BungeeListener extends VPNExecutor implements Listener {
     @EventHandler
     public void onListener(final PostLoginEvent event) {
         if(event.getPlayer().hasPermission("antivpn.bypass") //Has bypass permission
-                || AntiVPN.getInstance().getExecutor().isWhitelisted(event.getPlayer().getUniqueId()) //Is exempt
-                //Or has a name that starts with a certain prefix. This is for Bedrock exempting.
-                || AntiVPN.getInstance().getExecutor().isWhitelisted(event.getPlayer().getAddress().getAddress()
-                     .getHostAddress())
                 || AntiVPN.getInstance().getVpnConfig().getPrefixWhitelists().stream()
                 .anyMatch(prefix -> event.getPlayer().getName().startsWith(prefix))) return;
 
@@ -61,6 +57,10 @@ public class BungeeListener extends VPNExecutor implements Listener {
                 // If the countryList() size is zero, no need to check.
                 // Running country check first
                 if(AntiVPN.getInstance().getVpnConfig().countryList().size() > 0
+                        && !(AntiVPN.getInstance().getExecutor().isWhitelisted(event.getPlayer().getUniqueId()) //Is exempt
+                        //Or has a name that starts with a certain prefix. This is for Bedrock exempting.
+                        || AntiVPN.getInstance().getExecutor().isWhitelisted(event.getPlayer().getAddress().getAddress()
+                        .getHostAddress()))
                         // This bit of code will decide whether or not to kick the player
                         // If it contains the code and it is set to whitelist, it will not kick as they are equal
                         // and vise versa. However, if the contains does not match the state, it will kick.
