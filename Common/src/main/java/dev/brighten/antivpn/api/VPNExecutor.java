@@ -35,10 +35,16 @@ public abstract class VPNExecutor {
     public abstract void log(String log, Object... objects);
 
     public boolean isWhitelisted(UUID uuid) {
+        if(AntiVPN.getInstance().getVpnConfig().isDatabaseEnabled()) {
+            return AntiVPN.getInstance().getDatabase().isWhitelisted(uuid);
+        }
         return whitelisted.contains(uuid);
     }
 
     public boolean isWhitelisted(String ip) {
+        if(AntiVPN.getInstance().getVpnConfig().isDatabaseEnabled()) {
+            return AntiVPN.getInstance().getDatabase().isWhitelisted(ip);
+        }
         return whitelistedIps.contains(ip);
     }
 

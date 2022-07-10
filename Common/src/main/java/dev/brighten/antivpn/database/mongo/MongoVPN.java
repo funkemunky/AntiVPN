@@ -86,8 +86,10 @@ public class MongoVPN implements VPNDatabase {
         if(whitelisted) {
             Document wdoc = new Document("setting", "whitelist");
             wdoc.put("uuid", uuid.toString());
+            AntiVPN.getInstance().getExecutor().getWhitelisted().add(uuid);
             VPNExecutor.threadExecutor.execute(() -> settingsDocument.insertOne(wdoc));
         } else {
+            AntiVPN.getInstance().getExecutor().getWhitelisted().remove(uuid);
             VPNExecutor.threadExecutor.execute(() -> settingsDocument.deleteMany(Filters
                     .and(
                             Filters.eq("setting", "whitelist"),
@@ -100,8 +102,10 @@ public class MongoVPN implements VPNDatabase {
         if(whitelisted) {
             Document wdoc = new Document("setting", "whitelist");
             wdoc.put("ip", ip);
+            AntiVPN.getInstance().getExecutor().getWhitelistedIps().add(ip);
             VPNExecutor.threadExecutor.execute(() -> settingsDocument.insertOne(wdoc));
         } else {
+            AntiVPN.getInstance().getExecutor().getWhitelistedIps().remove(ip);
             VPNExecutor.threadExecutor.execute(() -> settingsDocument.deleteMany(Filters
                     .and(
                             Filters.eq("setting", "whitelist"),
