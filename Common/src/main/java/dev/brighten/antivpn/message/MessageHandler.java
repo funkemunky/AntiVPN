@@ -35,5 +35,7 @@ public class MessageHandler {
                 "&cYou must be a player to execute this command!"), getter);
         addString(new VpnString("command-alerts-toggled",
                 "&7Your player proxy notifications have been set to: &e%state%"), getter);
+        addString(new VpnString("command-reload-complete",
+                        "&aSuccessfully reloaded KauriVPN plugin!"), getter);
     }
 }

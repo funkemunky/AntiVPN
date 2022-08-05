@@ -3,6 +3,7 @@ package dev.brighten.antivpn.bungee;
 import dev.brighten.antivpn.AntiVPN;
 import dev.brighten.antivpn.bungee.command.BungeeCommand;
 import dev.brighten.antivpn.command.Command;
+import dev.brighten.antivpn.command.impl.AntiVPNCommand;
 import dev.brighten.antivpn.utils.ConfigDefault;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.api.plugin.Plugin;
@@ -44,11 +45,6 @@ public class BungeePlugin extends Plugin {
         for (Command command : AntiVPN.getInstance().getCommands()) {
             BungeeCord.getInstance().getPluginManager().registerCommand(pluginInstance, new BungeeCommand(command));
         }
-
-        BungeeCord.getInstance().getLogger().info("Getting strings...");
-        AntiVPN.getInstance().getMessageHandler().initStrings(vpnString -> new ConfigDefault<>
-                (vpnString.getDefaultMessage(), "messages." + vpnString.getKey(), AntiVPN.getInstance())
-                .get());
     }
 
     @Override

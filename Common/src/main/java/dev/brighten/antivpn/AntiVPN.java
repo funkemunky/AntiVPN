@@ -156,6 +156,15 @@ public class AntiVPN {
         }
     }
 
+    public void reloadConfig() {
+        try {
+            ConfigurationProvider.getProvider(YamlConfiguration.class)
+                    .load(new File(pluginFolder.getPath() + File.separator + "config.yml"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private void registerCommands() {
         commands.add(new AntiVPNCommand());
     }
