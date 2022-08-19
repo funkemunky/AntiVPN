@@ -10,5 +10,7 @@ public interface PlayerExecutor {
 
     Optional<APIPlayer> getPlayer(UUID uuid);
 
+    void unloadPlayer(UUID uuid);
+
     List<APIPlayer> getOnlinePlayers();
 }

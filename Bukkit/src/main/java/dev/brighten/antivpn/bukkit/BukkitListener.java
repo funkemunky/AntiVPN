@@ -12,6 +12,7 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -156,5 +157,10 @@ public class BukkitListener extends VPNExecutor implements Listener {
                     }
                     AntiVPN.getInstance().checked++;
                 });
+    }
+
+    @EventHandler
+    public void onQuit(PlayerQuitEvent event) {
+        AntiVPN.getInstance().getPlayerExecutor().unloadPlayer(event.getPlayer().getUniqueId());
     }
 }
