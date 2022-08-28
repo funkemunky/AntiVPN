@@ -4,6 +4,9 @@ import dev.brighten.antivpn.AntiVPN;
 import dev.brighten.antivpn.api.VPNExecutor;
 import dev.brighten.antivpn.command.Command;
 import dev.brighten.antivpn.command.CommandExecutor;
+import dev.brighten.antivpn.database.local.H2VPN;
+import dev.brighten.antivpn.database.mongo.MongoVPN;
+import dev.brighten.antivpn.database.sql.MySqlVPN;
 import dev.brighten.antivpn.message.VpnString;
 
 import java.util.Collections;
@@ -57,6 +60,8 @@ public class ReloadCommand extends Command {
 
         // Clearing the local response cache
         VPNExecutor.responseCache.clear();
+
+        AntiVPN.getInstance().reloadDatabase();
 
         return AntiVPN.getInstance().getMessageHandler().getString("command-reload-complete").getMessage();
     }
