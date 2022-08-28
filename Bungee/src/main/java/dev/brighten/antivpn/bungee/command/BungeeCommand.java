@@ -1,5 +1,6 @@
 package dev.brighten.antivpn.bungee.command;
 
+import dev.brighten.antivpn.AntiVPN;
 import lombok.val;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
@@ -14,9 +15,6 @@ import java.util.stream.IntStream;
 
 public class BungeeCommand extends Command implements TabExecutor {
 
-    private static final BaseComponent[] noPermission = new ComponentBuilder("No permission").color(ChatColor.RED)
-            .create();
-
     private final dev.brighten.antivpn.command.Command command;
     public BungeeCommand(dev.brighten.antivpn.command.Command command) {
         super(command.name(), command.permission(), command.aliases());
@@ -28,7 +26,8 @@ public class BungeeCommand extends Command implements TabExecutor {
     public void execute(CommandSender sender, String[] args) {
         if(!sender.hasPermission("antivpn.command.*")
                 && !sender.hasPermission(command.permission())) {
-            sender.sendMessage(noPermission);
+            sender.sendMessage(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&',
+                    AntiVPN.getInstance().getMessageHandler().getString("no-permission").getMessage())));
             return;
         }
 
@@ -40,7 +39,8 @@ public class BungeeCommand extends Command implements TabExecutor {
                         .anyMatch(alias -> alias.equalsIgnoreCase(args[0]))) {
                     if(!sender.hasPermission("antivpn.command.*")
                             && !sender.hasPermission(child.permission())) {
-                        sender.sendMessage(noPermission);
+                        sender.sendMessage(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&',
+                                AntiVPN.getInstance().getMessageHandler().getString("no-permission").getMessage())));
                         return;
                     }
 

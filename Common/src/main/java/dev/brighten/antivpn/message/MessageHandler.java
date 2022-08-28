@@ -37,5 +37,6 @@ public class MessageHandler {
                 "&7Your player proxy notifications have been set to: &e%state%"), getter);
         addString(new VpnString("command-reload-complete",
                         "&aSuccessfully reloaded KauriVPN plugin!"), getter);
+        addString(new VpnString("no-permission", "&cNo permission."), getter);
     }
 }

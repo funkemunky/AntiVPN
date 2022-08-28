@@ -2,6 +2,7 @@ package dev.brighten.antivpn.velocity.command;
 
 import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.command.SimpleCommand;
+import dev.brighten.antivpn.AntiVPN;
 import dev.brighten.antivpn.command.Command;
 import lombok.val;
 import net.kyori.adventure.text.Component;
@@ -26,8 +27,9 @@ public class VelocityCommand implements SimpleCommand {
         CommandSource sender = invocation.source();
         if(!invocation.source().hasPermission("antivpn.command.*")
                 && !invocation.source().hasPermission(command.permission())) {
-            invocation.source().sendMessage(Component.text("No permission").toBuilder()
-                    .color(TextColor.color(255,0,0)).build());
+            invocation.source().sendMessage(LegacyComponentSerializer.builder().character('&')
+                    .build().deserialize(AntiVPN.getInstance().getMessageHandler()
+                            .getString("no-permission").getMessage()));
             return;
         }
 
@@ -40,6 +42,9 @@ public class VelocityCommand implements SimpleCommand {
                         .anyMatch(alias -> alias.equalsIgnoreCase(args[0]))) {
                     if(!sender.hasPermission("antivpn.command.*")
                             && !sender.hasPermission(child.permission())) {
+                        invocation.source().sendMessage(LegacyComponentSerializer.builder().character('&')
+                                .build().deserialize(AntiVPN.getInstance().getMessageHandler()
+                                        .getString("no-permission").getMessage()));
                         invocation.source().sendMessage(Component.text("No permission")
                                 .toBuilder().color(TextColor.color(255,0,0)).build());
                         return;
