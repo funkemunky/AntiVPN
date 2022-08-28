@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 public class BungeePlayerExecutor implements PlayerExecutor {
 
-    private final Map<ProxiedPlayer, BungeePlayer> cachedPlayers = new WeakHashMap<>();
+    private final Map<UUID, BungeePlayer> cachedPlayers = new HashMap<>();
 
     @Override
     public Optional<APIPlayer> getPlayer(String name) {
@@ -18,7 +18,7 @@ public class BungeePlayerExecutor implements PlayerExecutor {
 
         if(player == null) return Optional.empty();
 
-        return Optional.of(cachedPlayers.computeIfAbsent(player, BungeePlayer::new));
+        return Optional.of(cachedPlayers.computeIfAbsent(player.getUniqueId(), key -> new BungeePlayer(player)));
     }
 
     @Override
@@ -27,13 +27,18 @@ public class BungeePlayerExecutor implements PlayerExecutor {
 
         if(player == null) return Optional.empty();
 
-        return Optional.of(cachedPlayers.computeIfAbsent(player, BungeePlayer::new));
+        return Optional.of(cachedPlayers.computeIfAbsent(uuid, key -> new BungeePlayer(player)));
+    }
+
+    @Override
+    public void unloadPlayer(UUID uuid) {
+        this.cachedPlayers.remove(uuid);
     }
 
     @Override
     public List<APIPlayer> getOnlinePlayers() {
         return BungeeCord.getInstance().getPlayers().stream()
-                .map(pl -> cachedPlayers.computeIfAbsent(pl, BungeePlayer::new))
+                .map(pl -> cachedPlayers.computeIfAbsent(pl.getUniqueId(), key -> new BungeePlayer(pl)))
                 .collect(Collectors.toList());
     }
 }

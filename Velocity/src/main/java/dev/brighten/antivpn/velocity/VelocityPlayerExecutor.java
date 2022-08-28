@@ -9,13 +9,14 @@ import java.util.stream.Collectors;
 
 public class VelocityPlayerExecutor implements PlayerExecutor {
 
-    private final Map<Player, VelocityPlayer> cachedPlayers = new WeakHashMap<>();
+    private final Map<UUID, VelocityPlayer> cachedPlayers = new HashMap<>();
 
     @Override
     public Optional<APIPlayer> getPlayer(String name) {
         Optional<Player> player = VelocityPlugin.INSTANCE.getServer().getPlayer(name);
 
-        return player.map(value -> cachedPlayers.computeIfAbsent(value, VelocityPlayer::new));
+        return player.map(value -> cachedPlayers.computeIfAbsent(value.getUniqueId(),
+                key -> new VelocityPlayer(value)));
 
     }
 
@@ -23,13 +24,19 @@ public class VelocityPlayerExecutor implements PlayerExecutor {
     public Optional<APIPlayer> getPlayer(UUID uuid) {
         Optional<Player> player = VelocityPlugin.INSTANCE.getServer().getPlayer(uuid);
 
-        return player.map(value -> cachedPlayers.computeIfAbsent(value, VelocityPlayer::new));
+        return player.map(value -> cachedPlayers.computeIfAbsent(value.getUniqueId(),
+                key -> new VelocityPlayer(value)));
+    }
+
+    @Override
+    public void unloadPlayer(UUID uuid) {
+        cachedPlayers.remove(uuid);
     }
 
     @Override
     public List<APIPlayer> getOnlinePlayers() {
         return VelocityPlugin.INSTANCE.getServer().getAllPlayers().stream()
-                .map(pl -> cachedPlayers.computeIfAbsent(pl, VelocityPlayer::new))
+                .map(pl -> cachedPlayers.computeIfAbsent(pl.getUniqueId(), key -> new VelocityPlayer(pl)))
                 .collect(Collectors.toList());
     }
 }

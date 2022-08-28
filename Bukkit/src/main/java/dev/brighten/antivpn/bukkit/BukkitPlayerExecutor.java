@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 public class BukkitPlayerExecutor implements PlayerExecutor {
 
-    private final Map<UUID, BukkitPlayer> cachedPlayers = new WeakHashMap<>();
+    private final Map<UUID, BukkitPlayer> cachedPlayers = new HashMap<>();
 
     @Override
     public Optional<APIPlayer> getPlayer(String name) {
@@ -32,6 +32,11 @@ public class BukkitPlayerExecutor implements PlayerExecutor {
         }
 
         return Optional.of(cachedPlayers.computeIfAbsent(player.getUniqueId(), k -> new BukkitPlayer(player)));
+    }
+
+    @Override
+    public void unloadPlayer(UUID uuid) {
+        cachedPlayers.remove(uuid);
     }
 
 
