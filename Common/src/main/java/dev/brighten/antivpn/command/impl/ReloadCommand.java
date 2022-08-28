@@ -53,6 +53,8 @@ public class ReloadCommand extends Command {
         // Updating the cache of these values in VPNConfig
         AntiVPN.getInstance().getVpnConfig().update();
 
+        AntiVPN.getInstance().getMessageHandler().reloadStrings();
+
         // Clearing the local response cache
         VPNExecutor.responseCache.clear();
 

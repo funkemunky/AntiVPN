@@ -1,5 +1,7 @@
 package dev.brighten.antivpn.message;
 
+import dev.brighten.antivpn.AntiVPN;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -27,6 +29,8 @@ public class MessageHandler {
 
     public void addString(VpnString string, Function<VpnString, String> getter) {
         string.setConfigStringGetter(getter);
+        getter.apply(string);
+        System.out.println("Added string " + string.getKey());
         messages.put(string.getKey(), string);
     }
 

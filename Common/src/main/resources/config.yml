@@ -61,7 +61,9 @@ countries:
   commands: []
   # The kick message that will be used if commands are configured to use the built-in kicking sytem.
   # PlaceHolders: %country% (Country name), %player% (Player name), %code% (Country ISO Code)
-  vanillaKickReason: "&cSorry, but our server does not allow connections from\n&f%country%"
+  vanillaKickReason: |-
+    &cSorry, but our server does not allow connections from
+    &f%country%
 # This will disable any information being sent to https://bstats.org. We recommend you keep this enabled as it helps
 # us understand our users and put effort where it is needed. All information sent goes under their privacy as seen
 # here: https://bstats.org/privacy-policy
