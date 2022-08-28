@@ -3,7 +3,6 @@ package dev.brighten.antivpn.bukkit;
 import dev.brighten.antivpn.AntiVPN;
 import dev.brighten.antivpn.bukkit.command.BukkitCommand;
 import dev.brighten.antivpn.command.Command;
-import dev.brighten.antivpn.utils.ConfigDefault;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SingleLineChart;
 import org.bukkit.Bukkit;

@@ -8,7 +8,6 @@ import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
 import dev.brighten.antivpn.AntiVPN;
 import dev.brighten.antivpn.command.Command;
-import dev.brighten.antivpn.utils.ConfigDefault;
 import dev.brighten.antivpn.velocity.command.VelocityCommand;
 import lombok.Getter;
 import org.bstats.velocity.Metrics;

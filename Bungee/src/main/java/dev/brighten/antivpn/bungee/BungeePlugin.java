@@ -3,8 +3,6 @@ package dev.brighten.antivpn.bungee;
 import dev.brighten.antivpn.AntiVPN;
 import dev.brighten.antivpn.bungee.command.BungeeCommand;
 import dev.brighten.antivpn.command.Command;
-import dev.brighten.antivpn.command.impl.AntiVPNCommand;
-import dev.brighten.antivpn.utils.ConfigDefault;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.api.plugin.Plugin;
 import org.bstats.bungeecord.Metrics;

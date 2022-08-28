@@ -45,9 +45,9 @@ public class MySQL {
                     AntiVPN.getInstance().getVpnConfig().getUsername(),AntiVPN.getInstance().getVpnConfig().getPassword()));
             conn.setAutoCommit(true);
             Query.use(conn);
-            AntiVPN.getInstance().getExecutor().log("Connection to SQlLite has been established.");
+            AntiVPN.getInstance().getExecutor().log("Connection to H2 has been established.");
         } catch (SQLException ex) {
-            AntiVPN.getInstance().getExecutor().log("SQLite exception on initialize");
+            AntiVPN.getInstance().getExecutor().log("H2 exception on initialize");
             ex.printStackTrace();
         } catch (ClassNotFoundException ex) {
             AntiVPN.getInstance().getExecutor().log("No H2 library found!");

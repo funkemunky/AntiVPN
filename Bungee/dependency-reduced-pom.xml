@@ -52,28 +52,6 @@
       <artifactId>Common</artifactId>
       <version>1.8.2</version>
       <scope>provided</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>toml4j</artifactId>
-          <groupId>com.moandjiezana.toml</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>mysql-connector-java</artifactId>
-          <groupId>mysql</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>h2</artifactId>
-          <groupId>com.h2database</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>snakeyaml</artifactId>
-          <groupId>org.yaml</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>mongo-java-driver</artifactId>
-          <groupId>org.mongodb</groupId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.github.bungee</groupId>

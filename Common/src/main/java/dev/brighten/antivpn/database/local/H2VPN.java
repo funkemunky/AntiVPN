@@ -258,11 +258,11 @@ public class H2VPN implements VPNDatabase {
 
         AntiVPN.getInstance().getExecutor().log("Creating indexes...");
         try {
-            Query.prepare("create index `uuid_1` if not exists on `whitelisted` (`uuid`)").execute();
-            Query.prepare("create index `ip_1` if not exists on `responses` (`ip`)").execute();
-            Query.prepare("create index `proxy_1` if not exists on `responses` (`proxy`)").execute();
-            Query.prepare("create index `inserted_1` if not exists on `responses` (`inserted`)").execute();
-            Query.prepare("create index `ip_1` if not exists on `whitelisted-ips` (`ip`)").execute();
+            Query.prepare("create index if not exists `uuid_1` on `whitelisted` (`uuid`)").execute();
+            Query.prepare("create index if not exists `ip_1` on `responses` (`ip`)").execute();
+            Query.prepare("create index if not exists `proxy_1` on `responses` (`proxy`)").execute();
+            Query.prepare("create index if not exists `inserted_1` on `responses` (`inserted`)").execute();
+            Query.prepare("create index if not exists `ip_1` on `whitelisted-ips` (`ip`)").execute();
         } catch (Exception e) {
             System.err.println("MySQL Excepton created" + e.getMessage());
         }
