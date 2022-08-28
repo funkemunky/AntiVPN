@@ -68,3 +68,9 @@ countries:
 # us understand our users and put effort where it is needed. All information sent goes under their privacy as seen
 # here: https://bstats.org/privacy-policy
 bstats: true
+# Here you can configure messages for KauriVPN.
+messages:
+  command-misc-playerRequired: '&cYou must be a player to execute this command!'
+  command-alerts-toggled: '&7Your player proxy notifications have been set to: &e%state%'
+  command-reload-complete: '&aSuccessfully reloaded KauriVPN plugin!'
+  no-permission: '&cNo permission.'
