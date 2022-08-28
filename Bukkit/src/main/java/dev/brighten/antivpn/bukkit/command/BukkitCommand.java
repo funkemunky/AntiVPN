@@ -1,5 +1,6 @@
 package dev.brighten.antivpn.bukkit.command;
 
+import dev.brighten.antivpn.AntiVPN;
 import dev.brighten.antivpn.bukkit.BukkitCommandExecutor;
 import dev.brighten.antivpn.command.Command;
 import lombok.val;
@@ -41,7 +42,8 @@ public class BukkitCommand extends org.bukkit.command.Command {
     public boolean execute(CommandSender sender, String s, String[] args) {
         if(!sender.hasPermission("antivpn.command.*")
                 && !sender.hasPermission(command.permission())) {
-            sender.sendMessage(ChatColor.RED + "No permission.");
+            sender.sendMessage(ChatColor.translateAlternateColorCodes('&',
+                    AntiVPN.getInstance().getMessageHandler().getString("no-permission").getMessage()));
             return true;
         }
 
@@ -53,7 +55,8 @@ public class BukkitCommand extends org.bukkit.command.Command {
                         .anyMatch(alias -> alias.equalsIgnoreCase(args[0]))) {
                     if(!sender.hasPermission("antivpn.command.*")
                             && !sender.hasPermission(child.permission())) {
-                        sender.sendMessage(ChatColor.RED + "No permission.");
+                        sender.sendMessage(ChatColor.translateAlternateColorCodes('&',
+                                AntiVPN.getInstance().getMessageHandler().getString("no-permission").getMessage()));
                         return true;
                     }
 

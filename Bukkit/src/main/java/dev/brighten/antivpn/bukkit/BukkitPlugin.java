@@ -77,6 +77,8 @@ public class BukkitPlugin extends JavaPlugin {
                 (vpnString.getDefaultMessage(), "messages." + vpnString.getKey(), BukkitPlugin.pluginInstance)
                 .get());
         AntiVPN.getInstance().getMessageHandler().reloadStrings();*/
+
+        reloadConfig();
     }
 
     @Override

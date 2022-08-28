@@ -19,7 +19,6 @@ public class VpnString {
     public VpnString(String key, String defaultMessage) {
         this.key = key;
         this.defaultMessage = defaultMessage;
-        this.message = defaultMessage;
     }
 
     @SneakyThrows
@@ -30,7 +29,7 @@ public class VpnString {
     }
 
     public String getFormattedMessage(Var<String, Object>... replacements) {
-        String formatted = message;
+        String formatted = configStringGetter.apply(this);
 
         for (Var<String, Object> replacement : replacements) {
             formatted = formatted

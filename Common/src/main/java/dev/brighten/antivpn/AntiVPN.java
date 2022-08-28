@@ -115,6 +115,7 @@ public class AntiVPN {
         AntiVPN.getInstance().getMessageHandler().initStrings(vpnString -> new ConfigDefault<>
                 (vpnString.getDefaultMessage(), "messages." + vpnString.getKey(), AntiVPN.getInstance())
                 .get());
+        AntiVPN.getInstance().getMessageHandler().reloadStrings();
     }
 
     public InputStream getResource(String filename) {
@@ -153,6 +154,16 @@ public class AntiVPN {
                     .save(getConfig(), new File(pluginFolder.getPath() + File.separator + "config.yml"));
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void reloadConfig() {
+        try {
+
+            config = ConfigurationProvider.getProvider(YamlConfiguration.class)
+                    .load(new File(pluginFolder.getPath() + File.separator + "config.yml"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 

@@ -1,5 +1,7 @@
 package dev.brighten.antivpn.message;
 
+import dev.brighten.antivpn.AntiVPN;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -27,6 +29,8 @@ public class MessageHandler {
 
     public void addString(VpnString string, Function<VpnString, String> getter) {
         string.setConfigStringGetter(getter);
+        getter.apply(string);
+        System.out.println("Added string " + string.getKey());
         messages.put(string.getKey(), string);
     }
 
@@ -35,5 +39,8 @@ public class MessageHandler {
                 "&cYou must be a player to execute this command!"), getter);
         addString(new VpnString("command-alerts-toggled",
                 "&7Your player proxy notifications have been set to: &e%state%"), getter);
+        addString(new VpnString("command-reload-complete",
+                        "&aSuccessfully reloaded KauriVPN plugin!"), getter);
+        addString(new VpnString("no-permission", "&cNo permission."), getter);
     }
 }
