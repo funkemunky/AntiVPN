@@ -4,8 +4,10 @@ import dev.brighten.antivpn.AntiVPN;
 import org.h2.jdbc.JdbcSQLNonTransientConnectionException;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.file.Files;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -49,7 +51,8 @@ public class MySQL {
                     .getConstructor(String.class, Properties.class, String.class, Object.class, boolean.class);
             conn = new NonClosableConnection((Connection)jdbcConnection.newInstance("jdbc:h2:file:" +
                             databaseFile.getAbsolutePath(),
-                    new Properties(), "root", "erc5gmv-xvg5CZQ0nzw", false));
+                    new Properties(), AntiVPN.getInstance().getVpnConfig().getUsername(),
+                    AntiVPN.getInstance().getVpnConfig().getPassword(), false));
             conn.setAutoCommit(true);
             Query.use(conn);
             AntiVPN.getInstance().getExecutor().log("Connection to H2 has been established.");
@@ -71,10 +74,28 @@ public class MySQL {
                     return;
                 }
 
+                File oldDbs = new File(dataFolder, "old");
+
+                boolean made = false;
+                if(!oldDbs.isDirectory()) {
+                    made = oldDbs.mkdir();
+                } else made = true;
+
+                if(!made) {
+                    throw new RuntimeException(String.format("Unable to upgrade H2 files since this application " +
+                            "was unable to create a new directory %s (insufficient permissions?)!", oldDbs.getPath()));
+                }
                 AntiVPN.getInstance().getExecutor().log("Upgrading h2 files...");
                 for (File file : files) {
                     if(file.getName().endsWith(".db")) {
-                        file.delete();
+                        try {
+                            Files.copy(file.toPath(), new File(oldDbs, file.getName()).toPath());
+                        } catch (IOException ex) {
+                            throw new RuntimeException(ex);
+                        }
+                        if(file.delete()) {
+                            AntiVPN.getInstance().getExecutor().log("Successfully deleted old " + file.getName());
+                        } else throw new RuntimeException("Unable to delete old database file " + file.getName());
                     }
                 }
                 initH2();
