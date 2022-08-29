@@ -1,11 +1,15 @@
 package dev.brighten.antivpn.database.sql.utils;
 
 import dev.brighten.antivpn.AntiVPN;
+import org.h2.jdbc.JdbcSQLNonTransientConnectionException;
 
 import java.io.File;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Properties;
 
 public class MySQL {
     private static Connection conn;
@@ -36,13 +40,16 @@ public class MySQL {
         }
     }
 
+    private static boolean attemptedTwice = false;
     public static void initH2() {
-        File dataFolder = new File(AntiVPN.getInstance().getPluginFolder(), "databases" + File.separator + "database");
+        File dataFolder = new File(AntiVPN.getInstance().getPluginFolder(), "databases");
+        File databaseFile = new File(dataFolder, "database");
         try {
-            Class.forName("org.h2.Driver");
-            conn = new NonClosableConnection(DriverManager.getConnection ("jdbc:h2:file:" +
-                    dataFolder.getAbsolutePath(),
-                    AntiVPN.getInstance().getVpnConfig().getUsername(),AntiVPN.getInstance().getVpnConfig().getPassword()));
+            Constructor jdbcConnection = Class.forName("org.h2.jdbc.JdbcConnection")
+                    .getConstructor(String.class, Properties.class, String.class, Object.class, boolean.class);
+            conn = new NonClosableConnection((Connection)jdbcConnection.newInstance("jdbc:h2:file:" +
+                            databaseFile.getAbsolutePath(),
+                    new Properties(), "root", "erc5gmv-xvg5CZQ0nzw", false));
             conn.setAutoCommit(true);
             Query.use(conn);
             AntiVPN.getInstance().getExecutor().log("Connection to H2 has been established.");
@@ -51,7 +58,29 @@ public class MySQL {
             ex.printStackTrace();
         } catch (ClassNotFoundException ex) {
             AntiVPN.getInstance().getExecutor().log("No H2 library found!");
+        } catch (NoSuchMethodException | InstantiationException | IllegalAccessException e) {
+            AntiVPN.getInstance().getExecutor().log("Java exception on initialize");
+            e.printStackTrace();
+        } catch(InvocationTargetException e) {
+            if(attemptedTwice) return;
+            if(e.getCause() instanceof JdbcSQLNonTransientConnectionException) {
+                File[] files = dataFolder.listFiles();
+
+                if(files == null) {
+                    e.printStackTrace();
+                    return;
+                }
+
+                AntiVPN.getInstance().getExecutor().log("Upgrading h2 files...");
+                for (File file : files) {
+                    if(file.getName().endsWith(".db")) {
+                        file.delete();
+                    }
+                }
+                initH2();
+            } else e.printStackTrace();
         }
+        attemptedTwice = true;
     }
 
     public static void use() {
@@ -70,6 +99,7 @@ public class MySQL {
                 } else conn.close();
                 conn = null;
             }
+            attemptedTwice = false;
         } catch (Exception e) {
             e.printStackTrace();
         }
