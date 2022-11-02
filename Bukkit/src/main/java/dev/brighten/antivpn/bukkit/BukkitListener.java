@@ -68,7 +68,6 @@ public class BukkitListener extends VPNExecutor implements Listener {
     @EventHandler
     public void onListener(final PlayerLoginEvent event) {
         //If they're exempt, don't check.
-        System.out.println(event.getAddress().getHostAddress() + ";" + event.getPlayer().getUniqueId() + ";" + event.getPlayer().getName());
         if(event.getPlayer().hasPermission("antivpn.bypass") //Has bypass permission
                 || AntiVPN.getInstance().getExecutor().isWhitelisted(event.getPlayer().getUniqueId()) //Is exempt
                 //Or has a name that starts with a certain prefix. This is for Bedrock exempting.

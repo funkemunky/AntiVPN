@@ -3,7 +3,7 @@
   <parent>
     <artifactId>AntiVPN</artifactId>
     <groupId>dev.brighten.antivpn</groupId>
-    <version>1.8.2</version>
+    <version>1.8.2.2</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>Bungee</artifactId>
@@ -50,8 +50,14 @@
     <dependency>
       <groupId>dev.brighten.antivpn</groupId>
       <artifactId>Common</artifactId>
-      <version>1.8.2</version>
+      <version>1.8.2.2</version>
       <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>snakeyaml</artifactId>
+          <groupId>org.yaml</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.github.bungee</groupId>

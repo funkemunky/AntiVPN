@@ -32,7 +32,6 @@ import java.util.List;
 @Getter
 @Setter(AccessLevel.PRIVATE)
 @MavenLibrary(groupId = "com.h2database", artifactId ="h2", version = "2.1.214")
-@MavenLibrary(groupId = "org.yaml", artifactId = "snakeyaml", version = "1.30")
 @MavenLibrary(groupId = "org.mongodb", artifactId = "mongo-java-driver", version = "3.12.11")
 @MavenLibrary(groupId = "mysql", artifactId = "mysql-connector-java", version = "8.0.30")
 public class AntiVPN {
