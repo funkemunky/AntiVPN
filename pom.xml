@@ -15,6 +15,7 @@
         <module>Bukkit</module>
         <module>Assembly</module>
         <module>Velocity</module>
+        <module>Sponge</module>
     </modules>
 
     <properties>
