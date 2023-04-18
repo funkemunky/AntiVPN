@@ -15,8 +15,8 @@ prefixWhitelists: []
 # Configure your database here.
 database:
   # Enable to cache queries and save alerts state beyond restarts
-  enabled: false
-  useCredentials: true
+  enabled: true
+  useCredentials: false
   #Options Mongo, MySQL, or H2
   type: H2
   # The database name you would like to use

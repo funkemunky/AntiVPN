@@ -82,15 +82,24 @@ public class BukkitListener extends VPNExecutor implements Listener {
                         //We need to run on main thread or kicking and running commands will cause errors
                         new BukkitRunnable() {
                             public void run() {
+                                //If the player is whitelisted, we don't want to kick them
+                                if(AntiVPN.getInstance().getExecutor().isWhitelisted(event.getPlayer().getUniqueId())) {
+                                    AntiVPN.getInstance().getExecutor().log("UUID is whitelisted: %s",
+                                            event.getPlayer().getUniqueId().toString());
+                                    return;
+                                }
+
+                                //If the IP is whitelisted, we don't want to kick them
+                                if(AntiVPN.getInstance().getExecutor().isWhitelisted(event.getPlayer().getAddress().getAddress()
+                                        .getHostAddress())) {
+                                    AntiVPN.getInstance().getExecutor().log("IP is whitelisted: %s",
+                                            event.getPlayer().getAddress().getAddress().getHostAddress());
+                                    return;
+                                }
+
                                 // If the countryList() size is zero, no need to check.
                                 // Running country check first
                                 if(AntiVPN.getInstance().getVpnConfig().countryList().size() > 0
-                                        && !(AntiVPN.getInstance().getExecutor()
-                                        .isWhitelisted(event.getPlayer().getUniqueId()) //Is exempt
-                                        //Or has a name that starts with a certain prefix. This is for Bedrock exempting.
-                                        || AntiVPN.getInstance().getExecutor().isWhitelisted(event.getPlayer()
-                                        .getAddress().getAddress()
-                                        .getHostAddress()))
                                         // This bit of code will decide whether or not to kick the player
                                         // If it contains the code and it is set to whitelist, it will not kick as they are equal
                                         // and vise versa. However, if the contains does not match the state, it will kick.
