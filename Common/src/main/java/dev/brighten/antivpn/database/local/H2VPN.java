@@ -65,7 +65,7 @@ public class H2VPN implements VPNDatabase {
                         rs.getString("method"), rs.getString("isp"), "N/A",
                         rs.getBoolean("proxy"), rs.getBoolean("cached"), true,
                         rs.getDouble("latitude"), rs.getDouble("longitude"),
-                        rs.getLong("inserted"), -1);
+                        rs.getTimestamp("inserted").getTime(), -1);
 
                 if(System.currentTimeMillis() - response.getLastAccess() > TimeUnit.HOURS.toMillis(1)) {
                     VPNExecutor.threadExecutor.execute(() -> deleteResponse(ip));

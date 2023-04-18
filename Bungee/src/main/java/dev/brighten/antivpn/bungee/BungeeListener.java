@@ -57,6 +57,7 @@ public class BungeeListener extends VPNExecutor implements Listener {
             if(result.isSuccess()) {
                 // If the countryList() size is zero, no need to check.
                 // Running country check first
+                AntiVPN.getInstance().getExecutor().log("Checking UUID for whitelist: %s", event.getPlayer().getUniqueId().toString());
                 if(AntiVPN.getInstance().getVpnConfig().countryList().size() > 0
                         && !(AntiVPN.getInstance().getExecutor().isWhitelisted(event.getPlayer().getUniqueId()) //Is exempt
                         //Or has a name that starts with a certain prefix. This is for Bedrock exempting.
