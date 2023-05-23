@@ -1,9 +1,12 @@
 package dev.brighten.antivpn.bukkit;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import dev.brighten.antivpn.AntiVPN;
 import dev.brighten.antivpn.api.APIPlayer;
 import dev.brighten.antivpn.api.VPNExecutor;
 import dev.brighten.antivpn.message.VpnString;
+import dev.brighten.antivpn.web.objects.VPNResponse;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -16,11 +19,18 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 public class BukkitListener extends VPNExecutor implements Listener {
 
     private BukkitTask cacheResetTask;
+    private final Cache<UUID, VPNResponse> responseCache = CacheBuilder.newBuilder()
+            .expireAfterWrite(5, TimeUnit.MINUTES)
+            .maximumSize(10000)
+            .build();
+
     @Override
     public void registerListeners() {
         BukkitPlugin.pluginInstance.getServer().getPluginManager()
@@ -74,6 +84,18 @@ public class BukkitListener extends VPNExecutor implements Listener {
                 || AntiVPN.getInstance().getExecutor().isWhitelisted(event.getAddress().getHostAddress())
                 || AntiVPN.getInstance().getVpnConfig().getPrefixWhitelists().stream()
                 .anyMatch(prefix -> event.getPlayer().getName().startsWith(prefix))) return;
+
+
+        if(responseCache.asMap().containsKey(event.getPlayer().getUniqueId())) {
+            VPNResponse cached = responseCache.getIfPresent(event.getPlayer().getUniqueId());
+
+            if (cached != null && cached.isProxy()) {
+                event.setResult(PlayerLoginEvent.Result.KICK_BANNED);
+                event.setKickMessage(org.bukkit.ChatColor.translateAlternateColorCodes('&',
+                        AntiVPN.getInstance().getVpnConfig().getKickString()));
+                return;
+            }
+        }
 
         final Player player = event.getPlayer();
         checkIp(event.getAddress().getHostAddress(),

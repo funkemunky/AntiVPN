@@ -1,5 +1,8 @@
 package dev.brighten.antivpn.velocity;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.velocitypowered.api.event.ResultedEvent;
 import com.velocitypowered.api.event.connection.DisconnectEvent;
 import com.velocitypowered.api.event.connection.LoginEvent;
 import com.velocitypowered.api.scheduler.ScheduledTask;
@@ -7,14 +10,21 @@ import dev.brighten.antivpn.AntiVPN;
 import dev.brighten.antivpn.api.APIPlayer;
 import dev.brighten.antivpn.api.VPNExecutor;
 import dev.brighten.antivpn.velocity.util.StringUtils;
+import dev.brighten.antivpn.web.objects.VPNResponse;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 public class VelocityListener extends VPNExecutor {
 
     private ScheduledTask cacheResetTask;
+    private final Cache<UUID, VPNResponse> responseCache = CacheBuilder.newBuilder()
+            .expireAfterWrite(5, TimeUnit.MINUTES)
+            .maximumSize(10000)
+            .build();
+
 
     @Override
     public void registerListeners() {
@@ -35,6 +45,18 @@ public class VelocityListener extends VPNExecutor {
                                 .getAddress().getHostAddress())
                                 || AntiVPN.getInstance().getVpnConfig().getPrefixWhitelists().stream()
                                 .anyMatch(prefix -> event.getPlayer().getUsername().startsWith(prefix))) return;
+
+                        if(responseCache.asMap().containsKey(event.getPlayer().getUniqueId())) {
+                            VPNResponse cached = responseCache.getIfPresent(event.getPlayer().getUniqueId());
+
+                            if (cached != null && cached.isProxy()) {
+                                event.setResult(ResultedEvent.ComponentResult.denied(LegacyComponentSerializer.builder()
+                                        .character('&')
+                                        .build().deserialize(AntiVPN.getInstance().getVpnConfig()
+                                                .getKickString())));
+                                return;
+                            }
+                        }
 
                         checkIp(event.getPlayer().getRemoteAddress().getAddress().getHostAddress(),
                                 AntiVPN.getInstance().getVpnConfig().cachedResults(), result -> {

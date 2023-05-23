@@ -5,7 +5,7 @@
     <parent>
         <artifactId>AntiVPN</artifactId>
         <groupId>dev.brighten.antivpn</groupId>
-        <version>1.8.3.1</version>
+        <version>1.8.4</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 

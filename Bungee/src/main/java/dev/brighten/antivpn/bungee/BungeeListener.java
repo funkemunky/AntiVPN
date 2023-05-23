@@ -1,23 +1,33 @@
 package dev.brighten.antivpn.bungee;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import dev.brighten.antivpn.AntiVPN;
 import dev.brighten.antivpn.api.APIPlayer;
 import dev.brighten.antivpn.api.VPNExecutor;
+import dev.brighten.antivpn.web.objects.VPNResponse;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.event.PostLoginEvent;
+import net.md_5.bungee.api.event.PreLoginEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.api.scheduler.ScheduledTask;
 import net.md_5.bungee.event.EventHandler;
 
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 public class BungeeListener extends VPNExecutor implements Listener {
 
     private ScheduledTask cacheResetTask;
+
+    private final Cache<UUID, VPNResponse> responseCache = CacheBuilder.newBuilder()
+            .expireAfterWrite(5, TimeUnit.MINUTES)
+            .maximumSize(10000)
+            .build();
 
     @Override
     public void registerListeners() {
@@ -47,6 +57,21 @@ public class BungeeListener extends VPNExecutor implements Listener {
     }
 
     @EventHandler
+    public void onListener(final PreLoginEvent event) {
+        if(!responseCache.asMap().containsKey(event.getConnection().getUniqueId())) return;
+
+        VPNResponse cached = responseCache.getIfPresent(event.getConnection().getUniqueId());
+
+        if(cached != null && cached.isProxy()) {
+            event.setCancelled(true);
+            event.setCancelReason(TextComponent.fromLegacyText(ChatColor
+                    .translateAlternateColorCodes('&',
+                            AntiVPN.getInstance().getVpnConfig().getKickString())));
+            System.out.println("Cancelled because of cache");
+        }
+    }
+
+    @EventHandler
     public void onListener(final PostLoginEvent event) {
         if(event.getPlayer().hasPermission("antivpn.bypass") //Has bypass permission
                 || AntiVPN.getInstance().getVpnConfig().getPrefixWhitelists().stream()
@@ -69,6 +94,8 @@ public class BungeeListener extends VPNExecutor implements Listener {
                             event.getPlayer().getAddress().getAddress().getHostAddress());
                     return;
                 }
+
+                responseCache.put(event.getPlayer().getUniqueId(), result);
 
                 if(AntiVPN.getInstance().getVpnConfig().countryList().size() > 0
                         // This bit of code will decide whether or not to kick the player
