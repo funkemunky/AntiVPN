@@ -171,7 +171,12 @@ public class VelocityListener extends VPNExecutor {
     }
 
     @Override
+    public void log(Level level, String log, Object... objects) {
+        VelocityPlugin.INSTANCE.getLogger().log(level, String.format(log, objects));
+    }
+
+    @Override
     public void log(String log, Object... objects) {
-        VelocityPlugin.INSTANCE.getLogger().log(Level.INFO, String.format(log, objects));
+        log(Level.INFO, String.format(log, objects));
     }
 }

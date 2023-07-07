@@ -16,7 +16,7 @@ public class SpongePlayer extends APIPlayer {
 
     @Override
     public void sendMessage(String message) {
-        player.sendMessage(StringUtil.translateColorCodes('&', message);
+        //player.sendMessage(StringUtil.translateColorCodes('&', message));
     }
 
     @Override

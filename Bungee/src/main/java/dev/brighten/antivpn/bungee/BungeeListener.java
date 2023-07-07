@@ -52,8 +52,13 @@ public class BungeeListener extends VPNExecutor implements Listener {
     }
 
     @Override
-    public void log(String log, Object... objects) {
+    public void log(Level level, String log, Object... objects) {
         BungeeCord.getInstance().getLogger().log(Level.INFO, String.format(log, objects));
+    }
+
+    @Override
+    public void log(String log, Object... objects) {
+        log(Level.INFO, String.format(log, objects));
     }
 
     @EventHandler
@@ -67,7 +72,9 @@ public class BungeeListener extends VPNExecutor implements Listener {
             event.setCancelReason(TextComponent.fromLegacyText(ChatColor
                     .translateAlternateColorCodes('&',
                             AntiVPN.getInstance().getVpnConfig().getKickString())));
-            System.out.println("Cancelled because of cache");
+            AntiVPN.getInstance().getExecutor().log(Level.INFO,
+                    "%s was kicked from pre-login proxy cache.",
+                    event.getConnection().getName());
         }
     }
 
