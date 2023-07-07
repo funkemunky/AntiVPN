@@ -24,8 +24,6 @@ import static dev.brighten.antivpn.utils.Preconditions.checkNotNull;
 import static dev.brighten.antivpn.utils.NullnessCasts.uncheckedCastNullableTToT;
 import static java.util.Objects.requireNonNull;
 
-import jdk.tools.jlink.internal.Platform;
-
 /**
  * Useful suppliers.
  *
