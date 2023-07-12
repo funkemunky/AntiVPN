@@ -5,7 +5,7 @@
     <parent>
         <artifactId>AntiVPN</artifactId>
         <groupId>dev.brighten.antivpn</groupId>
-        <version>1.9.0</version>
+        <version>1.9.1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -46,8 +46,8 @@
                                     <shadedPattern>dev.brighten.antivpn.shaded.org.yaml.snakeyaml</shadedPattern>
                                 </relocation>
                                 <relocation>
-                                    <pattern>com.google</pattern>
-                                    <shadedPattern>dev.brighten.antivpn.shaded.com.google</shadedPattern>
+                                    <pattern>com.google.common</pattern>
+                                    <shadedPattern>dev.brighten.antivpn.shaded.com.google.common</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>
@@ -78,7 +78,7 @@
         <dependency>
             <groupId>dev.brighten.antivpn</groupId>
             <artifactId>Common</artifactId>
-            <version>1.9.0</version>
+            <version>1.9.1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
