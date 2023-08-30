@@ -116,13 +116,20 @@ public class BukkitListener extends VPNExecutor implements Listener {
                                             event.getPlayer().getUniqueId().toString());
                                     return;
                                 }
-
-                                //If the IP is whitelisted, we don't want to kick them
-                                if(AntiVPN.getInstance().getExecutor().isWhitelisted(event.getPlayer().getAddress().getAddress()
-                                        .getHostAddress())) {
-                                   log("IP is whitelisted: %s",
-                                            event.getPlayer().getAddress().getAddress().getHostAddress());
-                                    return;
+                                try {
+                                    //If the IP is whitelisted, we don't want to kick them
+                                    if(AntiVPN.getInstance().getExecutor().isWhitelisted(event.getPlayer().getAddress().getAddress()
+                                            .getHostAddress())) {
+                                        log("IP is whitelisted: %s",
+                                                event.getPlayer().getAddress().getAddress().getHostAddress());
+                                        return;
+                                    }
+                                } catch (Exception e) {
+                                    if(e instanceof NullPointerException) {
+                                        return;
+                                    } else {
+                                        throw new RuntimeException(e);
+                                    }
                                 }
 
                                 // If the countryList() size is zero, no need to check.
