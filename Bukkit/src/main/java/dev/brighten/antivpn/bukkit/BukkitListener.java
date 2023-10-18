@@ -19,6 +19,8 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -116,13 +118,17 @@ public class BukkitListener extends VPNExecutor implements Listener {
                                             event.getPlayer().getUniqueId().toString());
                                     return;
                                 }
-
-                                //If the IP is whitelisted, we don't want to kick them
-                                if(AntiVPN.getInstance().getExecutor().isWhitelisted(event.getPlayer().getAddress().getAddress()
-                                        .getHostAddress())) {
-                                   log("IP is whitelisted: %s",
-                                            event.getPlayer().getAddress().getAddress().getHostAddress());
-                                    return;
+                                {
+                                    //If the IP is whitelisted, we don't want to kick them
+                                    InetSocketAddress address = event.getPlayer().getAddress();
+                                    if (address != null){
+                                        InetAddress address1 = address.getAddress();
+                                        if (address1 != null && AntiVPN.getInstance().getExecutor().isWhitelisted(address1.getHostAddress())) {
+                                            log("IP is whitelisted: %s",
+                                                    address1.getHostAddress());
+                                            return;
+                                        }
+                                    }
                                 }
 
                                 // If the countryList() size is zero, no need to check.
