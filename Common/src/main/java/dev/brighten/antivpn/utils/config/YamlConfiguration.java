@@ -23,17 +23,17 @@ public class YamlConfiguration extends ConfigurationProvider
         @Override
         protected Yaml initialValue()
         {
-            Representer representer = new Representer()
+            DumperOptions options = new DumperOptions();
+            options.setDefaultFlowStyle( DumperOptions.FlowStyle.BLOCK );
+            Representer representer = new Representer(options)
             {
                 {
                     representers.put( Configuration.class, data -> represent( ( (Configuration) data ).self ));
                 }
             };
 
-            DumperOptions options = new DumperOptions();
-            options.setDefaultFlowStyle( DumperOptions.FlowStyle.BLOCK );
             representer.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
-            return new Yaml( new Constructor(), representer, options );
+            return new Yaml( new Constructor(new LoaderOptions()), representer, options );
         }
     };
 
