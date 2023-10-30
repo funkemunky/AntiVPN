@@ -95,6 +95,6 @@ public class PlanCommand extends Command {
 
     @Override
     public List<String> tabComplete(CommandExecutor executor, String alias, String[] args) {
-        return Collections.emptyList();
+        return null;
     }
 }
