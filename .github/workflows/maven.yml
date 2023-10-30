@@ -1,6 +1,10 @@
 on:
   push:
     branches: ["**"]
+  pull_request:
+    types:
+      - opened
+      - synchronize
  
 jobs:
   build:
@@ -16,8 +20,10 @@ jobs:
       - name: Cache Maven packages
         uses: actions/cache@v2
         with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          path: ~/.m2/repository  # Cache the Maven repository
+          key: maven-${{ runner.os }}-${{ hashFiles('**/*.xml') }}
+          restore-keys: |
+            maven-${{ runner.os }}-
       - name: Compile
         run: mvn -B -Pclean install
         env:
