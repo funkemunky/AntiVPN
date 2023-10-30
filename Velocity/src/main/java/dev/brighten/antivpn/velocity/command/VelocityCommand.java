@@ -12,6 +12,7 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class VelocityCommand implements SimpleCommand {
@@ -78,7 +79,10 @@ public class VelocityCommand implements SimpleCommand {
                             .mapToObj(i -> args[i + 1]).toArray(String[]::new));
                 }
             }
+        }else if (children.length > 0){ // && args.length == 0 is always true here
+            return Arrays.stream(children).map(Command::name).collect(Collectors.toList());
         }
+
         return command.tabComplete(new VelocityCommandExecutor(sender), "alias", args);
     }
 

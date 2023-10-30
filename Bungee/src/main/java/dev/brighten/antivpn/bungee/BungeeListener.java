@@ -1,23 +1,33 @@
 package dev.brighten.antivpn.bungee;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import dev.brighten.antivpn.AntiVPN;
 import dev.brighten.antivpn.api.APIPlayer;
 import dev.brighten.antivpn.api.VPNExecutor;
+import dev.brighten.antivpn.web.objects.VPNResponse;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.event.PostLoginEvent;
+import net.md_5.bungee.api.event.PreLoginEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.api.scheduler.ScheduledTask;
 import net.md_5.bungee.event.EventHandler;
 
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 public class BungeeListener extends VPNExecutor implements Listener {
 
     private ScheduledTask cacheResetTask;
+
+    private final Cache<UUID, VPNResponse> responseCache = CacheBuilder.newBuilder()
+            .expireAfterWrite(5, TimeUnit.MINUTES)
+            .maximumSize(10000)
+            .build();
 
     @Override
     public void registerListeners() {
@@ -42,8 +52,30 @@ public class BungeeListener extends VPNExecutor implements Listener {
     }
 
     @Override
-    public void log(String log, Object... objects) {
+    public void log(Level level, String log, Object... objects) {
         BungeeCord.getInstance().getLogger().log(Level.INFO, String.format(log, objects));
+    }
+
+    @Override
+    public void log(String log, Object... objects) {
+        log(Level.INFO, String.format(log, objects));
+    }
+
+    @EventHandler
+    public void onListener(final PreLoginEvent event) {
+        if(!responseCache.asMap().containsKey(event.getConnection().getUniqueId())) return;
+
+        VPNResponse cached = responseCache.getIfPresent(event.getConnection().getUniqueId());
+
+        if(cached != null && cached.isProxy()) {
+            event.setCancelled(true);
+            event.setCancelReason(TextComponent.fromLegacyText(ChatColor
+                    .translateAlternateColorCodes('&',
+                            AntiVPN.getInstance().getVpnConfig().getKickString())));
+            AntiVPN.getInstance().getExecutor().log(Level.INFO,
+                    "%s was kicked from pre-login proxy cache.",
+                    event.getConnection().getName());
+        }
     }
 
     @EventHandler
@@ -55,13 +87,24 @@ public class BungeeListener extends VPNExecutor implements Listener {
         checkIp(event.getPlayer().getAddress().getAddress().getHostAddress(),
                 AntiVPN.getInstance().getVpnConfig().cachedResults(), result -> {
             if(result.isSuccess()) {
-                // If the countryList() size is zero, no need to check.
-                // Running country check first
+                //If the player is whitelisted, we don't want to kick them
+                if(AntiVPN.getInstance().getExecutor().isWhitelisted(event.getPlayer().getUniqueId())) {
+                    AntiVPN.getInstance().getExecutor().log("UUID is whitelisted: %s",
+                            event.getPlayer().getUniqueId().toString());
+                    return;
+                }
+
+                //If the IP is whitelisted, we don't want to kick them
+                if(AntiVPN.getInstance().getExecutor().isWhitelisted(event.getPlayer().getAddress().getAddress()
+                        .getHostAddress())) {
+                    AntiVPN.getInstance().getExecutor().log("IP is whitelisted: %s",
+                            event.getPlayer().getAddress().getAddress().getHostAddress());
+                    return;
+                }
+
+                responseCache.put(event.getPlayer().getUniqueId(), result);
+
                 if(AntiVPN.getInstance().getVpnConfig().countryList().size() > 0
-                        && !(AntiVPN.getInstance().getExecutor().isWhitelisted(event.getPlayer().getUniqueId()) //Is exempt
-                        //Or has a name that starts with a certain prefix. This is for Bedrock exempting.
-                        || AntiVPN.getInstance().getExecutor().isWhitelisted(event.getPlayer().getAddress().getAddress()
-                        .getHostAddress()))
                         // This bit of code will decide whether or not to kick the player
                         // If it contains the code and it is set to whitelist, it will not kick as they are equal
                         // and vise versa. However, if the contains does not match the state, it will kick.

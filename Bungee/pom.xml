@@ -5,7 +5,7 @@
     <parent>
         <artifactId>AntiVPN</artifactId>
         <groupId>dev.brighten.antivpn</groupId>
-        <version>1.8.2.2</version>
+        <version>1.9.2</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -33,6 +33,14 @@
                             <pattern>org.bstats</pattern>
                             <!-- Replace this with your package! -->
                             <shadedPattern>dev.brighten.antivpn.bungee.org.bstats</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>org.yaml.snakeyaml</pattern>
+                            <shadedPattern>dev.brighten.antivpn.shaded.org.yaml.snakeyaml</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>com.google</pattern>
+                            <shadedPattern>dev.brighten.antivpn.shaded.com.google</shadedPattern>
                         </relocation>
                     </relocations>
                 </configuration>
@@ -63,7 +71,7 @@
         <dependency>
             <groupId>dev.brighten.antivpn</groupId>
             <artifactId>Common</artifactId>
-            <version>1.8.2.2</version>
+            <version>1.9.2</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

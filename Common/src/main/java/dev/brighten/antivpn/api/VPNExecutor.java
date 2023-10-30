@@ -12,6 +12,7 @@ import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
+import java.util.logging.Level;
 
 public abstract class VPNExecutor {
     public static ExecutorService threadExecutor = Executors.newSingleThreadExecutor();
@@ -31,6 +32,8 @@ public abstract class VPNExecutor {
     }
 
     public abstract void shutdown();
+
+    public abstract void log(Level level, String log, Object... objects);
 
     public abstract void log(String log, Object... objects);
 

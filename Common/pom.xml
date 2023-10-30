@@ -5,7 +5,7 @@
     <parent>
         <artifactId>AntiVPN</artifactId>
         <groupId>dev.brighten.antivpn</groupId>
-        <version>1.8.2.2</version>
+        <version>1.9.2</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -44,6 +44,10 @@
                                 <relocation>
                                     <pattern>org.yaml.snakeyaml</pattern>
                                     <shadedPattern>dev.brighten.antivpn.shaded.org.yaml.snakeyaml</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.google.common</pattern>
+                                    <shadedPattern>dev.brighten.antivpn.shaded.com.google.common</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>
@@ -85,6 +89,11 @@
             <artifactId>snakeyaml</artifactId>
             <version>2.0</version>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>31.1-jre</version>
         </dependency>
         <dependency>
             <groupId>org.mongodb</groupId>

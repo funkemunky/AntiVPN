@@ -12,6 +12,8 @@ public interface VPNDatabase {
 
     void cacheResponse(VPNResponse toCache);
 
+    void deleteResponse(String ip);
+
     boolean isWhitelisted(UUID uuid);
 
     boolean isWhitelisted(String ip);

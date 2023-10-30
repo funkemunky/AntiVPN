@@ -65,7 +65,12 @@ public class H2VPN implements VPNDatabase {
                         rs.getString("method"), rs.getString("isp"), "N/A",
                         rs.getBoolean("proxy"), rs.getBoolean("cached"), true,
                         rs.getDouble("latitude"), rs.getDouble("longitude"),
-                        System.currentTimeMillis(), -1);
+                        rs.getTimestamp("inserted").getTime(), -1);
+
+                if(System.currentTimeMillis() - response.getLastAccess() > TimeUnit.HOURS.toMillis(1)) {
+                    VPNExecutor.threadExecutor.execute(() -> deleteResponse(ip));
+                    return Optional.empty();
+                }
                 return Optional.of(response);
             }
         } catch (SQLException throwables) {
@@ -96,6 +101,14 @@ public class H2VPN implements VPNDatabase {
                 .append(toCache.getMethod()).append(toCache.getIsp()).append(toCache.isProxy())
                 .append(toCache.isCached()).append(new Timestamp(System.currentTimeMillis()))
                 .append(toCache.getLatitude()).append(toCache.getLongitude()).execute();
+    }
+
+    @Override
+    public void deleteResponse(String ip) {
+        if(!AntiVPN.getInstance().getVpnConfig().isDatabaseEnabled() || MySQL.isClosed())
+            return;
+
+        Query.prepare("delete from `responses` where `ip` = ?").append(ip).execute();
     }
 
     @SneakyThrows

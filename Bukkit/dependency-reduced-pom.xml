@@ -3,7 +3,7 @@
   <parent>
     <artifactId>AntiVPN</artifactId>
     <groupId>dev.brighten.antivpn</groupId>
-    <version>1.8.2.2</version>
+    <version>1.9.1</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>Bukkit</artifactId>
@@ -26,23 +26,32 @@
       </plugin>
       <plugin>
         <artifactId>maven-shade-plugin</artifactId>
-        <version>3.1.0</version>
+        <version>3.2.4</version>
         <executions>
           <execution>
             <phase>package</phase>
             <goals>
               <goal>shade</goal>
             </goals>
+            <configuration>
+              <minimizeJar>true</minimizeJar>
+              <relocations>
+                <relocation>
+                  <pattern>org.bstats</pattern>
+                  <shadedPattern>dev.brighten.antivpn.bukkit.org.bstats</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>org.yaml.snakeyaml</pattern>
+                  <shadedPattern>dev.brighten.antivpn.shaded.org.yaml.snakeyaml</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>com.google.common</pattern>
+                  <shadedPattern>dev.brighten.antivpn.shaded.com.google.common</shadedPattern>
+                </relocation>
+              </relocations>
+            </configuration>
           </execution>
         </executions>
-        <configuration>
-          <relocations>
-            <relocation>
-              <pattern>org.bstats</pattern>
-              <shadedPattern>dev.brighten.antivpn.bukkit.org.bstats</shadedPattern>
-            </relocation>
-          </relocations>
-        </configuration>
       </plugin>
     </plugins>
   </build>
@@ -56,14 +65,8 @@
     <dependency>
       <groupId>dev.brighten.antivpn</groupId>
       <artifactId>Common</artifactId>
-      <version>1.8.2.2</version>
+      <version>1.9.1</version>
       <scope>provided</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>snakeyaml</artifactId>
-          <groupId>org.yaml</groupId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>cc.funkemunky.utils</groupId>
@@ -77,4 +80,3 @@
     <maven.compiler.source>8</maven.compiler.source>
   </properties>
 </project>
-

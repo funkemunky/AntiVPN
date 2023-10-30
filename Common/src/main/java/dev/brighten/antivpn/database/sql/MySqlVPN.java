@@ -52,7 +52,7 @@ public class MySqlVPN implements VPNDatabase {
 
     @Override
     public Optional<VPNResponse> getStoredResponse(String ip) {
-        if (!AntiVPN.getInstance().getVpnConfig().isDatabaseEnabled()|| MySQL.isClosed())
+        if (isDisabled())
             return Optional.empty();
 
         ResultSet rs = Query.prepare("select * from `responses` where `ip` = ? limit 1").append(ip).executeQuery();
@@ -65,7 +65,13 @@ public class MySqlVPN implements VPNDatabase {
                         rs.getString("method"), rs.getString("isp"), "N/A",
                         rs.getBoolean("proxy"), rs.getBoolean("cached"), true,
                         rs.getDouble("latitude"), rs.getDouble("longitude"),
-                        System.currentTimeMillis(), -1);
+                        rs.getTimestamp("inserted").getTime(), -1);
+
+                if(System.currentTimeMillis() - response.getLastAccess() > TimeUnit.HOURS.toMillis(1)) {
+                    VPNExecutor.threadExecutor.execute(() -> deleteResponse(ip));
+                    return Optional.empty();
+                }
+                
                 return Optional.of(response);
             }
         } catch (SQLException throwables) {
@@ -86,7 +92,7 @@ public class MySqlVPN implements VPNDatabase {
      */
     @Override
     public void cacheResponse(VPNResponse toCache) {
-        if (!AntiVPN.getInstance().getVpnConfig().isDatabaseEnabled() || MySQL.isClosed())
+        if (isDisabled())
             return;
 
         Query.prepare("insert into `responses` (`ip`,`asn`,`countryName`,`countryCode`,`city`,`timeZone`,"
@@ -98,10 +104,18 @@ public class MySqlVPN implements VPNDatabase {
                 .append(toCache.getLatitude()).append(toCache.getLongitude()).execute();
     }
 
+    @Override
+    public void deleteResponse(String ip) {
+        if(!isDisabled())
+            return;
+
+        Query.prepare("delete from `responses` where `ip` = ?").append(ip).execute();
+    }
+
     @SneakyThrows
     @Override
     public boolean isWhitelisted(UUID uuid) {
-        if (!AntiVPN.getInstance().getVpnConfig().isDatabaseEnabled() || MySQL.isClosed())
+        if (isDisabled())
             return false;
         ResultSet set = Query.prepare("select uuid from `whitelisted` where `uuid` = ? limit 1")
                 .append(uuid.toString()).executeQuery();
@@ -112,7 +126,7 @@ public class MySqlVPN implements VPNDatabase {
     @SneakyThrows
     @Override
     public boolean isWhitelisted(String ip) {
-        if (!AntiVPN.getInstance().getVpnConfig().isDatabaseEnabled() || MySQL.isClosed())
+        if (isDisabled())
             return false;
         ResultSet set = Query.prepare("select `ip` from `whitelisted-ips` where `ip` = ? limit 1")
                 .append(ip).executeQuery();
@@ -123,7 +137,7 @@ public class MySqlVPN implements VPNDatabase {
 
     @Override
     public void setWhitelisted(UUID uuid, boolean whitelisted) {
-        if (!AntiVPN.getInstance().getVpnConfig().isDatabaseEnabled() || MySQL.isClosed())
+        if (isDisabled())
             return;
 
         if (whitelisted) {
@@ -139,7 +153,7 @@ public class MySqlVPN implements VPNDatabase {
 
     @Override
     public void setWhitelisted(String ip, boolean whitelisted) {
-        if (!AntiVPN.getInstance().getVpnConfig().isDatabaseEnabled() || MySQL.isClosed())
+        if (isDisabled())
             return;
 
         if(whitelisted) {
@@ -332,6 +346,10 @@ public class MySqlVPN implements VPNDatabase {
         } catch (Exception e) {
             System.err.println("MySQL Excepton created" + e.getMessage());
         }
+    }
+    
+    private boolean isDisabled() {
+        return !AntiVPN.getInstance().getVpnConfig().isDatabaseEnabled()|| MySQL.isClosed();
     }
 
     @Override

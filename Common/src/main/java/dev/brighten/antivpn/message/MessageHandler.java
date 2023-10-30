@@ -30,7 +30,7 @@ public class MessageHandler {
     public void addString(VpnString string, Function<VpnString, String> getter) {
         string.setConfigStringGetter(getter);
         getter.apply(string);
-        System.out.println("Added string " + string.getKey());
+        AntiVPN.getInstance().getExecutor().log("Added string " + string.getKey());
         messages.put(string.getKey(), string);
     }
 

@@ -7,13 +7,16 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Indexes;
+import com.mongodb.client.model.UpdateOptions;
 import dev.brighten.antivpn.AntiVPN;
 import dev.brighten.antivpn.api.VPNExecutor;
 import dev.brighten.antivpn.database.VPNDatabase;
 import dev.brighten.antivpn.web.objects.VPNResponse;
 import org.bson.Document;
+import org.bson.conversions.Bson;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 public class MongoVPN implements VPNDatabase {
@@ -27,6 +30,13 @@ public class MongoVPN implements VPNDatabase {
         Document rdoc = cacheDocument.find(Filters.eq("ip", ip)).first();
 
         if(rdoc != null) {
+            long lastUpdate = rdoc.get("lastAccess", 0L);
+
+            if(System.currentTimeMillis() - lastUpdate > TimeUnit.HOURS.toMillis(1)) {
+                VPNExecutor.threadExecutor.execute(() -> deleteResponse(ip));
+                return Optional.empty();
+            }
+
             return Optional.of(VPNResponse.builder().asn(rdoc.getString("asn")).ip(ip)
                     .countryName(rdoc.getString("countryName"))
                     .countryCode(rdoc.getString("countryCode"))
@@ -39,6 +49,7 @@ public class MongoVPN implements VPNDatabase {
                     .success(true)
                     .latitude(rdoc.getDouble("latitude"))
                     .longitude(rdoc.getDouble("longitude"))
+                    .lastAccess(rdoc.get("lastAccess", 0L))
                     .build());
         }
         return Optional.empty();
@@ -60,11 +71,18 @@ public class MongoVPN implements VPNDatabase {
         rdoc.put("success", toCache.isSuccess());
         rdoc.put("latitude", toCache.getLatitude());
         rdoc.put("longitude", toCache.getLongitude());
+        rdoc.put("lastAccess", System.currentTimeMillis());
 
         VPNExecutor.threadExecutor.execute(() -> {
-            cacheDocument.deleteMany(Filters.eq("ip", toCache.getIp()));
-            cacheDocument.insertOne(rdoc);
+            Bson update = new Document("$set", rdoc);
+            cacheDocument.updateOne(Filters.eq("ip", toCache.getIp()), update,
+                    new UpdateOptions().upsert(true));
         });
+    }
+
+    @Override
+    public void deleteResponse(String ip) {
+        cacheDocument.deleteMany(Filters.eq("ip", ip));
     }
 
     @Override
@@ -100,8 +118,8 @@ public class MongoVPN implements VPNDatabase {
     @Override
     public void setWhitelisted(String ip, boolean whitelisted) {
         if(whitelisted) {
-            Document wdoc = new Document("setting", "whitelist");
-            wdoc.put("ip", ip);
+            Document wdoc = new Document("setting", "whitelist").append("ip", ip);
+
             AntiVPN.getInstance().getExecutor().getWhitelistedIps().add(ip);
             VPNExecutor.threadExecutor.execute(() -> settingsDocument.insertOne(wdoc));
         } else {
