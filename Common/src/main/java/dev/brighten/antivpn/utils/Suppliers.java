@@ -14,14 +14,13 @@
 
 package dev.brighten.antivpn.utils;
 
-import static java.util.Objects.requireNonNull;
-
 import java.io.Serializable;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
+
+import static dev.brighten.antivpn.utils.NullnessCasts.uncheckedCastNullableTToT;
 import static dev.brighten.antivpn.utils.Preconditions.checkArgument;
 import static dev.brighten.antivpn.utils.Preconditions.checkNotNull;
-import static dev.brighten.antivpn.utils.NullnessCasts.uncheckedCastNullableTToT;
 import static java.util.Objects.requireNonNull;
 
 /**

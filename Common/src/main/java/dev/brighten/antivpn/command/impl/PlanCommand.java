@@ -10,7 +10,6 @@ import dev.brighten.antivpn.web.FunkemunkyAPI;
 import dev.brighten.antivpn.web.objects.QueryResponse;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 
 public class PlanCommand extends Command {
