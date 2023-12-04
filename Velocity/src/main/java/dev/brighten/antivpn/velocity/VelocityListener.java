@@ -22,7 +22,7 @@ public class VelocityListener extends VPNExecutor {
     private ScheduledTask cacheResetTask;
     private final Cache<UUID, VPNResponse> responseCache = CacheBuilder.newBuilder()
             .expireAfterWrite(5, TimeUnit.MINUTES)
-            .maximumSize(10000)
+            .maximumSize(2000)
             .build();
 
 
@@ -63,7 +63,7 @@ public class VelocityListener extends VPNExecutor {
                                     if (result.isSuccess()) {
                                         // If the countryList() size is zero, no need to check.
                                         // Running country check first
-                                        if (AntiVPN.getInstance().getVpnConfig().countryList().size() > 0
+                                        if (!AntiVPN.getInstance().getVpnConfig().countryList().isEmpty()
                                                 && !(AntiVPN.getInstance().getExecutor()
                                                 .isWhitelisted(event.getPlayer().getUniqueId()) //Is exempt
                                                 //Or has a name that starts with a certain prefix. This is for Bedrock exempting.
@@ -77,7 +77,7 @@ public class VelocityListener extends VPNExecutor {
                                                 .contains(result.getCountryCode())
                                                 != AntiVPN.getInstance().getVpnConfig().whitelistCountries()) {
                                             //Using our built in kicking system if no commands are configured
-                                            if (AntiVPN.getInstance().getVpnConfig().countryKickCommands().size() == 0) {
+                                            if (AntiVPN.getInstance().getVpnConfig().countryKickCommands().isEmpty()) {
                                                 final String kickReason = AntiVPN.getInstance().getVpnConfig()
                                                         .countryVanillaKickReason();
                                                 // Kicking our player
@@ -150,14 +150,6 @@ public class VelocityListener extends VPNExecutor {
                                 });
                     }
                 });
-    }
-
-    @Override
-    public void runCacheReset() {
-        cacheResetTask = VelocityPlugin.INSTANCE.getServer().getScheduler()
-                .buildTask(VelocityPlugin.INSTANCE, this::resetCache)
-                .repeat(20, TimeUnit.MINUTES)
-                .schedule();
     }
 
     @Override

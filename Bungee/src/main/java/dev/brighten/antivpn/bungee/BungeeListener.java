@@ -26,19 +26,13 @@ public class BungeeListener extends VPNExecutor implements Listener {
 
     private final Cache<UUID, VPNResponse> responseCache = CacheBuilder.newBuilder()
             .expireAfterWrite(5, TimeUnit.MINUTES)
-            .maximumSize(10000)
+            .maximumSize(2000)
             .build();
 
     @Override
     public void registerListeners() {
         BungeePlugin.pluginInstance.getProxy().getPluginManager()
                 .registerListener(BungeePlugin.pluginInstance, this);
-    }
-
-    @Override
-    public void runCacheReset() {
-        cacheResetTask = BungeePlugin.pluginInstance.getProxy().getScheduler().schedule(BungeePlugin.pluginInstance,
-                this::resetCache, 20, 20, TimeUnit.MINUTES);
     }
 
     @Override

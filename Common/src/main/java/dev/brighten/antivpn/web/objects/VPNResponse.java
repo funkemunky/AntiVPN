@@ -2,7 +2,9 @@ package dev.brighten.antivpn.web.objects;
 
 import dev.brighten.antivpn.utils.json.JSONException;
 import dev.brighten.antivpn.utils.json.JSONObject;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
 
 @Data
 @AllArgsConstructor
@@ -39,14 +41,18 @@ public class VPNResponse {
      *
      * @param json String
      * @return VPNResponse
-     * @throws JSONException
      */
     public static VPNResponse fromJson(String json) throws JSONException {
         return fromJson(new JSONObject(json));
     }
 
+    public static final VPNResponse FAILED_RESPONSE = VPNResponse.builder()
+            .success(false)
+            .failureReason("Internal plugin API error.")
+            .build();
+
     /**
-     * Formats response from https://funkemunky.cc/vpn into {@link VPNResponse} for project use.
+     * Formats response from <a href="https://funkemunky.cc/vpn">...</a> into {@link VPNResponse} for project use.
      *
      * @param jsonObject JSONObject
      * @return VPNResponse

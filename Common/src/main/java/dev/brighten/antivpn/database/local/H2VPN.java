@@ -20,34 +20,20 @@ import java.util.function.Consumer;
 
 public class H2VPN implements VPNDatabase {
 
-    private Thread whitelistedThread;
-
     public H2VPN() {
-        whitelistedThread = new Thread(() -> {
-            try {
-                Thread.sleep(TimeUnit.SECONDS.toMillis(2));
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            while (true) {
-                // Updating from database
-                if (AntiVPN.getInstance().getVpnConfig().isDatabaseEnabled()) {
-                    AntiVPN.getInstance().getExecutor().getWhitelisted().clear();
-                    AntiVPN.getInstance().getExecutor().getWhitelisted()
-                            .addAll(AntiVPN.getInstance().getDatabase().getAllWhitelisted());
-                    AntiVPN.getInstance().getExecutor().getWhitelistedIps().clear();
-                    AntiVPN.getInstance().getExecutor().getWhitelistedIps()
-                            .addAll(AntiVPN.getInstance().getDatabase().getAllWhitelistedIps());
-                }
-                try {
-                    Thread.sleep(TimeUnit.SECONDS.toMillis(4));
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
+        VPNExecutor.threadExecutor.scheduleAtFixedRate(() -> {
+            if(!AntiVPN.getInstance().getVpnConfig().isDatabaseEnabled() || MySQL.isClosed()) return;
 
-        whitelistedThread.start();
+            //Refreshing whitelisted players
+            AntiVPN.getInstance().getExecutor().getWhitelisted().clear();
+            AntiVPN.getInstance().getExecutor().getWhitelisted()
+                    .addAll(AntiVPN.getInstance().getDatabase().getAllWhitelisted());
+
+            //Refreshing whitlisted IPs
+            AntiVPN.getInstance().getExecutor().getWhitelistedIps().clear();
+            AntiVPN.getInstance().getExecutor().getWhitelistedIps()
+                    .addAll(AntiVPN.getInstance().getDatabase().getAllWhitelistedIps());
+        }, 2, 30, TimeUnit.SECONDS);
     }
 
     @Override

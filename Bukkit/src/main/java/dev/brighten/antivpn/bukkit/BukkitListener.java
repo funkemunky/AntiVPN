@@ -11,13 +11,11 @@ import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -26,11 +24,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 public class BukkitListener extends VPNExecutor implements Listener {
-
-    private BukkitTask cacheResetTask;
     private final Cache<UUID, VPNResponse> responseCache = CacheBuilder.newBuilder()
             .expireAfterWrite(5, TimeUnit.MINUTES)
-            .maximumSize(10000)
+            .maximumSize(2000)
             .build();
 
     @Override
@@ -40,21 +36,8 @@ public class BukkitListener extends VPNExecutor implements Listener {
     }
 
     @Override
-    public void runCacheReset() {
-        // Reset cache every 20 minutes
-        cacheResetTask = new BukkitRunnable() {
-            public void run() {
-                resetCache();
-            }
-        }.runTaskTimerAsynchronously(BukkitPlugin.pluginInstance, 24000, 24000);
-
-        HandlerList.unregisterAll(this);
-        threadExecutor.shutdown();
-    }
-
-    @Override
     public void shutdown() {
-        if(cacheResetTask != null && !cacheResetTask.isCancelled()) cacheResetTask.cancel();
+
     }
 
     @Override
@@ -133,7 +116,7 @@ public class BukkitListener extends VPNExecutor implements Listener {
 
                                 // If the countryList() size is zero, no need to check.
                                 // Running country check first
-                                if(AntiVPN.getInstance().getVpnConfig().countryList().size() > 0
+                                if(!AntiVPN.getInstance().getVpnConfig().countryList().isEmpty()
                                         // This bit of code will decide whether or not to kick the player
                                         // If it contains the code and it is set to whitelist, it will not kick as they are equal
                                         // and vise versa. However, if the contains does not match the state, it will kick.
@@ -141,7 +124,7 @@ public class BukkitListener extends VPNExecutor implements Listener {
                                         .contains(result.getCountryCode())
                                         != AntiVPN.getInstance().getVpnConfig().whitelistCountries()) {
                                     //Using our built in kicking system if no commands are configured
-                                    if(AntiVPN.getInstance().getVpnConfig().countryKickCommands().size() == 0) {
+                                    if(AntiVPN.getInstance().getVpnConfig().countryKickCommands().isEmpty()) {
                                         final String kickReason = AntiVPN.getInstance().getVpnConfig()
                                                 .countryVanillaKickReason();
                                         // Kicking our player

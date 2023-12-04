@@ -1,7 +1,6 @@
 package dev.brighten.antivpn.command.impl;
 
 import dev.brighten.antivpn.AntiVPN;
-import dev.brighten.antivpn.api.VPNExecutor;
 import dev.brighten.antivpn.command.Command;
 import dev.brighten.antivpn.command.CommandExecutor;
 
@@ -47,7 +46,6 @@ public class ClearCacheCommand extends Command {
     @Override
     public String execute(CommandExecutor executor, String[] args) {
         AntiVPN.getInstance().getDatabase().clearResponses();
-        VPNExecutor.responseCache.clear();
         return "&aCleared all cached API response information!";
     }
 
