@@ -45,7 +45,6 @@ import java.util.Objects;
 @NonnullByDefault
 public final class LibraryLoader {
 
-    @SuppressWarnings("Guava")
     private static final Supplier<URLClassLoaderAccess> URL_INJECTOR = Suppliers.memoize(() -> URLClassLoaderAccess.create((URLClassLoader) AntiVPN.getInstance().getClass().getClassLoader()));
 
     /**

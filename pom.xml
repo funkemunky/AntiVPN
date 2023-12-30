@@ -7,7 +7,7 @@
     <groupId>dev.brighten.antivpn</groupId>
     <artifactId>AntiVPN</artifactId>
     <packaging>pom</packaging>
-    <version>1.9.2</version>
+    <version>1.9.3-DEV</version>
 
     <modules>
         <module>Common</module>
@@ -53,6 +53,10 @@
     </build>
 
     <repositories>
+        <repository>
+            <id>spigot-repo</id>
+            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
+        </repository>
         <repository>
             <id>funkemunky-releases</id>
             <url>https://nexus.funkemunky.cc/content/repositories/releases/</url>

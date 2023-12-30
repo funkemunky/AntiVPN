@@ -5,7 +5,7 @@
     <parent>
         <artifactId>AntiVPN</artifactId>
         <groupId>dev.brighten.antivpn</groupId>
-        <version>1.9.2</version>
+        <version>1.9.3-DEV</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -70,15 +70,15 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.github.spigot</groupId>
-            <artifactId>1.13.2</artifactId>
-            <version>1.13.2</version>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot-api</artifactId>
+            <version>1.20.2-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>dev.brighten.antivpn</groupId>
             <artifactId>Common</artifactId>
-            <version>1.9.2</version>
+            <version>1.9.3-DEV</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

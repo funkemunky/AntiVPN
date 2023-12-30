@@ -123,10 +123,22 @@ public class BukkitListener extends VPNExecutor implements Listener {
                                         && AntiVPN.getInstance().getVpnConfig().countryList()
                                         .contains(result.getCountryCode())
                                         != AntiVPN.getInstance().getVpnConfig().whitelistCountries()) {
+                                    final String kickReason = AntiVPN.getInstance().getVpnConfig()
+                                            .countryVanillaKickReason();
+
+                                    // Start "online" fix
+                                    // In case the response was so fast from API the player wouldn't be "online".
+                                    event.setResult(PlayerLoginEvent.Result.KICK_BANNED);
+                                    event.setKickMessage(ChatColor
+                                            .translateAlternateColorCodes('&',
+                                                    kickReason
+                                                            .replace("%player%", event.getPlayer().getName())
+                                                            .replace("%country%", result.getCountryName())
+                                                            .replace("%code%", result.getCountryCode())));
+                                    // End "online" fix
+
                                     //Using our built in kicking system if no commands are configured
                                     if(AntiVPN.getInstance().getVpnConfig().countryKickCommands().isEmpty()) {
-                                        final String kickReason = AntiVPN.getInstance().getVpnConfig()
-                                                .countryVanillaKickReason();
                                         // Kicking our player
                                         event.getPlayer().kickPlayer(ChatColor
                                                 .translateAlternateColorCodes('&',
@@ -146,6 +158,18 @@ public class BukkitListener extends VPNExecutor implements Listener {
                                         }
                                     }
                                 } else if(result.isProxy()) {
+
+                                    // Start "online" fix
+                                    // In case the response was so fast from API the player wouldn't be "online".
+                                    event.setResult(PlayerLoginEvent.Result.KICK_BANNED);
+                                    event.setKickMessage(ChatColor
+                                            .translateAlternateColorCodes('&',
+                                                    AntiVPN.getInstance().getVpnConfig().getKickString()
+                                                            .replace("%player%", event.getPlayer().getName())
+                                                            .replace("%country%", result.getCountryName())
+                                                            .replace("%code%", result.getCountryCode())));
+                                    // End "online" fix
+
                                     if(AntiVPN.getInstance().getVpnConfig().kickPlayersOnDetect())
                                         player.kickPlayer(org.bukkit.ChatColor.translateAlternateColorCodes('&',
                                                 AntiVPN.getInstance().getVpnConfig().getKickString()));
