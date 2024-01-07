@@ -11,6 +11,8 @@ import dev.brighten.antivpn.api.APIPlayer;
 import dev.brighten.antivpn.api.VPNExecutor;
 import dev.brighten.antivpn.velocity.util.StringUtils;
 import dev.brighten.antivpn.web.objects.VPNResponse;
+import lombok.var;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 import java.util.UUID;
@@ -50,10 +52,7 @@ public class VelocityListener extends VPNExecutor {
                             VPNResponse cached = responseCache.getIfPresent(event.getPlayer().getUniqueId());
 
                             if (cached != null && cached.isProxy()) {
-                                event.setResult(ResultedEvent.ComponentResult.denied(LegacyComponentSerializer.builder()
-                                        .character('&')
-                                        .build().deserialize(AntiVPN.getInstance().getVpnConfig()
-                                                .getKickString())));
+                                event.setResult(ResultedEvent.ComponentResult.denied(Component.text("No")));
                                 return;
                             }
                         }
@@ -103,10 +102,11 @@ public class VelocityListener extends VPNExecutor {
                                                 }
                                             }
                                         } else if (result.isProxy()) {
-                                            if (AntiVPN.getInstance().getVpnConfig().kickPlayersOnDetect())
+                                            if (AntiVPN.getInstance().getVpnConfig().kickPlayersOnDetect()) {
+
                                                 event.getPlayer().disconnect(LegacyComponentSerializer.builder().character('&')
-                                                        .build().deserialize(AntiVPN.getInstance().getVpnConfig()
-                                                                .getKickString()));
+                                                        .build().deserialize("Bad boy bad boys what you gonna do when they come for you"));
+                                            }
                                             VelocityPlugin.INSTANCE.getLogger().info(event.getPlayer().getUsername()
                                                     + " joined on a VPN/Proxy (" + result.getMethod() + ")");
                                             //Ensuring the user wishes to alert to staff

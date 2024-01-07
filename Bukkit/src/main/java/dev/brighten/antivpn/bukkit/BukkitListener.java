@@ -106,7 +106,8 @@ public class BukkitListener extends VPNExecutor implements Listener {
                                     InetSocketAddress address = event.getPlayer().getAddress();
                                     if (address != null){
                                         InetAddress address1 = address.getAddress();
-                                        if (address1 != null && AntiVPN.getInstance().getExecutor().isWhitelisted(address1.getHostAddress())) {
+                                        if (address1 != null && AntiVPN.getInstance().getExecutor()
+                                                .isWhitelisted(address1.getHostAddress())) {
                                             log("IP is whitelisted: %s",
                                                     address1.getHostAddress());
                                             return;
