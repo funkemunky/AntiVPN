@@ -15,6 +15,7 @@ import net.md_5.bungee.api.event.PreLoginEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.api.scheduler.ScheduledTask;
 import net.md_5.bungee.event.EventHandler;
+import net.md_5.bungee.event.EventPriority;
 
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -55,7 +56,7 @@ public class BungeeListener extends VPNExecutor implements Listener {
         log(Level.INFO, String.format(log, objects));
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onListener(final PreLoginEvent event) {
         if(!responseCache.asMap().containsKey(event.getConnection().getUniqueId())) return;
 
@@ -72,7 +73,7 @@ public class BungeeListener extends VPNExecutor implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onListener(final PostLoginEvent event) {
         if(event.getPlayer().hasPermission("antivpn.bypass") //Has bypass permission
                 || AntiVPN.getInstance().getVpnConfig().getPrefixWhitelists().stream()
