@@ -50,7 +50,7 @@ alerts:
     &7in location &8(&f%city%&7, &f%country%&8)'
 # Configuration for country gatekeepings
 countries:
-  # You must use ISO codes for country configuration: https://www.iban.com/country-code
+  # You must use ISO codes for country configuration: https://www.iban.com/country-codes
   # Leave empty to disable this configuration
   list: []
   # Set whitelist to true to only allow listed country codes, and false to deny listed country codes.
