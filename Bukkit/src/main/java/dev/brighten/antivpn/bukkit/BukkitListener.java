@@ -15,6 +15,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -135,12 +136,16 @@ public class BukkitListener extends VPNExecutor implements Listener {
                             //Using our built in kicking system if no commands are configured
                             if(AntiVPN.getInstance().getVpnConfig().countryKickCommands().isEmpty()) {
                                 // Kicking our player
-                                event.getPlayer().kickPlayer(ChatColor
-                                        .translateAlternateColorCodes('&',
-                                                kickReason
-                                                        .replace("%player%", event.getPlayer().getName())
-                                                        .replace("%country%", result.getCountryName())
-                                                        .replace("%code%", result.getCountryCode())));
+                                new BukkitRunnable() {
+                                    public void run() {
+                                        event.getPlayer().kickPlayer(ChatColor
+                                                .translateAlternateColorCodes('&',
+                                                        kickReason
+                                                                .replace("%player%", event.getPlayer().getName())
+                                                                .replace("%country%", result.getCountryName())
+                                                                .replace("%code%", result.getCountryCode())));
+                                    }
+                                }.runTask(BukkitPlugin.pluginInstance);
                             } else {
                                 final String playerName = event.getPlayer().getName();
 
@@ -170,9 +175,14 @@ public class BukkitListener extends VPNExecutor implements Listener {
                                                     .replace("%code%", result.getCountryCode())));
                             // End "online" fix
 
-                            if(AntiVPN.getInstance().getVpnConfig().kickPlayersOnDetect())
-                                player.kickPlayer(org.bukkit.ChatColor.translateAlternateColorCodes('&',
-                                        AntiVPN.getInstance().getVpnConfig().getKickString()));
+                            if(AntiVPN.getInstance().getVpnConfig().kickPlayersOnDetect()) {
+                                new BukkitRunnable() {
+                                    public void run() {
+                                        player.kickPlayer(org.bukkit.ChatColor.translateAlternateColorCodes('&',
+                                                AntiVPN.getInstance().getVpnConfig().getKickString()));
+                                    }
+                                }.runTask(BukkitPlugin.pluginInstance);
+                            }
                             log(Level.INFO, event.getPlayer().getName()
                                     + " joined on a VPN/Proxy (" + result.getMethod() + ")");
 
