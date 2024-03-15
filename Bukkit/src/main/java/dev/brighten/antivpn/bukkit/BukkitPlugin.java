@@ -3,6 +3,7 @@ package dev.brighten.antivpn.bukkit;
 import dev.brighten.antivpn.AntiVPN;
 import dev.brighten.antivpn.bukkit.command.BukkitCommand;
 import dev.brighten.antivpn.command.Command;
+import lombok.Getter;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SingleLineChart;
 import org.bukkit.Bukkit;
@@ -21,14 +22,21 @@ public class BukkitPlugin extends JavaPlugin {
 
     public static BukkitPlugin pluginInstance;
     private SimpleCommandMap commandMap;
-    private List<org.bukkit.command.Command> registeredCommands = new ArrayList<>();
+    private final List<org.bukkit.command.Command> registeredCommands = new ArrayList<>();
+
+    @Getter
     private SingleLineChart vpnDetections, ipsChecked;
+    @Getter
+    private PlayerCommandRunner playerCommandRunner;
 
     public void onEnable() {
         pluginInstance = this;
 
         Bukkit.getLogger().info("Starting AntiVPN services...");
         AntiVPN.start(new BukkitListener(), new BukkitPlayerExecutor(), getDataFolder());
+
+        playerCommandRunner = new PlayerCommandRunner();
+        playerCommandRunner.start();
 
         // Loading our bStats metrics to be pushed to https://bstats.org
         if(AntiVPN.getInstance().getVpnConfig().metrics()) {
@@ -84,6 +92,7 @@ public class BukkitPlugin extends JavaPlugin {
     public void onDisable() {
         Bukkit.getLogger().info("Stopping plugin services...");
         AntiVPN.getInstance().stop();
+        playerCommandRunner.stop();
 
         Bukkit.getLogger().info("Unregistering commands...");
         try {

@@ -1,6 +1,7 @@
 package dev.brighten.antivpn.utils;
 
 import java.io.*;
+import java.util.concurrent.ThreadFactory;
 import java.util.regex.Pattern;
 
 public class MiscUtils {
@@ -39,6 +40,14 @@ public class MiscUtils {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static ThreadFactory createThreadFactory(String threadName) {
+        return r -> {
+            Thread thread = new Thread(r);
+            thread.setName(threadName);
+            return thread;
+        };
     }
 
     public static boolean isIpv4(String ip)

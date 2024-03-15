@@ -7,7 +7,7 @@
     <groupId>dev.brighten.antivpn</groupId>
     <artifactId>AntiVPN</artifactId>
     <packaging>pom</packaging>
-    <version>1.9.3-DEV</version>
+    <version>1.9.3</version>
 
     <modules>
         <module>Common</module>
@@ -38,7 +38,7 @@
                         <path>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
-                            <version>1.18.20</version>
+                            <version>1.18.30</version>
                         </path>
                     </annotationProcessorPaths>
                 </configuration>
@@ -65,9 +65,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>cc.funkemunky.utils</groupId>
+            <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.0</version>
+            <version>1.18.30</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

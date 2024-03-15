@@ -11,7 +11,6 @@ import dev.brighten.antivpn.api.APIPlayer;
 import dev.brighten.antivpn.api.VPNExecutor;
 import dev.brighten.antivpn.velocity.util.StringUtils;
 import dev.brighten.antivpn.web.objects.VPNResponse;
-import lombok.var;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
