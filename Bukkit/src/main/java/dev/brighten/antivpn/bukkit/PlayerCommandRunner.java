@@ -1,8 +1,10 @@
 package dev.brighten.antivpn.bukkit;
 
 import dev.brighten.antivpn.utils.MiscUtils;
+import dev.brighten.antivpn.web.objects.VPNResponse;
 import lombok.Data;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Queue;

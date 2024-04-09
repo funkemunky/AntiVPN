@@ -1,8 +1,11 @@
 package dev.brighten.antivpn.bukkit;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import dev.brighten.antivpn.AntiVPN;
 import dev.brighten.antivpn.bukkit.command.BukkitCommand;
 import dev.brighten.antivpn.command.Command;
+import dev.brighten.antivpn.web.objects.VPNResponse;
 import lombok.Getter;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SingleLineChart;
@@ -17,6 +20,8 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 public class BukkitPlugin extends JavaPlugin {
 
@@ -28,6 +33,14 @@ public class BukkitPlugin extends JavaPlugin {
     private SingleLineChart vpnDetections, ipsChecked;
     @Getter
     private PlayerCommandRunner playerCommandRunner;
+
+    @Getter
+    private final Cache<UUID, VPNResponse> responseCache = CacheBuilder.newBuilder()
+            .expireAfterWrite(20, TimeUnit.MINUTES)
+            .maximumSize(2000)
+            .build();
+
+    private BukkitListener listener;
 
     public void onEnable() {
         pluginInstance = this;

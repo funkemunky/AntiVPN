@@ -1,7 +1,5 @@
 package dev.brighten.antivpn.bukkit;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import dev.brighten.antivpn.AntiVPN;
 import dev.brighten.antivpn.api.APIPlayer;
 import dev.brighten.antivpn.api.VPNExecutor;
@@ -11,6 +9,7 @@ import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
@@ -19,15 +18,9 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 public class BukkitListener extends VPNExecutor implements Listener {
-    private final Cache<UUID, VPNResponse> responseCache = CacheBuilder.newBuilder()
-            .expireAfterWrite(5, TimeUnit.MINUTES)
-            .maximumSize(2000)
-            .build();
 
     @Override
     public void registerListeners() {
@@ -50,7 +43,48 @@ public class BukkitListener extends VPNExecutor implements Listener {
         log(Level.INFO, String.format(log, objects));
     }
 
-    @EventHandler
+    private boolean checkCountry(VPNResponse result) {
+        return AntiVPN.getInstance().getVpnConfig().countryList()
+                .contains(result.getCountryCode())
+                != AntiVPN.getInstance().getVpnConfig().whitelistCountries();
+    }
+
+    private boolean checkIfWhitelisted(Player player) {
+        if(player.hasPermission("antivpn.bypass")) {
+            log("Player has bypass permission: %s",
+                    player.getName());
+            return true;
+        }
+
+        if(AntiVPN.getInstance().getExecutor().isWhitelisted(player.getUniqueId())) {
+            log("UUID is whitelisted: %s",
+                    player.getUniqueId().toString());
+            return true;
+        }
+
+        if(AntiVPN.getInstance().getVpnConfig().getPrefixWhitelists().stream()
+                .anyMatch(prefix -> player.getName().startsWith(prefix))) {
+            log("Player has a whitelisted prefix: %s",
+                    player.getName());
+            return true;
+        }
+
+        //If the IP is whitelisted, we don't want to kick them
+        InetSocketAddress address = player.getAddress();
+        if (address != null){
+            InetAddress address1 = address.getAddress();
+            if (address1 != null && AntiVPN.getInstance().getExecutor()
+                    .isWhitelisted(address1.getHostAddress())) {
+                log("IP is whitelisted: %s",
+                        address1.getHostAddress());
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onJoin(final PlayerJoinEvent event) {
         AntiVPN.getInstance().getPlayerExecutor().getPlayer(event.getPlayer().getUniqueId())
                 .ifPresent(player -> {
@@ -65,82 +99,64 @@ public class BukkitListener extends VPNExecutor implements Listener {
                 });
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGH)
     public void onListener(final PlayerLoginEvent event) {
-        //If they're exempt, don't check.
-        if(event.getPlayer().hasPermission("antivpn.bypass") //Has bypass permission
-                || AntiVPN.getInstance().getExecutor().isWhitelisted(event.getPlayer().getUniqueId()) //Is exempt
-                //Or has a name that starts with a certain prefix. This is for Bedrock exempting.
-                || AntiVPN.getInstance().getExecutor().isWhitelisted(event.getAddress().getHostAddress())
-                || AntiVPN.getInstance().getVpnConfig().getPrefixWhitelists().stream()
-                .anyMatch(prefix -> event.getPlayer().getName().startsWith(prefix))) return;
+        //We need to run on main thread or kicking and running commands will cause errors
+        //If the player is whitelisted, we don't want to kick them
+        if(checkIfWhitelisted(event.getPlayer()))
+            return;
 
-        if(responseCache.asMap().containsKey(event.getPlayer().getUniqueId())) {
-            VPNResponse cached = responseCache.getIfPresent(event.getPlayer().getUniqueId());
+        VPNResponse cached = BukkitPlugin.pluginInstance.getResponseCache()
+                .getIfPresent(event.getPlayer().getUniqueId());
 
-            if (cached != null && cached.isProxy()) {
+
+        final String countryKickReason = AntiVPN.getInstance().getVpnConfig()
+                .countryVanillaKickReason();
+
+        if (cached != null) {
+            if(checkCountry(cached)) {
+                event.setResult(PlayerLoginEvent.Result.KICK_BANNED);
+                event.setKickMessage(ChatColor
+                        .translateAlternateColorCodes('&',
+                                countryKickReason
+                                        .replace("%player%", event.getPlayer().getName())
+                                        .replace("%country%", cached.getCountryName())
+                                        .replace("%code%", cached.getCountryCode())));
+            } else if(cached.isProxy()) {
                 event.setResult(PlayerLoginEvent.Result.KICK_BANNED);
                 event.setKickMessage(org.bukkit.ChatColor.translateAlternateColorCodes('&',
                         AntiVPN.getInstance().getVpnConfig().getKickString()));
-                return;
             }
+            return;
         }
 
         final Player player = event.getPlayer();
         checkIp(event.getAddress().getHostAddress(),
                 AntiVPN.getInstance().getVpnConfig().cachedResults(), result -> {
                     if(result.isSuccess()) {
-                        //We need to run on main thread or kicking and running commands will cause errors
-                        //If the player is whitelisted, we don't want to kick them
-                        if(AntiVPN.getInstance().getExecutor().isWhitelisted(event.getPlayer().getUniqueId())) {
-                            log("UUID is whitelisted: %s",
-                                    event.getPlayer().getUniqueId().toString());
-                            return;
-                        }
-
-                        //If the IP is whitelisted, we don't want to kick them
-                        InetSocketAddress address = event.getPlayer().getAddress();
-                        if (address != null){
-                            InetAddress address1 = address.getAddress();
-                            if (address1 != null && AntiVPN.getInstance().getExecutor()
-                                    .isWhitelisted(address1.getHostAddress())) {
-                                log("IP is whitelisted: %s",
-                                        address1.getHostAddress());
-                                return;
-                            }
-                        }
-
                         // If the countryList() size is zero, no need to check.
                         // Running country check first
-                        if(!AntiVPN.getInstance().getVpnConfig().countryList().isEmpty()
-                                // This bit of code will decide whether or not to kick the player
-                                // If it contains the code and it is set to whitelist, it will not kick as they are equal
-                                // and vise versa. However, if the contains does not match the state, it will kick.
-                                && AntiVPN.getInstance().getVpnConfig().countryList()
-                                .contains(result.getCountryCode())
-                                != AntiVPN.getInstance().getVpnConfig().whitelistCountries()) {
-                            final String kickReason = AntiVPN.getInstance().getVpnConfig()
-                                    .countryVanillaKickReason();
-
+                        BukkitPlugin.pluginInstance.getResponseCache().put(event.getPlayer().getUniqueId(), result);
+                        if(checkCountry(result)) {
                             // Start "online" fix
                             // In case the response was so fast from API the player wouldn't be "online".
                             event.setResult(PlayerLoginEvent.Result.KICK_BANNED);
                             event.setKickMessage(ChatColor
                                     .translateAlternateColorCodes('&',
-                                            kickReason
+                                            countryKickReason
                                                     .replace("%player%", event.getPlayer().getName())
                                                     .replace("%country%", result.getCountryName())
                                                     .replace("%code%", result.getCountryCode())));
                             // End "online" fix
 
-                            //Using our built in kicking system if no commands are configured
+                            //Using our built-in kicking system if no commands are configured
                             if(AntiVPN.getInstance().getVpnConfig().countryKickCommands().isEmpty()) {
                                 // Kicking our player
                                 new BukkitRunnable() {
                                     public void run() {
                                         event.getPlayer().kickPlayer(ChatColor
                                                 .translateAlternateColorCodes('&',
-                                                        kickReason
+                                                        countryKickReason
                                                                 .replace("%player%", event.getPlayer().getName())
                                                                 .replace("%country%", result.getCountryName())
                                                                 .replace("%code%", result.getCountryCode())));
@@ -196,7 +212,7 @@ public class BukkitListener extends VPNExecutor implements Listener {
                                                 .replace("%country%", result.getCountryName())
                                                 .replace("%city%", result.getCity())));
 
-                            //In case the user wants to run their own commands instead of using the built in kicking
+                            //In case the user wants to run their own commands instead of using the built-in kicking
                             if(AntiVPN.getInstance().getVpnConfig().runCommands()) {
                                 String playerName = event.getPlayer().getName();
                                 BukkitPlugin.pluginInstance.getPlayerCommandRunner()
