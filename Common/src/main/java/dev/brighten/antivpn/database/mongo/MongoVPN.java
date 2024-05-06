@@ -243,4 +243,9 @@ public class MongoVPN implements VPNDatabase {
         cacheDocument = null;
         client.close();
     }
+
+    @Override
+    public void migrateIpWhitelists() {
+
+    }
 }

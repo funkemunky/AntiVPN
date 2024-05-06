@@ -70,6 +70,7 @@ public class AntiVPN {
 
         INSTANCE.messageHandler = new MessageHandler();
 
+        // Initializing databases configured in the config.yml
         switch(INSTANCE.vpnConfig.getDatabaseType().toLowerCase()) {
             case "h2":
             case "local":
@@ -100,6 +101,10 @@ public class AntiVPN {
             }
         }
 
+        //Migrating old data if necessary
+        AntiVPN.getInstance().getExecutor().log("Checking if data needs migrated...");
+        INSTANCE.database.migrateIpWhitelists();
+
         //Registering commands
         INSTANCE.registerCommands();
 
@@ -113,6 +118,7 @@ public class AntiVPN {
             }
         });
 
+        // Initializing the messages for the plugin that are configurable in the config.yml.
         AntiVPN.getInstance().getMessageHandler().initStrings(vpnString -> new ConfigDefault<>
                 (vpnString.getDefaultMessage(), "messages." + vpnString.getKey(), AntiVPN.getInstance())
                 .get());

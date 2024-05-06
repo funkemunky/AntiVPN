@@ -41,4 +41,6 @@ public interface VPNDatabase {
     void init();
 
     void shutdown();
+
+    void migrateIpWhitelists();
 }
