@@ -7,7 +7,6 @@ on:
  
 jobs:
   build:
- 
     runs-on: ubuntu-latest
  
     steps:
@@ -16,13 +15,10 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: 17.0
-      - name: Cache Maven packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          distribution: 'zulu'
+          cache: 'maven'
       - name: Compile
-        run: mvn -B -Pclean install
+        run: mvn -B package --file pom.xml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Upload AntiVPN
