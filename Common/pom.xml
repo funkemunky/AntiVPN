@@ -85,7 +85,7 @@
         <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
-            <version>8.2.0</version>
+            <version>9.1.0</version>
             <type>jar</type>
             <scope>compile</scope>
         </dependency>
