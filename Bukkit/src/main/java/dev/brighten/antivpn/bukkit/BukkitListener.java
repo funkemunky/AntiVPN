@@ -23,6 +23,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
+@SuppressWarnings("unchecked")
 public class BukkitListener extends VPNExecutor implements Listener {
     private final Cache<UUID, VPNResponse> responseCache = CacheBuilder.newBuilder()
             .expireAfterWrite(5, TimeUnit.MINUTES)
