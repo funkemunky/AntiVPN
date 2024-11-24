@@ -50,6 +50,11 @@ public class BukkitListener extends VPNExecutor implements Listener {
         log(Level.INFO, String.format(log, objects));
     }
 
+    @Override
+    public void logException(String message, Exception ex) {
+        Bukkit.getLogger().log(Level.SEVERE, message, ex);
+    }
+
     @EventHandler
     public void onJoin(final PlayerJoinEvent event) {
         AntiVPN.getInstance().getPlayerExecutor().getPlayer(event.getPlayer().getUniqueId())

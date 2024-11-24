@@ -170,4 +170,9 @@ public class VelocityListener extends VPNExecutor {
     public void log(String log, Object... objects) {
         log(Level.INFO, String.format(log, objects));
     }
+
+    @Override
+    public void logException(String message, Exception ex) {
+        VelocityPlugin.INSTANCE.getLogger().log(Level.SEVERE, message, ex);
+    }
 }

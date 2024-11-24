@@ -10,6 +10,7 @@ import dev.brighten.antivpn.web.FunkemunkyAPI;
 import dev.brighten.antivpn.web.objects.QueryResponse;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 public class PlanCommand extends Command {
@@ -95,6 +96,6 @@ public class PlanCommand extends Command {
 
     @Override
     public List<String> tabComplete(CommandExecutor executor, String alias, String[] args) {
-        return null;
+        return Collections.emptyList();
     }
 }

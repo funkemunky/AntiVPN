@@ -56,6 +56,11 @@ public class BungeeListener extends VPNExecutor implements Listener {
         log(Level.INFO, String.format(log, objects));
     }
 
+    @Override
+    public void logException(String message, Exception ex) {
+        BungeeCord.getInstance().getLogger().log(Level.SEVERE, message, ex);
+    }
+
     @EventHandler(priority = EventPriority.LOWEST)
     public void onListener(final PreLoginEvent event) {
         if(!responseCache.asMap().containsKey(event.getConnection().getUniqueId())) return;
