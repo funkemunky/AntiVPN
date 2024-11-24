@@ -104,7 +104,7 @@ public class VelocityListener extends VPNExecutor {
                                             if (AntiVPN.getInstance().getVpnConfig().kickPlayersOnDetect()) {
 
                                                 event.getPlayer().disconnect(LegacyComponentSerializer.builder().character('&')
-                                                        .build().deserialize("Bad boy bad boys what you gonna do when they come for you"));
+                                                        .build().deserialize(AntiVPN.getInstance().getVpnConfig().getKickString()));
                                             }
                                             VelocityPlugin.INSTANCE.getLogger().info(event.getPlayer().getUsername()
                                                     + " joined on a VPN/Proxy (" + result.getMethod() + ")");
