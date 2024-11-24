@@ -54,7 +54,7 @@ public class PlanCommand extends Command {
         VPNExecutor.threadExecutor.execute(() -> {
             QueryResponse result;
             try {
-                if(AntiVPN.getInstance().getVpnConfig().getLicense().equals("")) {
+                if(AntiVPN.getInstance().getVpnConfig().getLicense().isEmpty()) {
                     result = FunkemunkyAPI.getQueryResponse();
                 } else {
                     result = FunkemunkyAPI.getQueryResponse(AntiVPN.getInstance().getVpnConfig().getLicense());
@@ -82,11 +82,11 @@ public class PlanCommand extends Command {
                         result.getQueries(), queryMax);
                 executor.sendMessage(StringUtil.line("&8"));
             } catch(JSONException e) {
-                e.printStackTrace();
+                AntiVPN.getInstance().getExecutor().logException(e);
                 executor.sendMessage("&cThere was a JSONException thrown while looking up your query " +
                         "information. Check console for more details.");
             } catch (IOException e) {
-                e.printStackTrace();
+                AntiVPN.getInstance().getExecutor().logException(e);
                 executor.sendMessage("&cThere was a IOException thrown while looking up your query " +
                         "information. Check console for more details.");
             }
