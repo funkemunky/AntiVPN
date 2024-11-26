@@ -19,7 +19,7 @@ public class MySQL {
 
                 conn = DriverManager.getConnection("jdbc:mariadb://" + AntiVPN.getInstance().getVpnConfig().getIp()
                                 + ":" + AntiVPN.getInstance().getVpnConfig().getPort()
-                                + "/?useSSL=true&autoReconnect=true",
+                                + "/?sslMode=trust&autoReconnect=true",
                         AntiVPN.getInstance().getVpnConfig().getUsername(),
                         AntiVPN.getInstance().getVpnConfig().getPassword());
                 conn.setAutoCommit(true);
