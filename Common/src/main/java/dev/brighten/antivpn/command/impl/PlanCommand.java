@@ -10,6 +10,7 @@ import dev.brighten.antivpn.web.FunkemunkyAPI;
 import dev.brighten.antivpn.web.objects.QueryResponse;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 public class PlanCommand extends Command {
@@ -53,7 +54,7 @@ public class PlanCommand extends Command {
         VPNExecutor.threadExecutor.execute(() -> {
             QueryResponse result;
             try {
-                if(AntiVPN.getInstance().getVpnConfig().getLicense().equals("")) {
+                if(AntiVPN.getInstance().getVpnConfig().getLicense().isEmpty()) {
                     result = FunkemunkyAPI.getQueryResponse();
                 } else {
                     result = FunkemunkyAPI.getQueryResponse(AntiVPN.getInstance().getVpnConfig().getLicense());
@@ -81,11 +82,11 @@ public class PlanCommand extends Command {
                         result.getQueries(), queryMax);
                 executor.sendMessage(StringUtil.line("&8"));
             } catch(JSONException e) {
-                e.printStackTrace();
+                AntiVPN.getInstance().getExecutor().logException(e);
                 executor.sendMessage("&cThere was a JSONException thrown while looking up your query " +
                         "information. Check console for more details.");
             } catch (IOException e) {
-                e.printStackTrace();
+                AntiVPN.getInstance().getExecutor().logException(e);
                 executor.sendMessage("&cThere was a IOException thrown while looking up your query " +
                         "information. Check console for more details.");
             }
@@ -95,6 +96,6 @@ public class PlanCommand extends Command {
 
     @Override
     public List<String> tabComplete(CommandExecutor executor, String alias, String[] args) {
-        return null;
+        return Collections.emptyList();
     }
 }
