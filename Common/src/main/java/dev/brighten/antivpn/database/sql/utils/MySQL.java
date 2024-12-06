@@ -1,5 +1,6 @@
 package dev.brighten.antivpn.database.sql.utils;
 
+import com.mysql.cj.jdbc.Driver;
 import dev.brighten.antivpn.AntiVPN;
 import org.h2.jdbc.JdbcConnection;
 
@@ -15,11 +16,7 @@ public class MySQL {
     public static void init() {
         try {
             if (conn == null || conn.isClosed()) {
-                try {
-                    Class.forName("com.mysql.cj.jdbc.Driver");
-                } catch (ClassNotFoundException e) {
-                    Class.forName("com.mysql.jdbc.Driver");
-                }
+                DriverManager.registerDriver(new Driver());
                 conn = DriverManager.getConnection("jdbc:mysql://" + AntiVPN.getInstance().getVpnConfig().getIp()
                                 + ":" + AntiVPN.getInstance().getVpnConfig().getPort()
                                 + "/?useSSL=true&autoReconnect=true",
@@ -33,12 +30,10 @@ public class MySQL {
                 AntiVPN.getInstance().getExecutor().log("Connection to MySQL has been established.");
             }
         } catch (Exception e) {
-            AntiVPN.getInstance().getExecutor().log("Failed to load mysql: " + e.getMessage());
-            e.printStackTrace();
+            AntiVPN.getInstance().getExecutor().logException("Failed to load mysql: " + e.getMessage(), e);
         }
     }
 
-    private static boolean attemptedTwice = false;
     public static void initH2() {
         File dataFolder = new File(AntiVPN.getInstance().getPluginFolder(), "databases");
         File databaseFile = new File(dataFolder, "database");
@@ -51,17 +46,15 @@ public class MySQL {
             Query.use(conn);
             AntiVPN.getInstance().getExecutor().log("Connection to H2 has been established.");
         } catch (SQLException ex) {
-            AntiVPN.getInstance().getExecutor().log("H2 exception on initialize");
-            ex.printStackTrace();
+            AntiVPN.getInstance().getExecutor().logException("H2 exception on initialize: " + ex.getMessage(), ex);
         }
-        attemptedTwice = true;
     }
 
     public static void use() {
         try {
             init();
         } catch (Exception e) {
-            e.printStackTrace();
+            AntiVPN.getInstance().getExecutor().logException(e);
         }
     }
 
@@ -73,9 +66,8 @@ public class MySQL {
                 } else conn.close();
                 conn = null;
             }
-            attemptedTwice = false;
         } catch (Exception e) {
-            e.printStackTrace();
+            AntiVPN.getInstance().getExecutor().logException(e);
         }
     }
 
@@ -86,7 +78,7 @@ public class MySQL {
         try {
             return conn.isClosed();
         } catch (SQLException e) {
-            e.printStackTrace();
+            AntiVPN.getInstance().getExecutor().logException(e);
             return true;
         }
     }
