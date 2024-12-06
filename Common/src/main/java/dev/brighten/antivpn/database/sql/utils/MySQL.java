@@ -1,5 +1,6 @@
 package dev.brighten.antivpn.database.sql.utils;
 
+import com.mysql.cj.jdbc.Driver;
 import dev.brighten.antivpn.AntiVPN;
 import org.h2.jdbc.JdbcConnection;
 
@@ -15,11 +16,10 @@ public class MySQL {
     public static void init() {
         try {
             if (conn == null || conn.isClosed()) {
-                DriverManager.registerDriver(new org.mariadb.jdbc.Driver());
-
-                conn = DriverManager.getConnection("jdbc:mariadb://" + AntiVPN.getInstance().getVpnConfig().getIp()
+                DriverManager.registerDriver(new Driver());
+                conn = DriverManager.getConnection("jdbc:mysql://" + AntiVPN.getInstance().getVpnConfig().getIp()
                                 + ":" + AntiVPN.getInstance().getVpnConfig().getPort()
-                                + "/?sslMode=trust&autoReconnect=true",
+                                + "/?useSSL=true&autoReconnect=true",
                         AntiVPN.getInstance().getVpnConfig().getUsername(),
                         AntiVPN.getInstance().getVpnConfig().getPassword());
                 conn.setAutoCommit(true);
