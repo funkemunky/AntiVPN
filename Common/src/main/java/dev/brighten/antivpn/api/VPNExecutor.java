@@ -38,6 +38,12 @@ public abstract class VPNExecutor {
 
     public abstract void log(String log, Object... objects);
 
+    public abstract void logException(String message, Exception ex);
+
+    public void logException(Exception ex) {
+        logException("An exception occurred: " + ex.getMessage(), ex);
+    }
+
     public boolean isWhitelisted(UUID uuid) {
         if(AntiVPN.getInstance().getVpnConfig().isDatabaseEnabled()) {
             return AntiVPN.getInstance().getDatabase().isWhitelisted(uuid);

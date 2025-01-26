@@ -56,6 +56,11 @@ public class BungeeListener extends VPNExecutor implements Listener {
         log(Level.INFO, String.format(log, objects));
     }
 
+    @Override
+    public void logException(String message, Exception ex) {
+        BungeeCord.getInstance().getLogger().log(Level.SEVERE, message, ex);
+    }
+
     @EventHandler(priority = EventPriority.LOWEST)
     public void onListener(final PreLoginEvent event) {
         if(!responseCache.asMap().containsKey(event.getConnection().getUniqueId())) return;
@@ -99,14 +104,14 @@ public class BungeeListener extends VPNExecutor implements Listener {
 
                 responseCache.put(event.getPlayer().getUniqueId(), result);
 
-                if(AntiVPN.getInstance().getVpnConfig().countryList().size() > 0
+                if(!AntiVPN.getInstance().getVpnConfig().countryList().isEmpty()
                         // This bit of code will decide whether or not to kick the player
                         // If it contains the code and it is set to whitelist, it will not kick as they are equal
                         // and vise versa. However, if the contains does not match the state, it will kick.
                         && AntiVPN.getInstance().getVpnConfig().countryList()
                         .contains(result.getCountryCode()) != AntiVPN.getInstance().getVpnConfig().whitelistCountries()) {
                     //Using our built in kicking system if no commands are configured
-                    if(AntiVPN.getInstance().getVpnConfig().countryKickCommands().size() == 0) {
+                    if(AntiVPN.getInstance().getVpnConfig().countryKickCommands().isEmpty()) {
                         final String kickReason = AntiVPN.getInstance().getVpnConfig()
                                 .countryVanillaKickReason();
                         // Kicking our player

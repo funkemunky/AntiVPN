@@ -79,11 +79,20 @@ public class VelocityListener extends VPNExecutor {
                                                 final String kickReason = AntiVPN.getInstance().getVpnConfig()
                                                         .countryVanillaKickReason();
                                                 // Kicking our player
-                                                event.getPlayer().disconnect(LegacyComponentSerializer.builder().character('&')
+                                                event.setResult(ResultedEvent.ComponentResult.denied(LegacyComponentSerializer.builder()
+                                                        .character('&')
                                                         .build().deserialize(kickReason
                                                                 .replace("%player%", event.getPlayer().getUsername())
                                                                 .replace("%country%", result.getCountryName())
-                                                                .replace("%code%", result.getCountryCode())));
+                                                                .replace("%code%", result.getCountryCode()))));
+                                                VelocityPlugin.INSTANCE.getServer().getScheduler()
+                                                        .buildTask(VelocityPlugin.INSTANCE, () ->
+                                                        event.getPlayer().disconnect(LegacyComponentSerializer.builder()
+                                                                .character('&')
+                                                                .build().deserialize(kickReason
+                                                                        .replace("%player%", event.getPlayer().getUsername())
+                                                                        .replace("%country%", result.getCountryName())
+                                                                        .replace("%code%", result.getCountryCode()))));
                                             } else {
                                                 for (String cmd : AntiVPN.getInstance().getVpnConfig().countryKickCommands()) {
                                                     final String formattedCommand = StringUtils
@@ -102,9 +111,25 @@ public class VelocityListener extends VPNExecutor {
                                             }
                                         } else if (result.isProxy()) {
                                             if (AntiVPN.getInstance().getVpnConfig().kickPlayersOnDetect()) {
+                                                // Delay code execution
+                                                event.setResult(ResultedEvent.ComponentResult.denied(LegacyComponentSerializer.builder()
+                                                        .character('&')
+                                                        .build().deserialize(AntiVPN.getInstance().getVpnConfig()
+                                                                .getKickString()
+                                                                .replace("%player%", event.getPlayer().getUsername())
+                                                                .replace("%country%", result.getCountryName())
+                                                                .replace("%code%", result.getCountryCode()))));
 
-                                                event.getPlayer().disconnect(LegacyComponentSerializer.builder().character('&')
-                                                        .build().deserialize("Bad boy bad boys what you gonna do when they come for you"));
+                                                VelocityPlugin.INSTANCE.getServer().getScheduler()
+                                                        .buildTask(VelocityPlugin.INSTANCE, () ->
+                                                                event.getPlayer().disconnect(LegacyComponentSerializer.builder()
+                                                                        .character('&')
+                                                                        .build().deserialize(AntiVPN.getInstance().getVpnConfig()
+                                                                                .getKickString()
+                                                                                .replace("%player%", event.getPlayer().getUsername())
+                                                                                .replace("%country%", result.getCountryName())
+                                                                                .replace("%code%", result.getCountryCode()))))
+                                                        .delay(1, TimeUnit.SECONDS).schedule();
                                             }
                                             VelocityPlugin.INSTANCE.getLogger().info(event.getPlayer().getUsername()
                                                     + " joined on a VPN/Proxy (" + result.getMethod() + ")");
@@ -169,5 +194,10 @@ public class VelocityListener extends VPNExecutor {
     @Override
     public void log(String log, Object... objects) {
         log(Level.INFO, String.format(log, objects));
+    }
+
+    @Override
+    public void logException(String message, Exception ex) {
+        VelocityPlugin.INSTANCE.getLogger().log(Level.SEVERE, message, ex);
     }
 }

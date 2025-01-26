@@ -23,6 +23,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
+@SuppressWarnings("unchecked")
 public class BukkitListener extends VPNExecutor implements Listener {
     private final Cache<UUID, VPNResponse> responseCache = CacheBuilder.newBuilder()
             .expireAfterWrite(5, TimeUnit.MINUTES)
@@ -50,19 +51,22 @@ public class BukkitListener extends VPNExecutor implements Listener {
         log(Level.INFO, String.format(log, objects));
     }
 
+    @Override
+    public void logException(String message, Exception ex) {
+        Bukkit.getLogger().log(Level.SEVERE, message, ex);
+    }
+
     @EventHandler
     public void onJoin(final PlayerJoinEvent event) {
         AntiVPN.getInstance().getPlayerExecutor().getPlayer(event.getPlayer().getUniqueId())
-                .ifPresent(player -> {
-                    AntiVPN.getInstance().getDatabase().alertsState(player.getUuid(), enabled -> {
-                        if(enabled) {
-                            player.setAlertsEnabled(true);
-                            player.sendMessage(AntiVPN.getInstance().getMessageHandler()
-                                    .getString("command-alerts-toggled")
-                                    .getFormattedMessage(new VpnString.Var<>("state", true)));
-                        }
-                    });
-                });
+                .ifPresent(player -> AntiVPN.getInstance().getDatabase().alertsState(player.getUuid(), enabled -> {
+                    if(enabled) {
+                        player.setAlertsEnabled(true);
+                        player.sendMessage(AntiVPN.getInstance().getMessageHandler()
+                                .getString("command-alerts-toggled")
+                                .getFormattedMessage(new VpnString.Var<>("state", true)));
+                    }
+                }));
     }
 
     @EventHandler
