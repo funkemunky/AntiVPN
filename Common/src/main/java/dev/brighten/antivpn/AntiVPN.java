@@ -6,9 +6,7 @@ import dev.brighten.antivpn.api.VPNExecutor;
 import dev.brighten.antivpn.command.Command;
 import dev.brighten.antivpn.command.impl.AntiVPNCommand;
 import dev.brighten.antivpn.database.VPNDatabase;
-import dev.brighten.antivpn.database.local.H2VPN;
-import dev.brighten.antivpn.database.mongo.MongoVPN;
-import dev.brighten.antivpn.database.sql.MySqlVPN;
+import dev.brighten.antivpn.database.sqllite.LiteDatabase;
 import dev.brighten.antivpn.message.MessageHandler;
 import dev.brighten.antivpn.utils.ConfigDefault;
 import dev.brighten.antivpn.utils.MiscUtils;
@@ -70,35 +68,8 @@ public class AntiVPN {
 
         INSTANCE.messageHandler = new MessageHandler();
 
-        switch(INSTANCE.vpnConfig.getDatabaseType().toLowerCase()) {
-            case "h2":
-            case "local":
-            case "flatfile": {
-                AntiVPN.getInstance().getExecutor().log("Using databaseType H2...");
-                INSTANCE.database = new H2VPN();
-                INSTANCE.database.init();
-                break;
-            }
-            case "mysql":
-            case "sql":{
-                AntiVPN.getInstance().getExecutor().log("Using databaseType MySQL...");
-                INSTANCE.database = new MySqlVPN();
-                INSTANCE.database.init();
-                break;
-            }
-            case "mongo":
-            case "mongodb":
-            case "mongod": {
-                INSTANCE.database = new MongoVPN();
-                INSTANCE.database.init();
-                break;
-            }
-            default: {
-                AntiVPN.getInstance().getExecutor().log("Could not find database type \"" + INSTANCE.vpnConfig.getDatabaseType() + "\". " +
-                        "Options: [MySQL]");
-                break;
-            }
-        }
+        INSTANCE.database = new LiteDatabase();
+        INSTANCE.database.init();
 
         //Registering commands
         INSTANCE.registerCommands();
@@ -109,7 +80,8 @@ public class AntiVPN {
             //of unnecessary database queries.
             if(player.hasPermission("antivpn.command.alerts")) {
                 //Running database check for enabled alerts.
-                INSTANCE.database.alertsState(player.getUuid(), player::setAlertsEnabled);
+                INSTANCE.database.updateAlertsState(player.getUuid(), true);
+                player.setAlertsEnabled(true);
             }
         });
 
@@ -146,35 +118,7 @@ public class AntiVPN {
     public void reloadDatabase() {
         database.shutdown();
 
-        switch(AntiVPN.getInstance().getVpnConfig().getDatabaseType().toLowerCase()) {
-            case "h2":
-            case "local":
-            case "flatfile": {
-                AntiVPN.getInstance().getExecutor().log("Using databaseType H2...");
-                INSTANCE.database = new H2VPN();
-                INSTANCE.database.init();
-                break;
-            }
-            case "mysql":
-            case "sql":{
-                AntiVPN.getInstance().getExecutor().log("Using databaseType MySQL...");
-                INSTANCE.database = new MySqlVPN();
-                INSTANCE.database.init();
-                break;
-            }
-            case "mongo":
-            case "mongodb":
-            case "mongod": {
-                INSTANCE.database = new MongoVPN();
-                INSTANCE.database.init();
-                break;
-            }
-            default: {
-                AntiVPN.getInstance().getExecutor().log("Could not find database type \"" + INSTANCE.vpnConfig.getDatabaseType() + "\". " +
-                        "Options: [MySQL]");
-                break;
-            }
-        }
+        INSTANCE.database = new LiteDatabase();
     }
 
     public static AntiVPN getInstance() {

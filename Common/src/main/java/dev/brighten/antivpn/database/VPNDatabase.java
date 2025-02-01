@@ -2,10 +2,8 @@ package dev.brighten.antivpn.database;
 
 import dev.brighten.antivpn.web.objects.VPNResponse;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.Consumer;
 
 public interface VPNDatabase {
     Optional<VPNResponse> getStoredResponse(String ip);
@@ -14,29 +12,23 @@ public interface VPNDatabase {
 
     void deleteResponse(String ip);
 
+    void clearResponses();
+
     boolean isWhitelisted(UUID uuid);
 
     boolean isWhitelisted(String ip);
 
-    void setWhitelisted(UUID uuid, boolean whitelisted);
+    void addWhitelist(UUID uuid);
 
-    void setWhitelisted(String ip, boolean whitelisted);
+    void addWhitelist(String cidr);
 
-    List<UUID> getAllWhitelisted();
+    void removeWhitelist(UUID uuid);
 
-    List<String> getAllWhitelistedIps();
+    void removeWhitelist(String cidr);
 
-    void getStoredResponseAsync(String ip, Consumer<Optional<VPNResponse>> result);
-
-    void isWhitelistedAsync(UUID uuid, Consumer<Boolean> result);
-
-    void isWhitelistedAsync(String ip, Consumer<Boolean> result);
-
-    void alertsState(UUID uuid, Consumer<Boolean> result);
+    boolean getAlertsState(UUID uuid);
 
     void updateAlertsState(UUID uuid, boolean state);
-
-    void clearResponses();
 
     void init();
 

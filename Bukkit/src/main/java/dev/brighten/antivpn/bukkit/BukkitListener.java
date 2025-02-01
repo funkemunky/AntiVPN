@@ -37,11 +37,6 @@ public class BukkitListener extends VPNExecutor implements Listener {
     }
 
     @Override
-    public void shutdown() {
-
-    }
-
-    @Override
     public void log(Level level, String log, Object... objects) {
         Bukkit.getLogger().log(level, String.format(log, objects));
     }
@@ -59,14 +54,16 @@ public class BukkitListener extends VPNExecutor implements Listener {
     @EventHandler
     public void onJoin(final PlayerJoinEvent event) {
         AntiVPN.getInstance().getPlayerExecutor().getPlayer(event.getPlayer().getUniqueId())
-                .ifPresent(player -> AntiVPN.getInstance().getDatabase().alertsState(player.getUuid(), enabled -> {
-                    if(enabled) {
-                        player.setAlertsEnabled(true);
-                        player.sendMessage(AntiVPN.getInstance().getMessageHandler()
-                                .getString("command-alerts-toggled")
-                                .getFormattedMessage(new VpnString.Var<>("state", true)));
-                    }
-                }));
+                .ifPresent(player -> {
+                    AntiVPN.getInstance().getExecutor().getThreadExecutor().execute(() -> {
+                        if(AntiVPN.getInstance().getDatabase().getAlertsState(player.getUuid())) {
+                            player.setAlertsEnabled(true);
+                            player.sendMessage(AntiVPN.getInstance().getMessageHandler()
+                                    .getString("command-alerts-toggled")
+                                    .getFormattedMessage(new VpnString.Var<>("state", true)));
+                        }
+                    });
+                });
     }
 
     @EventHandler

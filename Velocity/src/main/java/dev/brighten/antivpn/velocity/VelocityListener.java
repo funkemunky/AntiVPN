@@ -182,8 +182,8 @@ public class VelocityListener extends VPNExecutor {
             cacheResetTask.cancel();
             cacheResetTask = null;
         }
-        threadExecutor.shutdown();
         VelocityPlugin.INSTANCE.getServer().getEventManager().unregisterListener(VelocityPlugin.INSTANCE, this);
+        super.shutdown();
     }
 
     @Override

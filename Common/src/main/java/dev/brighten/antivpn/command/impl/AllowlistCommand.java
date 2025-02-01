@@ -68,13 +68,13 @@ public class AllowlistCommand extends Command {
                     case "add":
                     case "insert": {
                         AntiVPN.getInstance().getExecutor().getWhitelistedIps().add(args[1]);
-                        AntiVPN.getInstance().getDatabase().setWhitelisted(args[1], true);
+                        AntiVPN.getInstance().getDatabase().removeWhitelist(args[1]);
                         return String.format("&aAdded &6%s &ato the exemption allowlist.", args[1]);
                     }
                     case "remove":
                     case "delete": {
                         AntiVPN.getInstance().getExecutor().getWhitelistedIps().remove(args[1]);
-                        AntiVPN.getInstance().getDatabase().setWhitelisted(args[1], false);
+                        AntiVPN.getInstance().getDatabase().removeWhitelist(args[1]);
                         return String.format("&cRemoved &6%s &cfrom the exemption allowlist.", args[1]);
                     }
                     default: {
@@ -85,12 +85,12 @@ public class AllowlistCommand extends Command {
                 switch(args[0].toLowerCase()) {
                     case "add":
                     case "insert": {
-                        AntiVPN.getInstance().getDatabase().setWhitelisted(args[1], true);
+                        AntiVPN.getInstance().getDatabase().addWhitelist(args[1]);
                         return String.format("&aAdded &6%s &a to the exemption allowlist.", args[1]);
                     }
                     case "remove":
                     case "delete": {
-                        AntiVPN.getInstance().getDatabase().setWhitelisted(args[1], false);
+                        AntiVPN.getInstance().getDatabase().removeWhitelist(args[1]);
                         return String.format("&cRemoved &6%s &c from the exemption allowlist.", args[1]);
                     }
                     default: {
@@ -130,12 +130,12 @@ public class AllowlistCommand extends Command {
             } else {
                 switch(args[0].toLowerCase()) {
                     case "add": {
-                        AntiVPN.getInstance().getDatabase().setWhitelisted(uuid, true);
+                        AntiVPN.getInstance().getDatabase().addWhitelist(uuid);
                         return String.format("&aAdded &6%s &auuid to the exemption allowlist.", uuid.toString());
                     }
                     case "remove":
                     case "delete": {
-                        AntiVPN.getInstance().getDatabase().setWhitelisted(uuid, false);
+                        AntiVPN.getInstance().getDatabase().removeWhitelist(uuid);
                         return String.format("&cRemoved &6%s &cuuid from the exemption allowlist.", uuid.toString());
                     }
                     default: {

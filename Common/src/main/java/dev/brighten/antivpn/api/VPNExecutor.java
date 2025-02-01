@@ -18,10 +18,13 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 
 public abstract class VPNExecutor {
-    public static ScheduledExecutorService threadExecutor = Executors.newScheduledThreadPool(2);
+
+    @Getter
+    private final ScheduledExecutorService threadExecutor = Executors.newScheduledThreadPool(2);
 
     @Getter
     private final Set<UUID> whitelisted = Collections.synchronizedSet(new HashSet<>());
+
     @Getter
     private final Set<String> whitelistedIps = Collections.synchronizedSet(new HashSet<>());
 
@@ -32,7 +35,9 @@ public abstract class VPNExecutor {
 
     public abstract void registerListeners();
 
-    public abstract void shutdown();
+    public void shutdown() {
+        threadExecutor.shutdown();
+    }
 
     public abstract void log(Level level, String log, Object... objects);
 
