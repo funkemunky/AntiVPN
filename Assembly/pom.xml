@@ -5,7 +5,7 @@
     <parent>
         <artifactId>AntiVPN</artifactId>
         <groupId>dev.brighten.antivpn</groupId>
-        <version>1.9.3</version>
+        <version>1.9.4-DEV</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -63,6 +63,12 @@
             <groupId>dev.brighten.antivpn</groupId>
             <artifactId>Common</artifactId>
             <version>${version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+            <version>3.41.2.2</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
