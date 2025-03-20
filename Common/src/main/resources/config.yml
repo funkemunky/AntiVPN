@@ -11,7 +11,8 @@ cachedResults: true
 # All players with any of the following characters in the beginning of their name will be whitelisted
 # This is a useful feature for servers that allow players through Geyser and their IPs are not forwarded, causing
 # players to be removed falsely for use of proxy.
-prefixWhitelists: []
+prefixWhitelists:
+  - "*"
 # Configure your database here.
 database:
   # Enable to cache queries and save alerts state beyond restarts
