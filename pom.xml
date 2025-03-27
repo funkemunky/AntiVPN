@@ -7,7 +7,7 @@
     <groupId>dev.brighten.antivpn</groupId>
     <artifactId>AntiVPN</artifactId>
     <packaging>pom</packaging>
-    <version>1.9.3</version>
+    <version>1.9.3.1</version>
 
     <modules>
         <module>Common</module>
@@ -28,7 +28,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.7.0</version>
+                <version>3.13.0</version>
                 <configuration>
                     <source>8</source>
                     <target>8</target>
