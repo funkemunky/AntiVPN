@@ -27,7 +27,7 @@ public class BukkitPlayer extends APIPlayer {
                 public void run() {
                     player.kickPlayer(ChatColor.translateAlternateColorCodes('&', reason));
                 }
-            }.runTask(BukkitPlugin.pluginInstance);
+            }.runTask(BukkitBootstrap.pluginInstance);
         } else player.kickPlayer(ChatColor.translateAlternateColorCodes('&', reason));
     }
 

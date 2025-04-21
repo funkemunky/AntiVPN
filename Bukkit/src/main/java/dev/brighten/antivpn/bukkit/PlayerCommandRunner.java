@@ -35,7 +35,7 @@ public class PlayerCommandRunner {
                         public void run() {
                             action.getAction().run();
                         }
-                    }.runTask(BukkitPlugin.pluginInstance);
+                    }.runTask(BukkitBootstrap.pluginInstance);
 
                     playerActions.poll();
                 }
