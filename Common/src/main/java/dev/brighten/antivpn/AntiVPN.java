@@ -9,6 +9,8 @@ import dev.brighten.antivpn.database.VPNDatabase;
 import dev.brighten.antivpn.database.local.H2VPN;
 import dev.brighten.antivpn.database.mongo.MongoVPN;
 import dev.brighten.antivpn.database.sql.MySqlVPN;
+import dev.brighten.antivpn.depends.LibraryLoader;
+import dev.brighten.antivpn.depends.MavenLibrary;
 import dev.brighten.antivpn.message.MessageHandler;
 import dev.brighten.antivpn.utils.ConfigDefault;
 import dev.brighten.antivpn.utils.MiscUtils;
@@ -29,6 +31,9 @@ import java.util.List;
 
 @Getter
 @Setter(AccessLevel.PRIVATE)
+@MavenLibrary(groupId = "com.h2database", artifactId ="h2", version = "2.2.224")
+@MavenLibrary(groupId = "org.mongodb", artifactId = "mongo-java-driver", version = "3.12.14")
+@MavenLibrary(groupId = "com.mysql", artifactId = "mysql-connector-j", version = "9.1.0")
 public class AntiVPN {
 
     private static AntiVPN INSTANCE;
@@ -47,6 +52,8 @@ public class AntiVPN {
 
         INSTANCE = new AntiVPN();
 
+        LibraryLoader.loadAll(INSTANCE);
+
         INSTANCE.pluginFolder = pluginFolder;
         INSTANCE.executor = executor;
         INSTANCE.playerExecutor = playerExecutor;
@@ -54,7 +61,9 @@ public class AntiVPN {
         try {
             File configFile = new File(pluginFolder, "config.yml");
             if(!configFile.exists()){
-                configFile.getParentFile().mkdirs();
+                if(configFile.getParentFile().mkdirs()) {
+                    AntiVPN.getInstance().getExecutor().log("Created plugin directory!");
+                }
                 MiscUtils.copy(INSTANCE.getResource( "config.yml"), configFile);
             }
             INSTANCE.config = ConfigurationProvider.getProvider(YamlConfiguration.class)

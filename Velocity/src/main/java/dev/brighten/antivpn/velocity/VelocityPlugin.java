@@ -8,10 +8,16 @@ import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
 import dev.brighten.antivpn.AntiVPN;
 import dev.brighten.antivpn.command.Command;
+import dev.brighten.antivpn.database.VPNDatabase;
+import dev.brighten.antivpn.database.local.H2VPN;
+import dev.brighten.antivpn.database.mongo.MongoVPN;
+import dev.brighten.antivpn.database.sql.MySqlVPN;
 import dev.brighten.antivpn.velocity.command.VelocityCommand;
 import lombok.Getter;
+import org.bstats.charts.SimplePie;
 import org.bstats.velocity.Metrics;
 
+import javax.annotation.Nullable;
 import java.nio.file.Path;
 import java.util.logging.Logger;
 
@@ -23,6 +29,8 @@ public class VelocityPlugin {
     private final Logger logger;
     private final Metrics.Factory metricsFactory;
     private final Path configDir;
+    @Nullable
+    private Metrics metrics;
 
     public static VelocityPlugin INSTANCE;
 
@@ -45,13 +53,29 @@ public class VelocityPlugin {
 
         if(AntiVPN.getInstance().getVpnConfig().metrics()) {
             logger.info("Starting metrics...");
-            Metrics metrics = metricsFactory.make(this, 12791);
+            metrics = metricsFactory.make(this, 12791);
+
+            metrics.addCustomChart(new SimplePie("database_used", this::getDatabaseType));
         }
 
         logger.info("Registering commands...");
         for (Command command : AntiVPN.getInstance().getCommands()) {
             server.getCommandManager().register(server.getCommandManager().metaBuilder(command.name())
                             .aliases(command.aliases()).build(), new VelocityCommand(command));
+        }
+    }
+
+    private String getDatabaseType() {
+        VPNDatabase database = AntiVPN.getInstance().getDatabase();
+
+        if(database instanceof H2VPN) {
+            return "H2";
+        } else if(database instanceof MySqlVPN) {
+            return "MySQL";
+        } else if(database instanceof MongoVPN) {
+            return "MongoDB";
+        } else {
+            return "No-Database";
         }
     }
 }
