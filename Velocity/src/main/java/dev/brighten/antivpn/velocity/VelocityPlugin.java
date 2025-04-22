@@ -30,11 +30,10 @@ public class VelocityPlugin {
     private final Logger logger;
     private final Metrics.Factory metricsFactory;
     private final Path configDir;
-    @Nullable
-    private Metrics metrics;
 
     @Nullable
     private Metrics metrics;
+
 
     public static VelocityPlugin INSTANCE;
 

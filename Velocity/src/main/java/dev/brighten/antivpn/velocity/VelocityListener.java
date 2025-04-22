@@ -157,7 +157,7 @@ public class VelocityListener extends VPNExecutor {
     }
 
     @Override
-    public void shutdown() {
+    public void onShutdown() {
         if (cacheResetTask != null) {
             cacheResetTask.cancel();
             cacheResetTask = null;
