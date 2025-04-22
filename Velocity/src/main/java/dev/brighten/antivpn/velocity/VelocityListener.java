@@ -180,4 +180,10 @@ public class VelocityListener extends VPNExecutor {
     public void logException(String message, Exception ex) {
         VelocityPlugin.INSTANCE.getLogger().log(Level.SEVERE, message, ex);
     }
+
+    @Override
+    public void disablePlugin() {
+        VelocityPlugin.INSTANCE.getServer().getEventManager().unregisterListener(VelocityPlugin.INSTANCE, this);
+        VelocityPlugin.INSTANCE.getServer().getCommandManager().unregister("antivpn");
+    }
 }

@@ -33,6 +33,9 @@ public class VelocityPlugin {
     @Nullable
     private Metrics metrics;
 
+    @Nullable
+    private Metrics metrics;
+
     public static VelocityPlugin INSTANCE;
 
     @Inject
