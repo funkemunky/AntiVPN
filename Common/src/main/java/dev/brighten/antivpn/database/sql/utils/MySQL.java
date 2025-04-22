@@ -2,7 +2,6 @@ package dev.brighten.antivpn.database.sql.utils;
 
 import com.mysql.cj.jdbc.Driver;
 import dev.brighten.antivpn.AntiVPN;
-import org.h2.jdbc.JdbcConnection;
 
 import java.io.File;
 import java.sql.Connection;
@@ -38,15 +37,15 @@ public class MySQL {
         File dataFolder = new File(AntiVPN.getInstance().getPluginFolder(), "databases");
         File databaseFile = new File(dataFolder, "database");
         try {
-            conn = new NonClosableConnection(new JdbcConnection("jdbc:h2:file:" +
-                    databaseFile.getAbsolutePath(),
+            conn = new NonClosableConnection(new org.h2.jdbc.JdbcConnection("jdbc:h2:file:" +
+                            databaseFile.getAbsolutePath(),
                     new Properties(), AntiVPN.getInstance().getVpnConfig().getUsername(),
                     AntiVPN.getInstance().getVpnConfig().getPassword(), false));
             conn.setAutoCommit(true);
             Query.use(conn);
             AntiVPN.getInstance().getExecutor().log("Connection to H2 has been established.");
         } catch (SQLException ex) {
-            AntiVPN.getInstance().getExecutor().logException("H2 exception on initialize: " + ex.getMessage(), ex);
+            AntiVPN.getInstance().getExecutor().logException("H2 exception on initialize", ex);
         }
     }
 
