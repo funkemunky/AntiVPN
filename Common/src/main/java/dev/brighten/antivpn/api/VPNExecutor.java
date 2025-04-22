@@ -32,7 +32,7 @@ public abstract class VPNExecutor {
 
     public abstract void registerListeners();
 
-    public abstract void shutdown();
+    public abstract void onShutdown();
 
     public abstract void log(Level level, String log, Object... objects);
 
@@ -97,4 +97,6 @@ public abstract class VPNExecutor {
             }
         }
     }
+
+    public abstract void disablePlugin();
 }

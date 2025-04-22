@@ -12,6 +12,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -35,7 +36,7 @@ public class BukkitListener extends VPNExecutor implements Listener {
     }
 
     @Override
-    public void shutdown() {
+    public void onShutdown() {
 
     }
 
@@ -52,6 +53,12 @@ public class BukkitListener extends VPNExecutor implements Listener {
     @Override
     public void logException(String message, Exception ex) {
         Bukkit.getLogger().log(Level.SEVERE, message, ex);
+    }
+
+    @Override
+    public void disablePlugin() {
+        HandlerList.unregisterAll(this);
+        BukkitPlugin.pluginInstance.getServer().getPluginManager().disablePlugin(BukkitPlugin.pluginInstance);
     }
 
     @EventHandler(priority = EventPriority.HIGH)

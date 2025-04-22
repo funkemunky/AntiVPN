@@ -3,6 +3,7 @@ package dev.brighten.antivpn.velocity;
 import com.google.inject.Inject;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
+import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
@@ -12,6 +13,7 @@ import dev.brighten.antivpn.velocity.command.VelocityCommand;
 import lombok.Getter;
 import org.bstats.velocity.Metrics;
 
+import javax.annotation.Nullable;
 import java.nio.file.Path;
 import java.util.logging.Logger;
 
@@ -23,6 +25,9 @@ public class VelocityPlugin {
     private final Logger logger;
     private final Metrics.Factory metricsFactory;
     private final Path configDir;
+
+    @Nullable
+    private Metrics metrics;
 
     public static VelocityPlugin INSTANCE;
 
@@ -45,7 +50,7 @@ public class VelocityPlugin {
 
         if(AntiVPN.getInstance().getVpnConfig().metrics()) {
             logger.info("Starting metrics...");
-            Metrics metrics = metricsFactory.make(this, 12791);
+            metrics = metricsFactory.make(this, 12791);
         }
 
         logger.info("Registering commands...");
@@ -53,5 +58,11 @@ public class VelocityPlugin {
             server.getCommandManager().register(server.getCommandManager().metaBuilder(command.name())
                             .aliases(command.aliases()).build(), new VelocityCommand(command));
         }
+    }
+
+    @Subscribe
+    public void onShutdown(ProxyShutdownEvent event) {
+        AntiVPN.getInstance().stop();
+        INSTANCE = null;
     }
 }
