@@ -54,13 +54,17 @@ public class AntiVPN {
         try {
             File configFile = new File(pluginFolder, "config.yml");
             if(!configFile.exists()){
-                configFile.getParentFile().mkdirs();
+                if(configFile.getParentFile().mkdirs()) {
+                    AntiVPN.getInstance().getExecutor().log("Created plugin folder!");
+                }
                 MiscUtils.copy(INSTANCE.getResource( "config.yml"), configFile);
             }
             INSTANCE.config = ConfigurationProvider.getProvider(YamlConfiguration.class)
                     .load(configFile);
         } catch (IOException e) {
-            e.printStackTrace();
+            AntiVPN.getInstance().getExecutor().logException("Could not load config.yml, plugin disabling...", e);
+            executor.disablePlugin();
+            return;
         }
 
         INSTANCE.vpnConfig = new VPNConfig();
@@ -139,7 +143,8 @@ public class AntiVPN {
     }
 
     public void stop() {
-        executor.shutdown();
+        executor.onShutdown();
+        VPNExecutor.threadExecutor.shutdown();
         if(database != null) database.shutdown();
     }
 
@@ -188,7 +193,7 @@ public class AntiVPN {
             ConfigurationProvider.getProvider(YamlConfiguration.class)
                     .save(getConfig(), new File(pluginFolder.getPath() + File.separator + "config.yml"));
         } catch (IOException e) {
-            e.printStackTrace();
+            AntiVPN.getInstance().getExecutor().logException(e);
         }
     }
 

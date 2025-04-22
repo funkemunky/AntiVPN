@@ -37,12 +37,11 @@ public class BungeeListener extends VPNExecutor implements Listener {
     }
 
     @Override
-    public void shutdown() {
+    public void onShutdown() {
         if(cacheResetTask != null) {
             cacheResetTask.cancel();
             cacheResetTask = null;
         }
-        threadExecutor.shutdown();
         BungeePlugin.pluginInstance.getProxy().getPluginManager().unregisterListener(this);
     }
 
@@ -59,6 +58,17 @@ public class BungeeListener extends VPNExecutor implements Listener {
     @Override
     public void logException(String message, Exception ex) {
         BungeeCord.getInstance().getLogger().log(Level.SEVERE, message, ex);
+    }
+
+    @Override
+    public void disablePlugin() {
+        BungeeCord.getInstance().getPluginManager().unregisterListeners(BungeePlugin.pluginInstance);
+        if(cacheResetTask != null) {
+            cacheResetTask.cancel();
+            cacheResetTask = null;
+        }
+        BungeeCord.getInstance().getPluginManager().unregisterCommands(BungeePlugin.pluginInstance);
+        BungeePlugin.pluginInstance.onDisable();
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
