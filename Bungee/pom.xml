@@ -38,10 +38,6 @@
                             <pattern>org.yaml.snakeyaml</pattern>
                             <shadedPattern>dev.brighten.antivpn.shaded.org.yaml.snakeyaml</shadedPattern>
                         </relocation>
-                        <relocation>
-                            <pattern>com.google</pattern>
-                            <shadedPattern>dev.brighten.antivpn.shaded.com.google</shadedPattern>
-                        </relocation>
                     </relocations>
                 </configuration>
                 <executions>

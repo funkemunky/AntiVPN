@@ -3,6 +3,7 @@ package dev.brighten.antivpn.velocity;
 import com.google.inject.Inject;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
+import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
@@ -63,6 +64,23 @@ public class VelocityPlugin {
             server.getCommandManager().register(server.getCommandManager().metaBuilder(command.name())
                             .aliases(command.aliases()).build(), new VelocityCommand(command));
         }
+    }
+
+    @Subscribe
+    public void onDisable(ProxyShutdownEvent event) {
+        logger.info("Disabling AntiVPN...");
+        AntiVPN.getInstance().getExecutor().log("Disabling AntiVPN...");
+
+        if (AntiVPN.getInstance().getDatabase() != null) {
+            AntiVPN.getInstance().stop();
+        }
+
+        if (metrics != null) {
+            metrics = null;
+        }
+
+        INSTANCE = null;
+        logger.info("Disabled AntiVPN.");
     }
 
     private String getDatabaseType() {

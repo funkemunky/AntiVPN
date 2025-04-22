@@ -64,4 +64,6 @@ public @interface MavenLibrary {
      */
     Repository repo() default @Repository(url = "https://repo1.maven.org/maven2");
 
+    Relocate[] relocations() default {}; // Add this line
+
 }

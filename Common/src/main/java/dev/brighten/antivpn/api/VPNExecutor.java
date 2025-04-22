@@ -1,7 +1,5 @@
 package dev.brighten.antivpn.api;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import dev.brighten.antivpn.AntiVPN;
 import dev.brighten.antivpn.utils.json.JSONException;
 import dev.brighten.antivpn.web.FunkemunkyAPI;
@@ -10,10 +8,8 @@ import lombok.Getter;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 
@@ -24,12 +20,6 @@ public abstract class VPNExecutor {
     private final Set<UUID> whitelisted = Collections.synchronizedSet(new HashSet<>());
     @Getter
     private final Set<String> whitelistedIps = Collections.synchronizedSet(new HashSet<>());
-
-    private final Cache<String, VPNResponse> responseCache = CacheBuilder.newBuilder()
-            .expireAfterWrite(20, TimeUnit.MINUTES)
-            .maximumSize(4000)
-            .build();
-
     public abstract void registerListeners();
 
     public abstract void shutdown();
@@ -59,18 +49,7 @@ public abstract class VPNExecutor {
     }
 
     public void checkIp(String ip, boolean cachedResults, Consumer<VPNResponse> result) {
-        threadExecutor.execute(() -> {
-            if(cachedResults) {
-                try {
-                    result.accept(responseCache.get(ip, () -> checkIp(ip)));
-                } catch (ExecutionException e) {
-                    log("Failed to process checkIp() method! Reason: " + e.getMessage());
-                    result.accept(VPNResponse.FAILED_RESPONSE);
-                }
-            } else {
-                result.accept(checkIp(ip));
-            }
-        });
+        threadExecutor.execute(() -> result.accept(checkIp(ip)));
     }
 
     public VPNResponse checkIp(String ip) {

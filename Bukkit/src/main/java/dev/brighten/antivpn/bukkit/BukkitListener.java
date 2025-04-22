@@ -1,7 +1,7 @@
 package dev.brighten.antivpn.bukkit;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import dev.brighten.antivpn.AntiVPN;
 import dev.brighten.antivpn.api.APIPlayer;
 import dev.brighten.antivpn.api.VPNExecutor;
@@ -23,7 +23,7 @@ import java.util.logging.Level;
 
 @SuppressWarnings("unchecked")
 public class BukkitListener extends VPNExecutor implements Listener {
-    private final Cache<UUID, VPNResponse> responseCache = CacheBuilder.newBuilder()
+    private final Cache<UUID, VPNResponse> responseCache = Caffeine.newBuilder()
             .expireAfterWrite(5, TimeUnit.MINUTES)
             .maximumSize(2000)
             .build();
