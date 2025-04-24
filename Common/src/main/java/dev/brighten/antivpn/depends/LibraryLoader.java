@@ -25,17 +25,16 @@
 
 package dev.brighten.antivpn.depends;
 
-import com.sun.tools.classfile.Dependency;
 import dev.brighten.antivpn.AntiVPN;
 import dev.brighten.antivpn.utils.NonnullByDefault;
 import dev.brighten.antivpn.utils.Supplier;
 import dev.brighten.antivpn.utils.Suppliers;
-import org.objectweb.asm.commons.ClassRemapper;
-import org.objectweb.asm.commons.SimpleRemapper;
-import org.objectweb.asm.ClassVisitor;
 import lombok.Getter;
 import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.commons.ClassRemapper;
+import org.objectweb.asm.commons.Remapper;
 
 import java.io.*;
 import java.net.MalformedURLException;
@@ -46,12 +45,12 @@ import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
-import java.util.stream.Collectors;
 
 /**
  * Resolves {@link MavenLibrary} annotations for a class, and loads the dependency
  * into the classloader.
  */
+@SuppressWarnings("CallToPrintStackTrace")
 @NonnullByDefault
 public final class LibraryLoader {
 
@@ -77,22 +76,14 @@ public final class LibraryLoader {
         }
     }
 
-    public static void load(String groupId, String artifactId, String version, String repoUrl) {
-        load(groupId, artifactId, version, repoUrl, Collections.emptyMap());
-    }
-
     public static void load(String groupId, String artifactId, String version, String repoUrl,
                             Map<String, String> relocations) {
         load(new Dependency(groupId, artifactId, version, repoUrl), relocations);
     }
 
-    public static void load(Dependency d) {
-        load(d, Collections.emptyMap());
-    }
-
     public static void load(Dependency d, Map<String, String> relocations) {
-        System.out.println(String.format("Loading dependency %s:%s:%s from %s",
-                d.getGroupId(), d.getArtifactId(), d.getVersion(), d.getRepoUrl()));
+        System.out.printf("Loading dependency %s:%s:%s from %s%n",
+                d.getGroupId(), d.getArtifactId(), d.getVersion(), d.getRepoUrl());
         String name = d.getArtifactId() + "-" + d.getVersion();
 
         // If we have relocations, add a suffix to identify the relocated version
@@ -235,30 +226,7 @@ public final class LibraryLoader {
     private static byte[] relocateClass(byte[] classBytes, Map<String, String> relocations) {
         try {
             // Convert to slash notation for ASM
-            Map<String, String> slashMappings = new HashMap<>();
-            for (Map.Entry<String, String> entry : relocations.entrySet()) {
-                String fromSlash = entry.getKey().replace('.', '/');
-                String toSlash = entry.getValue().replace('.', '/');
-                slashMappings.put(fromSlash, toSlash);
-            }
-
-            // Create customized remapper for package prefixes
-            org.objectweb.asm.commons.Remapper prefixRemapper = new org.objectweb.asm.commons.Remapper() {
-                @Override
-                public String map(String typeName) {
-                    if (typeName == null) return null;
-
-                    for (Map.Entry<String, String> entry : slashMappings.entrySet()) {
-                        String from = entry.getKey();
-                        String to = entry.getValue();
-
-                        if (typeName.startsWith(from)) {
-                            return to + typeName.substring(from.length());
-                        }
-                    }
-                    return typeName;
-                }
-            };
+            Remapper prefixRemapper = getPrefixRemapper(relocations);
 
             // Create custom ClassWriter to handle missing classes
             ClassReader reader = new ClassReader(classBytes);
@@ -286,6 +254,33 @@ public final class LibraryLoader {
         }
     }
 
+    private static Remapper getPrefixRemapper(Map<String, String> relocations) {
+        Map<String, String> slashMappings = new HashMap<>();
+        for (Map.Entry<String, String> entry : relocations.entrySet()) {
+            String fromSlash = entry.getKey().replace('.', '/');
+            String toSlash = entry.getValue().replace('.', '/');
+            slashMappings.put(fromSlash, toSlash);
+        }
+
+        // Create customized remapper for package prefixes
+        return new Remapper() {
+            @Override
+            public String map(String typeName) {
+                if (typeName == null) return null;
+
+                for (Map.Entry<String, String> entry : slashMappings.entrySet()) {
+                    String from = entry.getKey();
+                    String to = entry.getValue();
+
+                    if (typeName.startsWith(from)) {
+                        return to + typeName.substring(from.length());
+                    }
+                }
+                return typeName;
+            }
+        };
+    }
+
     private static String relocateClassPath(String path, Map<String, String> relocations) {
         // Convert path to package format (replacing / with .)
         String packagePath = path.substring(0, path.length() - 6).replace('/', '.');
@@ -300,34 +295,6 @@ public final class LibraryLoader {
 
         // Convert back to path format
         return packagePath.replace('.', '/') + ".class";
-    }
-
-    private static byte[] replaceBytes(byte[] original, byte[] from, byte[] to) {
-        ByteArrayOutputStream output = new ByteArrayOutputStream();
-
-        int lastIndex = 0;
-        for (int i = 0; i <= original.length - from.length; i++) {
-            boolean match = true;
-            for (int j = 0; j < from.length; j++) {
-                if (original[i + j] != from[j]) {
-                    match = false;
-                    break;
-                }
-            }
-
-            if (match) {
-                output.write(original, lastIndex, i - lastIndex);
-                output.write(to, 0, to.length);
-                i += from.length - 1;
-                lastIndex = i + 1;
-            }
-        }
-
-        if (lastIndex < original.length) {
-            output.write(original, lastIndex, original.length - lastIndex);
-        }
-
-        return output.toByteArray();
     }
 
     private static byte[] readAllBytes(InputStream is) throws IOException {

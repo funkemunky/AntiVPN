@@ -36,11 +36,6 @@ public class BukkitListener extends VPNExecutor implements Listener {
     }
 
     @Override
-    public void onShutdown() {
-
-    }
-
-    @Override
     public void log(Level level, String log, Object... objects) {
         Bukkit.getLogger().log(level, String.format(log, objects));
     }
@@ -51,7 +46,7 @@ public class BukkitListener extends VPNExecutor implements Listener {
     }
 
     @Override
-    public void logException(String message, Exception ex) {
+    public void logException(String message, Throwable ex) {
         Bukkit.getLogger().log(Level.SEVERE, message, ex);
     }
 
@@ -99,43 +94,42 @@ public class BukkitListener extends VPNExecutor implements Listener {
         }
 
         final Player player = event.getPlayer();
-        checkIp(address,
-                AntiVPN.getInstance().getVpnConfig().cachedResults(), result -> {
-                    if(result.isSuccess()) {
-                        //We need to run on main thread or kicking and running commands will cause errors
-                        //If the player is whitelisted, we don't want to kick them
-                        if(AntiVPN.getInstance().getExecutor().isWhitelisted(event.getPlayer().getUniqueId())) {
-                            log("UUID is whitelisted: %s", event.getPlayer().getUniqueId().toString());
-                            return;
-                        }
+        checkIp(address).thenAccept(result -> {
+            if(result.isSuccess()) {
+                //We need to run on main thread or kicking and running commands will cause errors
+                //If the player is whitelisted, we don't want to kick them
+                if(AntiVPN.getInstance().getExecutor().isWhitelisted(event.getPlayer().getUniqueId())) {
+                    log("UUID is whitelisted: %s", event.getPlayer().getUniqueId().toString());
+                    return;
+                }
 
-                        //If the IP is whitelisted, we don't want to kick them
-                        if (AntiVPN.getInstance().getExecutor().isWhitelisted(address)) {
-                            log("IP is whitelisted: %s",
-                                    address);
-                            return;
-                        }
+                //If the IP is whitelisted, we don't want to kick them
+                if (AntiVPN.getInstance().getExecutor().isWhitelisted(address)) {
+                    log("IP is whitelisted: %s",
+                            address);
+                    return;
+                }
 
-                        // If the countryList() size is zero, no need to check.
-                        // Running country check first
-                        if(!AntiVPN.getInstance().getVpnConfig().countryList().isEmpty()
-                                // This bit of code will decide whether to kick the player
-                                // If contains the code, and set to whitelist, it will not kick as they are equal
-                                // and vise versa. However, if the contains does not match the state, it will kick.
-                                && AntiVPN.getInstance().getVpnConfig().countryList()
-                                .contains(result.getCountryCode())
-                                != AntiVPN.getInstance().getVpnConfig().whitelistCountries()) {
-                            countryKick(player, result);
-                        } else if(result.isProxy()) {
-                            proxyKick(player, result);
-                        }
-                    } else {
-                        log(Level.WARNING,
-                                "The API query was not a success! " +
-                                        "You may need to upgrade your license on https://funkemunky.cc/shop");
-                    }
-                    AntiVPN.getInstance().checked++;
-                });
+                // If the countryList() size is zero, no need to check.
+                // Running country check first
+                if(!AntiVPN.getInstance().getVpnConfig().countryList().isEmpty()
+                        // This bit of code will decide whether to kick the player
+                        // If contains the code, and set to whitelist, it will not kick as they are equal
+                        // and vise versa. However, if the contains does not match the state, it will kick.
+                        && AntiVPN.getInstance().getVpnConfig().countryList()
+                        .contains(result.getCountryCode())
+                        != AntiVPN.getInstance().getVpnConfig().whitelistCountries()) {
+                    countryKick(player, result);
+                } else if(result.isProxy()) {
+                    proxyKick(player, result);
+                }
+            } else {
+                log(Level.WARNING,
+                        "The API query was not a success! " +
+                                "You may need to upgrade your license on https://funkemunky.cc/shop");
+            }
+            AntiVPN.getInstance().checked++;
+        });
     }
 
     private void countryKick(Player player, VPNResponse result) {

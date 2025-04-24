@@ -30,4 +30,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: AntiVPN
-          path: Assembly/target/Assembly-*.jar
+          path: Universal/target/AntiVPN-*.jar
