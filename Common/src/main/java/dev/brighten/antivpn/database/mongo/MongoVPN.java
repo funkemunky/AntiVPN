@@ -1,5 +1,7 @@
 package dev.brighten.antivpn.database.mongo;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.mongodb.*;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
@@ -24,6 +26,11 @@ public class MongoVPN implements VPNDatabase {
     private MongoCollection<Document> settingsDocument, cacheDocument;
     private MongoClient client;
 
+    private final Cache<String, VPNResponse> cachedResponses = Caffeine.newBuilder()
+            .expireAfterWrite(20, TimeUnit.MINUTES)
+            .maximumSize(4000)
+            .build();
+
     public MongoVPN() {
         VPNExecutor.threadExecutor.scheduleAtFixedRate(() -> {
             if(!AntiVPN.getInstance().getVpnConfig().isDatabaseEnabled()) return;
@@ -41,32 +48,37 @@ public class MongoVPN implements VPNDatabase {
     }
     @Override
     public Optional<VPNResponse> getStoredResponse(String ip) {
-        Document rdoc = cacheDocument.find(Filters.eq("ip", ip)).first();
+        VPNResponse response = cachedResponses.get(ip, ip2 -> {
+            Document rdoc = cacheDocument.find(Filters.eq("ip", ip)).first();
 
-        if(rdoc != null) {
-            long lastUpdate = rdoc.get("lastAccess", 0L);
+            if(rdoc != null) {
+                long lastUpdate = rdoc.get("lastAccess", 0L);
 
-            if(System.currentTimeMillis() - lastUpdate > TimeUnit.HOURS.toMillis(1)) {
-                VPNExecutor.threadExecutor.execute(() -> deleteResponse(ip));
-                return Optional.empty();
+                if(System.currentTimeMillis() - lastUpdate > TimeUnit.HOURS.toMillis(1)) {
+                    VPNExecutor.threadExecutor.execute(() -> deleteResponse(ip));
+                    return null;
+                }
+
+                return VPNResponse.builder().asn(rdoc.getString("asn")).ip(ip)
+                        .countryName(rdoc.getString("countryName"))
+                        .countryCode(rdoc.getString("countryCode"))
+                        .city(rdoc.getString("city"))
+                        .isp(rdoc.getString("isp"))
+                        .method(rdoc.getString("method"))
+                        .timeZone(rdoc.getString("timeZone"))
+                        .proxy(rdoc.getBoolean("proxy"))
+                        .cached(rdoc.getBoolean("cached"))
+                        .success(true)
+                        .latitude(rdoc.getDouble("latitude"))
+                        .longitude(rdoc.getDouble("longitude"))
+                        .lastAccess(rdoc.get("lastAccess", 0L))
+                        .build();
             }
+            return null;
+        });
 
-            return Optional.of(VPNResponse.builder().asn(rdoc.getString("asn")).ip(ip)
-                    .countryName(rdoc.getString("countryName"))
-                    .countryCode(rdoc.getString("countryCode"))
-                    .city(rdoc.getString("city"))
-                    .isp(rdoc.getString("isp"))
-                    .method(rdoc.getString("method"))
-                    .timeZone(rdoc.getString("timeZone"))
-                    .proxy(rdoc.getBoolean("proxy"))
-                    .cached(rdoc.getBoolean("cached"))
-                    .success(true)
-                    .latitude(rdoc.getDouble("latitude"))
-                    .longitude(rdoc.getDouble("longitude"))
-                    .lastAccess(rdoc.get("lastAccess", 0L))
-                    .build());
-        }
-        return Optional.empty();
+
+        return Optional.ofNullable(response);
     }
 
     @Override
@@ -86,6 +98,8 @@ public class MongoVPN implements VPNDatabase {
         rdoc.put("latitude", toCache.getLatitude());
         rdoc.put("longitude", toCache.getLongitude());
         rdoc.put("lastAccess", System.currentTimeMillis());
+
+        cachedResponses.put(toCache.getIp(), toCache);
 
         VPNExecutor.threadExecutor.execute(() -> {
             Bson update = new Document("$set", rdoc);

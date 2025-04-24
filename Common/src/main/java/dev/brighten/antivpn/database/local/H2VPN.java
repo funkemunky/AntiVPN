@@ -1,5 +1,7 @@
 package dev.brighten.antivpn.database.local;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import dev.brighten.antivpn.AntiVPN;
 import dev.brighten.antivpn.api.VPNExecutor;
 import dev.brighten.antivpn.database.VPNDatabase;
@@ -19,6 +21,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 public class H2VPN implements VPNDatabase {
+
+    private final Cache<String, VPNResponse> cachedResponses = Caffeine.newBuilder()
+            .expireAfterWrite(20, TimeUnit.MINUTES)
+            .maximumSize(4000)
+            .build();
+
 
     public H2VPN() {
         VPNExecutor.threadExecutor.scheduleAtFixedRate(() -> {
@@ -41,29 +49,26 @@ public class H2VPN implements VPNDatabase {
         if (!AntiVPN.getInstance().getVpnConfig().isDatabaseEnabled()|| MySQL.isClosed())
             return Optional.empty();
 
-        ResultSet rs = Query.prepare("select * from `responses` where `ip` = ? limit 1").append(ip).executeQuery();
-
-        try {
-            if (rs != null && rs.next()) {
-                VPNResponse response = new VPNResponse(rs.getString("asn"), rs.getString("ip"),
-                        rs.getString("countryName"), rs.getString("countryCode"),
-                        rs.getString("city"), rs.getString("timeZone"),
-                        rs.getString("method"), rs.getString("isp"), "N/A",
-                        rs.getBoolean("proxy"), rs.getBoolean("cached"), true,
-                        rs.getDouble("latitude"), rs.getDouble("longitude"),
-                        rs.getTimestamp("inserted").getTime(), -1);
-
-                if(System.currentTimeMillis() - response.getLastAccess() > TimeUnit.HOURS.toMillis(1)) {
-                    VPNExecutor.threadExecutor.execute(() -> deleteResponse(ip));
-                    return Optional.empty();
+        VPNResponse response = cachedResponses.get(ip, ip2 -> {
+            try(ResultSet rs = Query.prepare("select * from `responses` where `ip` = ? limit 1").append(ip).
+                    executeQuery()) {
+                if (rs != null && rs.next()) {
+                    return new VPNResponse(rs.getString("asn"), rs.getString("ip"),
+                            rs.getString("countryName"), rs.getString("countryCode"),
+                            rs.getString("city"), rs.getString("timeZone"),
+                            rs.getString("method"), rs.getString("isp"), "N/A",
+                            rs.getBoolean("proxy"), rs.getBoolean("cached"), true,
+                            rs.getDouble("latitude"), rs.getDouble("longitude"),
+                            rs.getTimestamp("inserted").getTime(), -1);
                 }
-                return Optional.of(response);
+            } catch (SQLException e) {
+                AntiVPN.getInstance().getExecutor().logException("There was a problem getting a response for "
+                        + ip, e);
             }
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
+            return null;
+        });
 
-        return Optional.empty();
+        return Optional.ofNullable(response);
     }
 
     /*
@@ -79,6 +84,8 @@ public class H2VPN implements VPNDatabase {
     public void cacheResponse(VPNResponse toCache) {
         if (!AntiVPN.getInstance().getVpnConfig().isDatabaseEnabled() || MySQL.isClosed())
             return;
+
+        cachedResponses.put(toCache.getIp(), toCache);
 
         Query.prepare("insert into `responses` (`ip`,`asn`,`countryName`,`countryCode`,`city`,`timeZone`,"
                 + "`method`,`isp`,`proxy`,`cached`,`inserted`,`latitude`,`longitude`) values (?,?,?,?,?,?,?,?,?,?,?,?,?)")
@@ -198,13 +205,12 @@ public class H2VPN implements VPNDatabase {
         if(MySQL.isClosed()) return;
 
         VPNExecutor.threadExecutor.execute(() -> {
-            ResultSet set = Query.prepare("select * from `alerts` where `uuid` = ? limit 1")
-                    .append(uuid.toString()).executeQuery();
 
-            try {
+            try(ResultSet set = Query.prepare("select * from `alerts` where `uuid` = ? limit 1")
+                    .append(uuid.toString()).executeQuery()) {
                 result.accept(set != null && set.next() && set.getString("uuid") != null);
             } catch (SQLException e) {
-                e.printStackTrace();
+                AntiVPN.getInstance().getExecutor().logException("There was a problem getting alerts state for " + uuid, e);
                 result.accept(false);
             }
         });
@@ -271,6 +277,7 @@ public class H2VPN implements VPNDatabase {
     public void shutdown() {
         if (!AntiVPN.getInstance().getVpnConfig().isDatabaseEnabled())
             return;
+
         MySQL.shutdown();
     }
 }

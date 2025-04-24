@@ -3,9 +3,13 @@ package dev.brighten.antivpn.bukkit;
 import dev.brighten.antivpn.AntiVPN;
 import dev.brighten.antivpn.bukkit.command.BukkitCommand;
 import dev.brighten.antivpn.command.Command;
+import dev.brighten.antivpn.database.VPNDatabase;
+import dev.brighten.antivpn.database.local.H2VPN;
+import dev.brighten.antivpn.database.mongo.MongoVPN;
+import dev.brighten.antivpn.database.sql.MySqlVPN;
 import lombok.Getter;
 import org.bstats.bukkit.Metrics;
-import org.bstats.charts.SingleLineChart;
+import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
 import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.event.HandlerList;
@@ -25,8 +29,6 @@ public class BukkitPlugin extends JavaPlugin {
     private final List<org.bukkit.command.Command> registeredCommands = new ArrayList<>();
 
     @Getter
-    private SingleLineChart vpnDetections, ipsChecked;
-    @Getter
     private PlayerCommandRunner playerCommandRunner;
 
     public void onEnable() {
@@ -42,10 +44,7 @@ public class BukkitPlugin extends JavaPlugin {
         if(AntiVPN.getInstance().getVpnConfig().metrics()) {
             Bukkit.getLogger().info("Starting bStats metrics...");
             Metrics metrics = new Metrics(this, 12615);
-            metrics.addCustomChart(vpnDetections = new SingleLineChart("vpn_detections",
-                    () -> AntiVPN.getInstance().detections));
-            metrics.addCustomChart(ipsChecked = new SingleLineChart("ips_checked",
-                    () -> AntiVPN.getInstance().checked));
+            metrics.addCustomChart(new SimplePie("database_used", this::getDatabaseType));
             new BukkitRunnable() {
                 public void run() {
                     AntiVPN.getInstance().checked = AntiVPN.getInstance().detections = 0;
@@ -55,14 +54,13 @@ public class BukkitPlugin extends JavaPlugin {
 
         Bukkit.getLogger().info("Setting up and registering commands...");
         // We need access to the commandMap to register our commands without using the "proper" method
-        if (pluginInstance.getServer().getPluginManager() instanceof SimplePluginManager) {
-            SimplePluginManager manager = (SimplePluginManager) pluginInstance.getServer().getPluginManager();
+        if (pluginInstance.getServer().getPluginManager() instanceof SimplePluginManager manager) {
             try {
                 Field field = SimplePluginManager.class.getDeclaredField("commandMap");
                 field.setAccessible(true);
                 commandMap = (SimpleCommandMap) field.get(manager);
             } catch (IllegalArgumentException | SecurityException | NoSuchFieldException | IllegalAccessException e) {
-                e.printStackTrace();
+                AntiVPN.getInstance().getExecutor().logException(e);
             }
         }
 
@@ -89,6 +87,7 @@ public class BukkitPlugin extends JavaPlugin {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void onDisable() {
         Bukkit.getLogger().info("Stopping plugin services...");
         AntiVPN.getInstance().stop();
@@ -98,13 +97,15 @@ public class BukkitPlugin extends JavaPlugin {
         try {
             Field field = SimpleCommandMap.class.getDeclaredField("knownCommands");
             field.setAccessible(true);
-            Map<String, org.bukkit.command.Command> knownCommands =
-                    (Map<String, org.bukkit.command.Command>) field.get(commandMap);
 
-            knownCommands.values().removeAll(registeredCommands);
-            registeredCommands.clear();
+            if(field.get(commandMap) instanceof Map<?, ?> knownCommands) {
+                Map<String, org.bukkit.command.Command> casted = (Map<String, org.bukkit.command.Command>) knownCommands;
+                casted.values().removeAll(registeredCommands);
+                registeredCommands.clear();
+            }
+
         } catch (IllegalAccessException | NoSuchFieldException e) {
-            e.printStackTrace();
+            AntiVPN.getInstance().getExecutor().logException(e);
         }
 
         Bukkit.getLogger().info("Unregistering listeners...");
@@ -112,5 +113,19 @@ public class BukkitPlugin extends JavaPlugin {
 
         Bukkit.getLogger().info("Cancelling any running tasks...");
         Bukkit.getScheduler().cancelTasks(this);
+    }
+
+    private String getDatabaseType() {
+        VPNDatabase database = AntiVPN.getInstance().getDatabase();
+
+        if(database instanceof H2VPN) {
+            return "H2";
+        } else if(database instanceof MySqlVPN) {
+            return "MySQL";
+        } else if(database instanceof MongoVPN) {
+            return "MongoDB";
+        } else {
+            return "No-Database";
+        }
     }
 }

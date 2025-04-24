@@ -3,10 +3,13 @@ package dev.brighten.antivpn.bungee;
 import dev.brighten.antivpn.AntiVPN;
 import dev.brighten.antivpn.bungee.command.BungeeCommand;
 import dev.brighten.antivpn.command.Command;
-import net.md_5.bungee.BungeeCord;
+import dev.brighten.antivpn.database.VPNDatabase;
+import dev.brighten.antivpn.database.local.H2VPN;
+import dev.brighten.antivpn.database.mongo.MongoVPN;
+import dev.brighten.antivpn.database.sql.MySqlVPN;
 import net.md_5.bungee.api.plugin.Plugin;
 import org.bstats.bungeecord.Metrics;
-import org.bstats.charts.SingleLineChart;
+import org.bstats.charts.SimplePie;
 
 import java.util.concurrent.TimeUnit;
 
@@ -14,39 +17,48 @@ public class BungeePlugin extends Plugin {
 
     public static BungeePlugin pluginInstance;
 
-    private SingleLineChart vpnDetections, ipsChecked;
-
     @Override
     public void onEnable() {
         pluginInstance = this;
 
         //Setting up config
-        BungeeCord.getInstance().getLogger().info("Loading config...");
+        getProxy().getLogger().info("Loading config...");
 
 
         //Loading plugin
-        BungeeCord.getInstance().getLogger().info("Starting AntiVPN services...");
+        getProxy().getLogger().info("Starting AntiVPN services...");
         AntiVPN.start(new BungeeListener(), new BungeePlayerExecutor(), getDataFolder());
 
         if(AntiVPN.getInstance().getVpnConfig().metrics()) {
-            BungeeCord.getInstance().getLogger().info("Starting bStats metrics...");
+            getProxy().getLogger().info("Starting bStats metrics...");
             Metrics metrics = new Metrics(this, 12616);
-            metrics.addCustomChart(vpnDetections = new SingleLineChart("vpn_detections",
-                    () -> AntiVPN.getInstance().detections));
-            metrics.addCustomChart(ipsChecked = new SingleLineChart("ips_checked",
-                    () -> AntiVPN.getInstance().checked));
-            BungeeCord.getInstance().getScheduler().schedule(this,
+            metrics.addCustomChart(new SimplePie("database_used", this::getDatabaseType));
+            getProxy().getScheduler().schedule(this,
                     () -> AntiVPN.getInstance().checked = AntiVPN.getInstance().detections = 0,
                     10, 10, TimeUnit.MINUTES);
         }
 
         for (Command command : AntiVPN.getInstance().getCommands()) {
-            BungeeCord.getInstance().getPluginManager().registerCommand(pluginInstance, new BungeeCommand(command));
+            getProxy().getPluginManager().registerCommand(pluginInstance, new BungeeCommand(command));
         }
     }
 
     @Override
     public void onDisable() {
         AntiVPN.getInstance().stop();
+    }
+
+    private String getDatabaseType() {
+        VPNDatabase database = AntiVPN.getInstance().getDatabase();
+
+        if(database instanceof H2VPN) {
+            return "H2";
+        } else if(database instanceof MySqlVPN) {
+            return "MySQL";
+        } else if(database instanceof MongoVPN) {
+            return "MongoDB";
+        } else {
+            return "No-Database";
+        }
     }
 }
