@@ -9,8 +9,13 @@ import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
 import dev.brighten.antivpn.AntiVPN;
 import dev.brighten.antivpn.command.Command;
+import dev.brighten.antivpn.database.VPNDatabase;
+import dev.brighten.antivpn.database.local.H2VPN;
+import dev.brighten.antivpn.database.mongo.MongoVPN;
+import dev.brighten.antivpn.database.sql.MySqlVPN;
 import dev.brighten.antivpn.velocity.command.VelocityCommand;
 import lombok.Getter;
+import org.bstats.charts.SimplePie;
 import org.bstats.velocity.Metrics;
 
 import javax.annotation.Nullable;
@@ -28,6 +33,7 @@ public class VelocityPlugin {
 
     @Nullable
     private Metrics metrics;
+
 
     public static VelocityPlugin INSTANCE;
 
@@ -51,6 +57,8 @@ public class VelocityPlugin {
         if(AntiVPN.getInstance().getVpnConfig().metrics()) {
             logger.info("Starting metrics...");
             metrics = metricsFactory.make(this, 12791);
+
+            metrics.addCustomChart(new SimplePie("database_used", this::getDatabaseType));
         }
 
         logger.info("Registering commands...");
@@ -61,8 +69,33 @@ public class VelocityPlugin {
     }
 
     @Subscribe
-    public void onShutdown(ProxyShutdownEvent event) {
-        AntiVPN.getInstance().stop();
+    public void onDisable(ProxyShutdownEvent event) {
+        logger.info("Disabling AntiVPN...");
+        AntiVPN.getInstance().getExecutor().log("Disabling AntiVPN...");
+
+        if (AntiVPN.getInstance().getDatabase() != null) {
+            AntiVPN.getInstance().stop();
+        }
+
+        if (metrics != null) {
+            metrics = null;
+        }
+
         INSTANCE = null;
+        logger.info("Disabled AntiVPN.");
+    }
+
+    private String getDatabaseType() {
+        VPNDatabase database = AntiVPN.getInstance().getDatabase();
+
+        if(database instanceof H2VPN) {
+            return "H2";
+        } else if(database instanceof MySqlVPN) {
+            return "MySQL";
+        } else if(database instanceof MongoVPN) {
+            return "MongoDB";
+        } else {
+            return "No-Database";
+        }
     }
 }

@@ -2,7 +2,6 @@ package dev.brighten.antivpn.bungee;
 
 import dev.brighten.antivpn.api.APIPlayer;
 import dev.brighten.antivpn.api.PlayerExecutor;
-import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 import java.util.*;
@@ -14,7 +13,7 @@ public class BungeePlayerExecutor implements PlayerExecutor {
 
     @Override
     public Optional<APIPlayer> getPlayer(String name) {
-        ProxiedPlayer player = BungeeCord.getInstance().getPlayer(name);
+        ProxiedPlayer player = BungeePlugin.pluginInstance.getProxy().getPlayer(name);
 
         if(player == null) return Optional.empty();
 
@@ -23,7 +22,7 @@ public class BungeePlayerExecutor implements PlayerExecutor {
 
     @Override
     public Optional<APIPlayer> getPlayer(UUID uuid) {
-        ProxiedPlayer player = BungeeCord.getInstance().getPlayer(uuid);
+        ProxiedPlayer player = BungeePlugin.pluginInstance.getProxy().getPlayer(uuid);
 
         if(player == null) return Optional.empty();
 
@@ -37,7 +36,7 @@ public class BungeePlayerExecutor implements PlayerExecutor {
 
     @Override
     public List<APIPlayer> getOnlinePlayers() {
-        return BungeeCord.getInstance().getPlayers().stream()
+        return BungeePlugin.pluginInstance.getProxy().getPlayers().stream()
                 .map(pl -> cachedPlayers.computeIfAbsent(pl.getUniqueId(), key -> new BungeePlayer(pl)))
                 .collect(Collectors.toList());
     }

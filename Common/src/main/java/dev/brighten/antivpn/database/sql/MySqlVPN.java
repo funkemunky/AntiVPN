@@ -1,5 +1,7 @@
 package dev.brighten.antivpn.database.sql;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import dev.brighten.antivpn.AntiVPN;
 import dev.brighten.antivpn.api.VPNExecutor;
 import dev.brighten.antivpn.database.VPNDatabase;
@@ -19,6 +21,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 public class MySqlVPN implements VPNDatabase {
+
+    private final Cache<String, VPNResponse> cachedResponses = Caffeine.newBuilder()
+            .expireAfterWrite(20, TimeUnit.MINUTES)
+            .maximumSize(4000)
+            .build();
+
 
     public MySqlVPN() {
         VPNExecutor.threadExecutor.scheduleAtFixedRate(() -> {
@@ -41,30 +49,34 @@ public class MySqlVPN implements VPNDatabase {
         if (isDisabled())
             return Optional.empty();
 
-        ResultSet rs = Query.prepare("select * from `responses` where `ip` = ? limit 1").append(ip).executeQuery();
+        VPNResponse response = cachedResponses.get(ip, ip2 -> {
+            try(ResultSet rs = Query.prepare("select * from `responses` where `ip` = ? limit 1").append(ip)
+                    .executeQuery()) {
+                if (rs != null && rs.next()) {
+                    VPNResponse responseFromDoc = new VPNResponse(rs.getString("asn"),
+                            rs.getString("ip"),
+                            rs.getString("countryName"), rs.getString("countryCode"),
+                            rs.getString("city"), rs.getString("timeZone"),
+                            rs.getString("method"), rs.getString("isp"), "N/A",
+                            rs.getBoolean("proxy"), rs.getBoolean("cached"), true,
+                            rs.getDouble("latitude"), rs.getDouble("longitude"),
+                            rs.getTimestamp("inserted").getTime(), -1);
 
-        try {
-            if (rs != null && rs.next()) {
-                VPNResponse response = new VPNResponse(rs.getString("asn"), rs.getString("ip"),
-                        rs.getString("countryName"), rs.getString("countryCode"),
-                        rs.getString("city"), rs.getString("timeZone"),
-                        rs.getString("method"), rs.getString("isp"), "N/A",
-                        rs.getBoolean("proxy"), rs.getBoolean("cached"), true,
-                        rs.getDouble("latitude"), rs.getDouble("longitude"),
-                        rs.getTimestamp("inserted").getTime(), -1);
+                    if(System.currentTimeMillis() - responseFromDoc.getLastAccess() > TimeUnit.HOURS.toMillis(1)) {
+                        VPNExecutor.threadExecutor.execute(() -> deleteResponse(ip));
+                        return null;
+                    }
 
-                if(System.currentTimeMillis() - response.getLastAccess() > TimeUnit.HOURS.toMillis(1)) {
-                    VPNExecutor.threadExecutor.execute(() -> deleteResponse(ip));
-                    return Optional.empty();
+                    return responseFromDoc;
                 }
-                
-                return Optional.of(response);
+            } catch (SQLException e) {
+                AntiVPN.getInstance().getExecutor()
+                        .logException("Failed to get response from cache due to SQL error for: " + ip, e);
             }
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
+            return null;
+        });
 
-        return Optional.empty();
+        return Optional.ofNullable(response);
     }
 
     /*
@@ -80,6 +92,8 @@ public class MySqlVPN implements VPNDatabase {
     public void cacheResponse(VPNResponse toCache) {
         if (isDisabled())
             return;
+
+        cachedResponses.put(toCache.getIp(), toCache);
 
         Query.prepare("insert into `responses` (`ip`,`asn`,`countryName`,`countryCode`,`city`,`timeZone`,"
                 + "`method`,`isp`,`proxy`,`cached`,`inserted`,`latitude`,`longitude`) values (?,?,?,?,?,?,?,?,?,?,?,?,?)")
@@ -103,10 +117,10 @@ public class MySqlVPN implements VPNDatabase {
     public boolean isWhitelisted(UUID uuid) {
         if (isDisabled())
             return false;
-        ResultSet set = Query.prepare("select uuid from `whitelisted` where `uuid` = ? limit 1")
-                .append(uuid.toString()).executeQuery();
-
-        return set != null && set.next() && set.getString("uuid") != null;
+        try(ResultSet set = Query.prepare("select uuid from `whitelisted` where `uuid` = ? limit 1")
+                .append(uuid.toString()).executeQuery()) {
+            return set != null && set.next() && set.getString("uuid") != null;
+        }
     }
 
     @SneakyThrows
@@ -114,11 +128,10 @@ public class MySqlVPN implements VPNDatabase {
     public boolean isWhitelisted(String ip) {
         if (isDisabled())
             return false;
-        ResultSet set = Query.prepare("select `ip` from `whitelisted-ips` where `ip` = ? limit 1")
-                .append(ip).executeQuery();
-
-
-        return set != null && set.next() && set.getString("ip") != null;
+        try(ResultSet set = Query.prepare("select `ip` from `whitelisted-ips` where `ip` = ? limit 1")
+                .append(ip).executeQuery()) {
+            return set != null && set.next() && set.getString("ip") != null;
+        }
     }
 
     @Override
@@ -199,13 +212,13 @@ public class MySqlVPN implements VPNDatabase {
         if(MySQL.isClosed()) return;
 
         VPNExecutor.threadExecutor.execute(() -> {
-            ResultSet set = Query.prepare("select * from `alerts` where `uuid` = ? limit 1")
-                    .append(uuid.toString()).executeQuery();
 
-            try {
+            try(ResultSet set = Query.prepare("select * from `alerts` where `uuid` = ? limit 1")
+                    .append(uuid.toString()).executeQuery()) {
                 result.accept(set != null && set.next() && set.getString("uuid") != null);
             } catch (SQLException e) {
-                e.printStackTrace();
+                AntiVPN.getInstance().getExecutor()
+                        .logException("Failed to get alerts state from database for: " + uuid, e);
                 result.accept(false);
             }
         });
@@ -247,18 +260,16 @@ public class MySqlVPN implements VPNDatabase {
         AntiVPN.getInstance().getExecutor().log("Creating tables...");
 
         //Running check for old table types to update
-        oldTableCheck: {
-            Query.prepare("select `DATA_TYPE` from INFORMATION_SCHEMA.COLUMNS " +
-                    "WHERE table_name = 'responses' AND COLUMN_NAME = 'isp';").execute(set -> {
-                        if(set.getObject("DATA_TYPE").toString().contains("varchar")) {
-                            AntiVPN.getInstance().getExecutor().log("Using old database format for storing responses! " +
-                                    "Dropping table and creating a new one...");
-                            if(Query.prepare("drop table `responses`").execute() > 0) {
-                                AntiVPN.getInstance().getExecutor().log("Successfully dropped table!");
-                            }
-                        }
-            });
-        }
+        Query.prepare("select `DATA_TYPE` from INFORMATION_SCHEMA.COLUMNS " +
+                "WHERE table_name = 'responses' AND COLUMN_NAME = 'isp';").execute(set -> {
+            if(set.getObject("DATA_TYPE").toString().contains("varchar")) {
+                AntiVPN.getInstance().getExecutor().log("Using old database format for storing responses! " +
+                        "Dropping table and creating a new one...");
+                if(Query.prepare("drop table `responses`").execute() > 0) {
+                    AntiVPN.getInstance().getExecutor().log("Successfully dropped table!");
+                }
+            }
+        });
 
         Query.prepare("create table if not exists `whitelisted` (`uuid` varchar(36) not null)").execute();
         Query.prepare("create table if not exists `whitelisted-ips` (`ip` varchar(45) not null)").execute();
@@ -277,15 +288,13 @@ public class MySqlVPN implements VPNDatabase {
                     " AND table_name='whitelisted' AND index_name='uuid_1';";
             ResultSet rs = Query.prepare(query).executeQuery();
             int id = 0;
-            whitelistedIndex: {
-                while (rs.next()) {
-                    id = rs.getInt("IndexExists");
-                }
-                if (id == 0) {
-                    Query.prepare("create index `uuid_1` on `whitelisted` (`uuid`)").execute();
-                }
-                id = 0;
+            while (rs.next()) {
+                id = rs.getInt("IndexExists");
             }
+            if (id == 0) {
+                Query.prepare("create index `uuid_1` on `whitelisted` (`uuid`)").execute();
+            }
+            id = 0;
             responsesIndex: {
                 query = "SELECT COUNT(1) IndexExists FROM INFORMATION_SCHEMA.STATISTICS WHERE table_schema=DATABASE() " +
                         "AND table_name='responses' AND index_name='ip_1';";

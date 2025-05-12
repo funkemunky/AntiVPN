@@ -9,6 +9,9 @@ import dev.brighten.antivpn.database.VPNDatabase;
 import dev.brighten.antivpn.database.local.H2VPN;
 import dev.brighten.antivpn.database.mongo.MongoVPN;
 import dev.brighten.antivpn.database.sql.MySqlVPN;
+import dev.brighten.antivpn.depends.LibraryLoader;
+import dev.brighten.antivpn.depends.MavenLibrary;
+import dev.brighten.antivpn.depends.Relocate;
 import dev.brighten.antivpn.message.MessageHandler;
 import dev.brighten.antivpn.utils.ConfigDefault;
 import dev.brighten.antivpn.utils.MiscUtils;
@@ -29,6 +32,21 @@ import java.util.List;
 
 @Getter
 @Setter(AccessLevel.PRIVATE)
+@MavenLibrary(groupId = "com.h2database", artifactId ="h2", version = "2.2.220", relocations = {
+        @Relocate(from ="org" + ".\\h2", to ="dev.brighten.antivpn.shaded.org.h2")})
+@MavenLibrary(groupId = "org.mongodb", artifactId = "mongo-java-driver", version = "3.12.14", relocations = {
+        @Relocate(from = "com." + "\\mongodb", to = "dev.brighten.antivpn.shaded.com.mongodb"),
+        @Relocate(from = "org" + "\\.bson", to = "dev.brighten.antivpn.shaded.org.bson")
+})
+@MavenLibrary(
+        groupId = "com.mysql",
+        artifactId = "mysql-connector-j",
+        version = "9.1.0",
+        relocations = {
+                @Relocate(from = "com.my\\" + "sql.cj", to = "dev.brighten.antivpn.shaded.com.mysql.cj"),
+                @Relocate(from = "com.my\\" + "sql.jdbc", to = "dev.brighten.antivpn.shaded.com.mysql.jdbc")
+        }
+)
 public class AntiVPN {
 
     private static AntiVPN INSTANCE;
@@ -50,6 +68,8 @@ public class AntiVPN {
         INSTANCE.pluginFolder = pluginFolder;
         INSTANCE.executor = executor;
         INSTANCE.playerExecutor = playerExecutor;
+
+        LibraryLoader.loadAll(INSTANCE);
 
         try {
             File configFile = new File(pluginFolder, "config.yml");
@@ -143,7 +163,20 @@ public class AntiVPN {
     }
 
     public void stop() {
-        executor.onShutdown();
+        if (database instanceof H2VPN) {
+            database.shutdown();
+
+            // Try to deregister driver
+            try {
+                java.sql.Driver driver = java.sql.DriverManager.getDriver("jdbc:h2:");
+                if (driver != null) {
+                    java.sql.DriverManager.deregisterDriver(driver);
+                }
+            } catch (Exception e) {
+                // Log but don't throw
+                executor.log("Failed to deregister H2 driver: " + e.getMessage());
+            }
+        }
         VPNExecutor.threadExecutor.shutdown();
         if(database != null) database.shutdown();
     }
