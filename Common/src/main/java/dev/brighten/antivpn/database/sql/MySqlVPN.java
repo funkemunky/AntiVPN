@@ -286,19 +286,21 @@ public class MySqlVPN implements VPNDatabase {
 
             String query = "SELECT COUNT(1) IndexExists FROM INFORMATION_SCHEMA.STATISTICS WHERE table_schema=DATABASE()" +
                     " AND table_name='whitelisted' AND index_name='uuid_1';";
-            ResultSet rs = Query.prepare(query).executeQuery();
             int id = 0;
-            while (rs.next()) {
-                id = rs.getInt("IndexExists");
-            }
-            if (id == 0) {
-                Query.prepare("create index `uuid_1` on `whitelisted` (`uuid`)").execute();
+            try(ResultSet rs = Query.prepare(query).executeQuery()) {
+                while (rs.next()) {
+                    id = rs.getInt("IndexExists");
+                }
+                if (id == 0) {
+                    Query.prepare("create index `uuid_1` on `whitelisted` (`uuid`)").execute();
+                }
             }
             id = 0;
-            responsesIndex: {
-                query = "SELECT COUNT(1) IndexExists FROM INFORMATION_SCHEMA.STATISTICS WHERE table_schema=DATABASE() " +
-                        "AND table_name='responses' AND index_name='ip_1';";
-                rs = Query.prepare(query).executeQuery();
+
+            // Responses index
+            query = "SELECT COUNT(1) IndexExists FROM INFORMATION_SCHEMA.STATISTICS WHERE table_schema=DATABASE() " +
+                    "AND table_name='responses' AND index_name='ip_1';";
+            try(ResultSet rs = Query.prepare(query).executeQuery()) {
                 while (rs.next()) {
                     id = rs.getInt("IndexExists");
                 }
@@ -306,9 +308,11 @@ public class MySqlVPN implements VPNDatabase {
                     Query.prepare("create index `ip_1` on `responses` (`ip`)").execute();
                 }
                 id = 0;
-                query = "SELECT COUNT(1) IndexExists FROM INFORMATION_SCHEMA.STATISTICS WHERE table_schema=DATABASE() " +
-                        "AND table_name='responses' AND index_name='proxy_1';";
-                rs = Query.prepare(query).executeQuery();
+            }
+
+            query = "SELECT COUNT(1) IndexExists FROM INFORMATION_SCHEMA.STATISTICS WHERE table_schema=DATABASE() " +
+                    "AND table_name='responses' AND index_name='proxy_1';";
+            try(ResultSet rs = Query.prepare(query).executeQuery()) {
                 while (rs.next()) {
                     id = rs.getInt("IndexExists");
                 }
@@ -316,9 +320,10 @@ public class MySqlVPN implements VPNDatabase {
                     Query.prepare("create index `proxy_1` on `responses` (`proxy`)").execute();
                 }
                 id = 0;
-                query = "SELECT COUNT(1) IndexExists FROM INFORMATION_SCHEMA.STATISTICS WHERE table_schema=DATABASE()" +
-                        " AND table_name='responses' AND index_name='inserted_1';";
-                rs = Query.prepare(query).executeQuery();
+            }
+            query = "SELECT COUNT(1) IndexExists FROM INFORMATION_SCHEMA.STATISTICS WHERE table_schema=DATABASE()" +
+                    " AND table_name='responses' AND index_name='inserted_1';";
+            try(ResultSet rs = Query.prepare(query).executeQuery()) {
                 while (rs.next()) {
                     id = rs.getInt("IndexExists");
                 }
@@ -327,10 +332,11 @@ public class MySqlVPN implements VPNDatabase {
                 }
                 id = 0;
             }
-            whitelistedIpsIndex: {
-                query = "SELECT COUNT(1) IndexExists FROM INFORMATION_SCHEMA.STATISTICS WHERE table_schema=DATABASE()" +
-                        " AND table_name='whitelisted-ips' AND index_name='ip_1';";
-                rs = Query.prepare(query).executeQuery();
+
+            //Whitelisted IPs index
+            query = "SELECT COUNT(1) IndexExists FROM INFORMATION_SCHEMA.STATISTICS WHERE table_schema=DATABASE()" +
+                    " AND table_name='whitelisted-ips' AND index_name='ip_1';";
+            try(ResultSet rs = Query.prepare(query).executeQuery()) {
                 while (rs.next()) {
                     id = rs.getInt("IndexExists");
                 }
