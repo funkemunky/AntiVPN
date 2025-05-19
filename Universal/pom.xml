@@ -22,21 +22,25 @@
             <groupId>dev.brighten.antivpn</groupId>
             <artifactId>Common</artifactId>
             <version>${project.version}</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>dev.brighten.antivpn</groupId>
             <artifactId>Bukkit</artifactId>
             <version>${project.version}</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>dev.brighten.antivpn</groupId>
             <artifactId>Bungee</artifactId>
             <version>${project.version}</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>dev.brighten.antivpn</groupId>
             <artifactId>Velocity</artifactId>
             <version>${project.version}</version>
+            <scope>compile</scope>
         </dependency>
         <!-- Uncomment when complete -->
         <!--<dependency>
@@ -72,10 +76,6 @@
                                 <relocation>
                                     <pattern>org.bstats</pattern>
                                     <shadedPattern>dev.brighten.antivpn.shaded.org.bstats</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>com.google</pattern>
-                                    <shadedPattern>dev.brighten.antivpn.shaded.com.google</shadedPattern>
                                 </relocation>
                                 <!-- Add other relocations from Common/pom.xml -->
                             </relocations>

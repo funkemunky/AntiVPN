@@ -1,8 +1,7 @@
 package dev.brighten.antivpn.database.sql.utils;
 
-import lombok.SneakyThrows;
-
 import java.sql.Connection;
+import java.sql.SQLException;
 
 public class Query {
     private static Connection conn;
@@ -11,15 +10,11 @@ public class Query {
         Query.conn = conn;
     }
 
-    @SneakyThrows
     public static ExecutableStatement prepare(String query) {
-        return new ExecutableStatement(conn.prepareStatement(query));
-    }
-
-
-
-    @SneakyThrows
-    public static ExecutableStatement prepare(String query, Connection con) {
-        return new ExecutableStatement(con.prepareStatement(query));
+        try {
+            return new ExecutableStatement(conn.prepareStatement(query));
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

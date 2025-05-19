@@ -58,15 +58,6 @@
                                     </excludes>
                                 </relocation>
                                 <relocation>
-                                    <pattern>com.google</pattern>
-                                    <shadedPattern>dev.brighten.antivpn.shaded.com.google</shadedPattern>
-                                    <excludes>
-                                        <!-- Exclude annotation values from relocation -->
-                                        <exclude>dev.brighten.antivpn.depends.Relocate</exclude>
-                                        <exclude>dev.brighten.antivpn.depends.MavenLibraries</exclude>
-                                    </excludes>
-                                </relocation>
-                                <relocation>
                                     <pattern>org.h2</pattern>
                                     <shadedPattern>dev.brighten.antivpn.shaded.org.h2</shadedPattern>
                                     <excludes>
