@@ -12,7 +12,7 @@ public class FunkemunkyAPI {
 
     /**
      *
-     * Queries https://funkemunky.cc/vpn API and returns information on the IP
+     * Queries <a href="https://funkemunky.cc/vpn">...</a> API and returns information on the IP
      *
      * @param ip String
      * @param license String
@@ -25,7 +25,7 @@ public class FunkemunkyAPI {
             throws JSONException, IOException {
         JSONObject result = JsonReader.readJsonFromUrl(String
                 .format("https://funkemunky.cc/vpn?ip=%s&license=%s&cache=%s",
-                        ip, license.length() == 0 ? "none" : license, cachedResults));
+                        ip, license.isEmpty() ? "none" : license, cachedResults));
 
         return VPNResponse.fromJson(result);
     }
@@ -43,7 +43,7 @@ public class FunkemunkyAPI {
     }
 
     /**
-     * Queries https://funkemunky.cc/vpn/queryCheck and returns information based on the
+     * Queries <a href="https://funkemunky.cc/vpn/queryCheck">...</a> and returns information based on the
      * provided licence input.
      *
      * @param license String

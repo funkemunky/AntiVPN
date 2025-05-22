@@ -7,7 +7,7 @@ import lombok.Data;
 
 
 /**
- * Used to format the JSON response from https://funkemunky.cc/vpn/queryCheck into an object for project use.
+ * Used to format the JSON response from <a href="https://funkemunky.cc/vpn/queryCheck">...</a> into an object for project use.
  */
 @Data
 @Builder(toBuilder = true)
@@ -19,18 +19,7 @@ public class QueryResponse {
     private long queriesMax;
 
     /**
-     * Takes a JSON String and feeds it into {@link QueryResponse#fromJson(JSONObject)}
-     *
-     * @param jsonString String (formatted in JSON)
-     * @return QueryResponse
-     * @throws JSONException Throws when JSON is not formatted properly.
-     */
-    public static QueryResponse fromJson(String jsonString) throws JSONException {
-        return fromJson(new JSONObject(jsonString));
-    }
-
-    /**
-     * Formats response from https://funkemunky.cc/vpn/queryCheck into {@link QueryResponse} for project use.
+     * Formats response from <a href="https://funkemunky.cc/vpn/queryCheck">...</a> into {@link QueryResponse} for project use.
      *
      * @param object JSONObject
      * @return QueryResponse
