@@ -31,6 +31,12 @@
             <version>1.9.4-DEV</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>2.0.17</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
     <properties>
