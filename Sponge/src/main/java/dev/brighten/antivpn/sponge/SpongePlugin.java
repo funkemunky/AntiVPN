@@ -4,49 +4,52 @@ import com.google.inject.Inject;
 import dev.brighten.antivpn.AntiVPN;
 import lombok.Getter;
 import org.spongepowered.api.Server;
-import org.spongepowered.api.config.ConfigDir;
+import org.apache.logging.log4j.Logger;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.config.ConfigManager;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.lifecycle.StartedEngineEvent;
-import org.spongepowered.api.event.lifecycle.StoppingEngineEvent;
+import org.spongepowered.api.event.lifecycle.*;
 import org.spongepowered.plugin.PluginContainer;
 import org.spongepowered.plugin.builtin.jvm.Plugin;
 
 import java.nio.file.Path;
-import org.slf4j.Logger;
 
 @Plugin("kaurivpn")
 @Getter
 public class SpongePlugin {
 
-    public static SpongePlugin INSTANCE;
-
     //Plugin init
-    @Inject
-    private PluginContainer plugin;
+    private final PluginContainer container;
+    private final Logger logger;
 
     @Inject
-    private Logger logger;
-
-    @Inject
-    @ConfigDir(sharedRoot = false)
-    private Path configDir;
+    SpongePlugin(final PluginContainer container, final Logger logger) {
+        this.container = container;
+        this.logger = logger;
+    }
 
 
     @Listener
-    public void onServerStart(final StartedEngineEvent<Server> event) {
-        INSTANCE = this;
-
-        logger.info("Starting AntiVPN services...");
+    public void onServerStart(final ConstructPluginEvent event) {
         //Start AntiVPN
 
+        ConfigManager configManager = Sponge.game().configManager();
         SpongeListener spongeListener = new SpongeListener();
 
-        AntiVPN.start(spongeListener, new SpongePlayerExecutor(), configDir.toFile());
+        var path = configManager.sharedConfig(container).directory();
+
+        logger.info("Fucking path: " + path);
+
+        AntiVPN.start(spongeListener, new SpongePlayerExecutor(), path.toFile());
     }
 
     @Listener
-    public void onServer(final StoppingEngineEvent<?> event) {
+    public void onServer(final StoppingEngineEvent<Server> event) {
         AntiVPN.getInstance().getExecutor().disablePlugin();
+    }
+
+    public static SpongePlugin getInstance() {
+        return (SpongePlugin) Sponge.pluginManager().plugin("kaurivpn").get();
     }
 
 }

@@ -19,10 +19,10 @@ public class SpongeListener extends VPNExecutor {
     @Listener(order = Order.EARLY)
     public void onJoin(ServerSideConnectionEvent.Auth event) {
         AtomicReference<APIPlayer> player = new AtomicReference<>(AntiVPN.getInstance().getPlayerExecutor()
-                .getPlayer(event.connection().profile().uuid())
+                .getPlayer(event.profile().uuid())
                 .orElse(new OfflinePlayer(
-                        event.connection().profile().uuid(),
-                        event.connection().profile().name().orElse("Unknown"),
+                        event.profile().uuid(),
+                        event.profile().name().orElse("Unknown"),
                         event.connection().address().getAddress()
                 )));
 
@@ -66,17 +66,17 @@ public class SpongeListener extends VPNExecutor {
 
     @Override
     public void registerListeners() {
-        Sponge.eventManager().registerListeners(SpongePlugin.INSTANCE.getPlugin(), this);
+        Sponge.eventManager().registerListeners(SpongePlugin.getInstance().getContainer(), this);
     }
 
     @Override
     public void log(Level level, String log, Object... objects) {
         if (level.equals(Level.SEVERE)) {
-            SpongePlugin.INSTANCE.getLogger().error(String.format(log, objects));
+            SpongePlugin.getInstance().getLogger().error(String.format(log, objects));
         } else if (level.equals(Level.WARNING)) {
-            SpongePlugin.INSTANCE.getLogger().warn(String.format(log, objects));
+            SpongePlugin.getInstance().getLogger().warn(String.format(log, objects));
         } else {
-            SpongePlugin.INSTANCE.getLogger().info(String.format(log, objects));
+            SpongePlugin.getInstance().getLogger().info(String.format(log, objects));
         }
     }
 
@@ -87,7 +87,7 @@ public class SpongeListener extends VPNExecutor {
 
     @Override
     public void logException(String message, Throwable ex) {
-        SpongePlugin.INSTANCE.getLogger().error(message, ex);
+        SpongePlugin.getInstance().getLogger().error(message, ex);
     }
 
     @Override

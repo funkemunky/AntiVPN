@@ -1,10 +1,7 @@
 package dev.brighten.antivpn.bungee;
 
 import dev.brighten.antivpn.AntiVPN;
-import dev.brighten.antivpn.api.APIPlayer;
-import dev.brighten.antivpn.api.CheckResult;
-import dev.brighten.antivpn.api.OfflinePlayer;
-import dev.brighten.antivpn.api.VPNExecutor;
+import dev.brighten.antivpn.api.*;
 import dev.brighten.antivpn.utils.MiscUtils;
 import dev.brighten.antivpn.utils.StringUtil;
 import dev.brighten.antivpn.utils.Tuple;
@@ -79,7 +76,7 @@ public class BungeeListener extends VPNExecutor implements Listener {
         CheckResult instantResult = player.checkPlayer(result -> {
             if (!result.resultType().isShouldBlock()) return;
             AntiVPN.getInstance().getExecutor().getToKick()
-                    .add(new Tuple<>(result, event.getConnection().getUniqueId()));
+                    .add(new Tuple<>(result, player.getUuid()));
         });
 
         if (!instantResult.resultType().isShouldBlock()) {

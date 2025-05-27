@@ -73,8 +73,8 @@ public class MiscUtils {
             JSONObject object = JsonReader
                     .readJsonFromUrl("https://funkemunky.cc/mojang/uuid?name=" + playername);
 
-            if(object.has("id")) {
-                return formatFromMojangUUID(object.getString("uuid"));
+            if(object.has("uuid")) {
+                return UUID.fromString(object.getString("uuid"));
             }
         } catch (IOException | JSONException e) {
             AntiVPN.getInstance().getExecutor().logException("Error while looking up UUID for " + playername, e);

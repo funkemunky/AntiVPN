@@ -58,6 +58,10 @@
                                     </excludes>
                                 </relocation>
                                 <relocation>
+                                    <pattern>com.github.benmanes.caffeine</pattern>
+                                    <shadedPattern>dev.brighten.antivpn.com.github.benmanes.caffeine</shadedPattern>
+                                </relocation>
+                                <relocation>
                                     <pattern>org.h2</pattern>
                                     <shadedPattern>dev.brighten.antivpn.shaded.org.h2</shadedPattern>
                                     <excludes>
@@ -159,7 +163,7 @@
             <groupId>com.github.ben-manes.caffeine</groupId>
             <artifactId>caffeine</artifactId>
             <version>3.1.8</version>
-            <scope> compile</scope>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>

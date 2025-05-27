@@ -47,6 +47,7 @@ import java.util.List;
                 @Relocate(from = "com.my\\" + "sql.jdbc", to = "dev.brighten.antivpn.shaded.com.mysql.jdbc")
         }
 )
+@MavenLibrary(groupId = "com.github.ben-manes.caffeine", artifactId = "caffeine", version = "3.1.8")
 public class AntiVPN {
 
     private static AntiVPN INSTANCE;
