@@ -90,6 +90,8 @@ public abstract class APIPlayer {
                         checkResult = new CheckResult(result, ResultType.ALLOWED);
                     }
 
+                    AntiVPN.getInstance().getExecutor().log(Level.FINE, "Result for " + ip.getHostAddress() + " is " + checkResult.resultType());
+
                     checkResultCache.put(ip.getHostAddress(), checkResult);
                     onKick.accept(checkResult);
                     AntiVPN.getInstance().checked++;

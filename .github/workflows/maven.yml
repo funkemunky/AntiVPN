@@ -29,5 +29,10 @@ jobs:
       - name: Upload AntiVPN
         uses: actions/upload-artifact@v4
         with:
-          name: AntiVPN
+          name: AntiVPN-Universal
           path: Universal/target/AntiVPN-*.jar
+      - name: Upload Sponge plugin
+        uses: actions/upload-artifact@v4
+        with:
+          name: AntiVPN-Sponge
+          path: Sponge/target/Sponge-*.jar

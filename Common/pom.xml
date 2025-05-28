@@ -59,7 +59,7 @@
                                 </relocation>
                                 <relocation>
                                     <pattern>com.github.benmanes.caffeine</pattern>
-                                    <shadedPattern>dev.brighten.antivpn.com.github.benmanes.caffeine</shadedPattern>
+                                    <shadedPattern>dev.brighten.antivpn.shaded.com.github.benmanes.caffeine</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>org.h2</pattern>

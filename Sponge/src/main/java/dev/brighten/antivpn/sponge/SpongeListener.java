@@ -17,7 +17,7 @@ import java.util.logging.Level;
 public class SpongeListener extends VPNExecutor {
 
     @Listener(order = Order.EARLY)
-    public void onJoin(ServerSideConnectionEvent.Auth event) {
+    public void onJoin(ServerSideConnectionEvent.Login event) {
         AtomicReference<APIPlayer> player = new AtomicReference<>(AntiVPN.getInstance().getPlayerExecutor()
                 .getPlayer(event.profile().uuid())
                 .orElse(new OfflinePlayer(
@@ -42,6 +42,8 @@ public class SpongeListener extends VPNExecutor {
             return;
         }
 
+        AntiVPN.getInstance().getExecutor().log(Level.INFO, "%s was kicked from cache with IP %s", player.get().getName(), instantResult.response().getIp());
+
         event.setCancelled(true);
         switch (instantResult.resultType()) {
             case DENIED_PROXY -> {
@@ -62,6 +64,12 @@ public class SpongeListener extends VPNExecutor {
                                     .replace("%country%", instantResult.response().getCountryName())
                                     .replace("%code%", instantResult.response().getCountryCode()))));
         }
+    }
+
+    @Listener
+    public void onPlayerDisconnect(ServerSideConnectionEvent.Disconnect event) {
+        event.profile().ifPresent(profile ->
+                AntiVPN.getInstance().getPlayerExecutor().unloadPlayer(profile.uuid()));
     }
 
     @Override

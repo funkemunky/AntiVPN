@@ -62,7 +62,7 @@ public class BukkitListener extends VPNExecutor implements Listener {
                 .orElse(new OfflinePlayer(
                         event.getPlayer().getUniqueId(),
                         event.getPlayer().getName(),
-                        event.getRealAddress()
+                        event.getAddress()
                 ));
 
         CheckResult instantResult = player.checkPlayer(result -> {
@@ -80,6 +80,8 @@ public class BukkitListener extends VPNExecutor implements Listener {
         if(!AntiVPN.getInstance().getVpnConfig().kickPlayersOnDetect()) {
             return;
         }
+
+        AntiVPN.getInstance().getExecutor().log(Level.INFO, "%s was kicked from pre-login cache with IP %s", event.getPlayer().getName(), instantResult.response().getIp());
 
         event.setResult(PlayerLoginEvent.Result.KICK_BANNED);
         switch (instantResult.resultType()) {
