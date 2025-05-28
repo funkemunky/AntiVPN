@@ -17,7 +17,8 @@ jobs:
         with:
           java-version: '17'
           distribution: 'zulu'
-          cache: maven
+          cache: 'maven'
+          cache-dependency-path: '**/pom.xml'  # Add this line
       - name: Set up Maven
         uses: stCarolas/setup-maven@v5
         with:
