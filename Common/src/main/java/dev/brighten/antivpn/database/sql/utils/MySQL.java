@@ -75,6 +75,9 @@ public class MySQL {
             } else {
                 AntiVPN.getInstance().getExecutor().logException("Failed to load H2 database: " + ex.getCause().toString(), ex);
             }
+        } catch (Exception e) {
+            AntiVPN.getInstance().getExecutor().logException("Failed to load H2 database: " + e.getMessage(), e);
+            AntiVPN.getInstance().getExecutor().log(Level.INFO, "TIP: Try deleting the plugin folder and restarting your server!");
         }
     }
 

@@ -42,12 +42,6 @@
             <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
-        <!-- Uncomment when complete -->
-        <!--<dependency>
-            <groupId>dev.brighten.antivpn</groupId>
-            <artifactId>Sponge</artifactId>
-            <version>${project.version}</version>
-        </dependency>-->
     </dependencies>
 
     <build>
@@ -76,6 +70,10 @@
                                 <relocation>
                                     <pattern>org.bstats</pattern>
                                     <shadedPattern>dev.brighten.antivpn.shaded.org.bstats</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.objectweb</pattern>
+                                    <shadedPattern>dev.brighten.antivpn.shaded.org.objectweb</shadedPattern>
                                 </relocation>
                                 <!-- Add other relocations from Common/pom.xml -->
                             </relocations>

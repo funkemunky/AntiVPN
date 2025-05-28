@@ -12,12 +12,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
+          java-version: '21'
           distribution: 'zulu'
-          cache: maven
+          cache: 'maven'
+          cache-dependency-path: '**/pom.xml'  # Add this line
       - name: Set up Maven
         uses: stCarolas/setup-maven@v5
         with:
@@ -29,5 +30,10 @@ jobs:
       - name: Upload AntiVPN
         uses: actions/upload-artifact@v4
         with:
-          name: AntiVPN
+          name: AntiVPN-Universal
           path: Universal/target/AntiVPN-*.jar
+      - name: Upload Sponge plugin
+        uses: actions/upload-artifact@v4
+        with:
+          name: AntiVPN-Sponge
+          path: Sponge/target/Sponge-*.jar
