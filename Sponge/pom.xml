@@ -16,6 +16,10 @@
             <id>spongepowered-repo</id>
             <url>https://repo.spongepowered.org/maven/</url>
         </repository>
+        <repository>
+            <id>funkemunky-releases</id>
+            <url>https://nexus.funkemunky.cc/content/repositories/releases/</url>
+        </repository>
     </repositories>
 
     <dependencies>
