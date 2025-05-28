@@ -7,6 +7,7 @@ import dev.brighten.antivpn.api.PlayerExecutor;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -49,6 +50,7 @@ public class SpongePlayerExecutor implements PlayerExecutor {
 
     @Override
     public List<APIPlayer> getOnlinePlayers() {
+        if(!Sponge.game().isServerAvailable()) return Collections.emptyList();
         return Sponge.server().onlinePlayers()
                 .stream()
                 .map(pl -> {

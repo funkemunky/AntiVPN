@@ -54,7 +54,10 @@ public abstract class APIPlayer {
         CheckResult cachedResult = checkResultCache.getIfPresent(ip.getHostAddress());
 
         if(cachedResult != null) {
-            return cachedResult;
+            if(cachedResult.response().getIp().equals(ip.getHostAddress())) {
+                AntiVPN.getInstance().getExecutor().log(Level.FINE, "Cached result for " + ip.getHostAddress() + " is " + cachedResult.resultType());
+                return cachedResult;
+            }
         }
 
         AntiVPN.getInstance().getExecutor().checkIp(ip.getHostAddress())

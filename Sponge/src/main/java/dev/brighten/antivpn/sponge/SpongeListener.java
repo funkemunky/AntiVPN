@@ -101,6 +101,6 @@ public class SpongeListener extends VPNExecutor {
 
     @Override
     public void disablePlugin() {
-        Sponge.eventManager().unregisterListeners(this);
+        AntiVPN.getInstance().getExecutor().log(Level.INFO, "Disabling listeners for plugin...");
     }
 }

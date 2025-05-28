@@ -55,14 +55,20 @@ import java.util.jar.JarOutputStream;
 public final class LibraryLoader {
 
     @SuppressWarnings("Guava")
-    private static final Supplier<URLClassLoaderAccess> URL_INJECTOR = Suppliers.memoize(() ->
-            URLClassLoaderAccess.create((URLClassLoader) AntiVPN.getInstance().getClass().getClassLoader()));
+    private static final Supplier<URLClassLoaderAccess> URL_INJECTOR = AntiVPN.getInstance().getClass().getClassLoader() instanceof URLClassLoader ?
+            Suppliers.memoize(() ->
+                    URLClassLoaderAccess.create((URLClassLoader) AntiVPN.getInstance().getClass().getClassLoader()))
+            : null;
 
     public static void loadAll(Object object) {
+        if(URL_INJECTOR == null)
+            return;
         loadAll(object.getClass());
     }
 
     public static void loadAll(Class<?> clazz) {
+        if(URL_INJECTOR == null)
+            return;
         MavenLibrary[] libs = clazz.getDeclaredAnnotationsByType(MavenLibrary.class);
 
         for (MavenLibrary lib : libs) {
