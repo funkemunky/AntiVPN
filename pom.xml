@@ -13,9 +13,9 @@
         <module>Common</module>
         <module>Bungee</module>
         <module>Bukkit</module>
-        <module>Assembly</module>
         <module>Velocity</module>
         <module>Sponge</module>
+        <module>Universal</module>
     </modules>
 
     <properties>
@@ -53,10 +53,6 @@
     </build>
 
     <repositories>
-        <repository>
-            <id>spigot-repo</id>
-            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
-        </repository>
         <repository>
             <id>funkemunky-releases</id>
             <url>https://nexus.funkemunky.cc/content/repositories/releases/</url>

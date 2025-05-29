@@ -38,7 +38,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.5.0</version>
+                <version>3.6.0</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -51,14 +51,60 @@
                                 <relocation>
                                     <pattern>org.yaml.snakeyaml</pattern>
                                     <shadedPattern>dev.brighten.antivpn.shaded.org.yaml.snakeyaml</shadedPattern>
+                                    <excludes>
+                                        <!-- Exclude annotation values from relocation -->
+                                        <exclude>dev.brighten.antivpn.depends.Relocate</exclude>
+                                        <exclude>dev.brighten.antivpn.depends.MavenLibraries</exclude>
+                                    </excludes>
                                 </relocation>
                                 <relocation>
-                                    <pattern>com.google.common</pattern>
-                                    <shadedPattern>dev.brighten.antivpn.shaded.com.google.common</shadedPattern>
+                                    <pattern>com.github.benmanes.caffeine</pattern>
+                                    <shadedPattern>dev.brighten.antivpn.shaded.com.github.benmanes.caffeine</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>org.h2</pattern>
                                     <shadedPattern>dev.brighten.antivpn.shaded.org.h2</shadedPattern>
+                                    <excludes>
+                                        <!-- Exclude annotation values from relocation -->
+                                        <exclude>dev.brighten.antivpn.depends.Relocate</exclude>
+                                        <exclude>dev.brighten.antivpn.depends.MavenLibraries</exclude>
+                                    </excludes>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.bson</pattern>
+                                    <shadedPattern>dev.brighten.antivpn.shaded.org.bson</shadedPattern>
+                                    <excludes>
+                                        <!-- Exclude annotation values from relocation -->
+                                        <exclude>dev.brighten.antivpn.depends.Relocate</exclude>
+                                        <exclude>dev.brighten.antivpn.depends.MavenLibraries</exclude>
+                                    </excludes>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.mongodb</pattern>
+                                    <shadedPattern>dev.brighten.antivpn.shaded.com.mongodb</shadedPattern>
+                                    <excludes>
+                                        <!-- Exclude annotation values from relocation -->
+                                        <exclude>dev.brighten.antivpn.depends.Relocate</exclude>
+                                        <exclude>dev.brighten.antivpn.depends.MavenLibraries</exclude>
+                                    </excludes>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.mysql.cj</pattern>
+                                    <shadedPattern>dev.brighten.antivpn.shaded.com.mysql.cj</shadedPattern>
+                                    <excludes>
+                                        <!-- Exclude annotation values from relocation -->
+                                        <exclude>dev.brighten.antivpn.depends.Relocate</exclude>
+                                        <exclude>dev.brighten.antivpn.depends.MavenLibraries</exclude>
+                                    </excludes>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.mysql.jdbc</pattern>
+                                    <shadedPattern>dev.brighten.antivpn.shaded.com.mysql.jdbc</shadedPattern>
+                                    <excludes>
+                                        <!-- Exclude annotation values from relocation -->
+                                        <exclude>dev.brighten.antivpn.depends.Relocate</exclude>
+                                        <exclude>dev.brighten.antivpn.depends.MavenLibraries</exclude>
+                                    </excludes>
                                 </relocation>
                             </relocations>
                         </configuration>
@@ -88,16 +134,36 @@
             <version>3.48.0.0</version>
         </dependency>
         <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>2.2.220</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm</artifactId>
+            <version>9.8</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm-commons</artifactId>
+            <version>9.8</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
             <groupId>org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
             <version>2.2</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>32.1.3-jre</version>
+            <groupId>com.github.ben-manes.caffeine</groupId>
+            <artifactId>caffeine</artifactId>
+            <version>3.1.8</version>
+            <scope>provided</scope>
         </dependency>
+
         <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongo-java-driver</artifactId>

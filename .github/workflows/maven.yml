@@ -7,16 +7,27 @@ on:
  
 jobs:
   build:
+    name: Build and Test
     runs-on: ubuntu-latest
- 
+
     steps:
+      - name: Cache local Maven repository
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
       - uses: actions/checkout@v4
-      - name: Set up JDK 17.0.2
+      - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
-          java-version: 17.0
+          java-version: '21'
           distribution: 'zulu'
-          cache: 'maven'
+      - name: Set up Maven
+        uses: stCarolas/setup-maven@v5
+        with:
+          maven-version: 3.9.6
       - name: Compile
         run: mvn -B package --file pom.xml
         env:
@@ -24,5 +35,10 @@ jobs:
       - name: Upload AntiVPN
         uses: actions/upload-artifact@v4
         with:
-          name: AntiVPN
-          path: Assembly/target/Assembly-*.jar
+          name: AntiVPN-Universal
+          path: Universal/target/AntiVPN-*.jar
+      - name: Upload Sponge plugin
+        uses: actions/upload-artifact@v4
+        with:
+          name: AntiVPN-Sponge
+          path: Sponge/target/Sponge-*.jar

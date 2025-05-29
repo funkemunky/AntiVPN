@@ -55,28 +55,31 @@ public class LookupCommand extends Command {
 
         Optional<APIPlayer> player = AntiVPN.getInstance().getPlayerExecutor().getPlayer(args[0]);
 
-        if(!player.isPresent()) {
+        if(player.isEmpty()) {
             return String.format("&cNo player found with the name \"%s\"", args[0]);
         }
 
-        AntiVPN.getInstance().getExecutor().checkIp(player.get().getIp().getHostAddress(),
-                false, result -> {
-            if(!result.isSuccess()) {
-                executor.sendMessage("&cThere was an error trying to find the information of this player.");
-            } else {
-                executor.sendMessage(StringUtil.line("&8"));
-                executor.sendMessage("&6&l" + player.get().getName() + "&7&l's Connection Information");
-                executor.sendMessage("");
-                executor.sendMessage("&e%s&8: &f%s", "Proxy", result.isProxy()
-                        ? "&a" + result.getMethod() : "&cNo");
-                executor.sendMessage("&e%s&8: &f%s", "ISP", result.getIsp());
-                executor.sendMessage("&e%s&8: &f%s", "Country", result.getCountryName());
-                executor.sendMessage("&e%s&8: &f%s", "City", result.getCity());
-                executor.sendMessage("&e%s&8: &f%s", "Coordinates", result.getLatitude()
-                        + "&7/&f" + result.getLongitude());
-                executor.sendMessage(StringUtil.line("&8"));
-            }
-        });
+        AntiVPN.getInstance().getExecutor()
+                .checkIp(player.get().getIp().getHostAddress())
+                .thenAccept(result -> {
+                    if(!result.isSuccess()) {
+                        executor.sendMessage("&cThere was an error trying to find the " +
+                                "information of this player.");
+                        return;
+                    }
+
+                    executor.sendMessage(StringUtil.line("&8"));
+                    executor.sendMessage("&6&l" + player.get().getName() + "&7&l's Connection Information");
+                    executor.sendMessage("");
+                    executor.sendMessage("&e%s&8: &f%s", "Proxy", result.isProxy()
+                            ? "&a" + result.getMethod() : "&cNo");
+                    executor.sendMessage("&e%s&8: &f%s", "ISP", result.getIsp());
+                    executor.sendMessage("&e%s&8: &f%s", "Country", result.getCountryName());
+                    executor.sendMessage("&e%s&8: &f%s", "City", result.getCity());
+                    executor.sendMessage("&e%s&8: &f%s", "Coordinates", result.getLatitude()
+                            + "&7/&f" + result.getLongitude());
+                    executor.sendMessage(StringUtil.line("&8"));
+                });
 
 
         return "&7Looking up the IP information for player " + player.get().getName() + "...";
