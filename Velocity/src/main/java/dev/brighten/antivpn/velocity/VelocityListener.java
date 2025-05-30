@@ -92,37 +92,37 @@ public class VelocityListener extends VPNExecutor {
                                     .replace("%city%",
                                             result.getCity())));
 
-        if(deniedOnLogin) return;
+        if (deniedOnLogin) return;
 
         //In case the user wants to run their own commands instead of using the
         // built in kicking
 
-        if(AntiVPN.getInstance().getVpnConfig().kickPlayersOnDetect()) {
+        if (AntiVPN.getInstance().getVpnConfig().kickPlayersOnDetect()) {
             switch (checkResult.resultType()) {
                 case DENIED_PROXY -> VelocityPlugin.INSTANCE.getServer().getScheduler()
-                            .buildTask(VelocityPlugin.INSTANCE, () ->
-                                    event.getPlayer().disconnect(LegacyComponentSerializer.builder()
-                                            .character('&')
-                                            .build().deserialize(AntiVPN.getInstance().getVpnConfig()
-                                                    .getKickString()
-                                                    .replace("%player%", event.getPlayer().getUsername())
-                                                    .replace("%country%", result.getCountryName())
-                                                    .replace("%code%", result.getCountryCode()))))
-                            .delay(1, TimeUnit.SECONDS).schedule();
+                        .buildTask(VelocityPlugin.INSTANCE, () ->
+                                event.getPlayer().disconnect(LegacyComponentSerializer.builder()
+                                        .character('&')
+                                        .build().deserialize(AntiVPN.getInstance().getVpnConfig()
+                                                .getKickString()
+                                                .replace("%player%", event.getPlayer().getUsername())
+                                                .replace("%country%", result.getCountryName())
+                                                .replace("%code%", result.getCountryCode()))))
+                        .delay(1, TimeUnit.SECONDS).schedule();
                 case DENIED_COUNTRY -> VelocityPlugin.INSTANCE.getServer().getScheduler()
-                            .buildTask(VelocityPlugin.INSTANCE, () ->
-                                    event.getPlayer().disconnect(LegacyComponentSerializer.builder()
-                                            .character('&')
-                                            .build().deserialize(AntiVPN.getInstance().getVpnConfig()
-                                                    .countryVanillaKickReason()
-                                                    .replace("%player%", event.getPlayer().getUsername())
-                                                    .replace("%country%", result.getCountryName())
-                                                    .replace("%code%", result.getCountryCode()))))
-                            .delay(1, TimeUnit.SECONDS).schedule();
+                        .buildTask(VelocityPlugin.INSTANCE, () ->
+                                event.getPlayer().disconnect(LegacyComponentSerializer.builder()
+                                        .character('&')
+                                        .build().deserialize(AntiVPN.getInstance().getVpnConfig()
+                                                .countryVanillaKickReason()
+                                                .replace("%player%", event.getPlayer().getUsername())
+                                                .replace("%country%", result.getCountryName())
+                                                .replace("%code%", result.getCountryCode()))))
+                        .delay(1, TimeUnit.SECONDS).schedule();
             }
         }
 
-        if(!AntiVPN.getInstance().getVpnConfig().runCommands()) return;
+        if (!AntiVPN.getInstance().getVpnConfig().runCommands()) return;
 
         switch (checkResult.resultType()) {
             case DENIED_PROXY -> {
@@ -162,13 +162,10 @@ public class VelocityListener extends VPNExecutor {
                 }
             }
         }
+    }
 
     @Override
     public void shutdown() {
-        if (cacheResetTask != null) {
-            cacheResetTask.cancel();
-            cacheResetTask = null;
-        }
         VelocityPlugin.INSTANCE.getServer().getEventManager().unregisterListener(VelocityPlugin.INSTANCE, this);
         super.shutdown();
     }

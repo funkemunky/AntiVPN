@@ -20,7 +20,7 @@ public class StringUtil {
 
     public static String getHash(String input) {
         try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-128");
+            MessageDigest digest = MessageDigest.getInstance("SHA1");
             byte[] hash = digest.digest(input.getBytes(StandardCharsets.UTF_8));
             StringBuilder hexString = new StringBuilder(2 * hash.length);
             for (byte b : hash) {

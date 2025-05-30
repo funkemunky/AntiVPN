@@ -179,15 +179,16 @@ public class LiteDatabase implements VPNDatabase {
 
     @Override
     public void init() {
-        String url = "jdbc:sqlite:./plugins/AntiVPN/database.db";
+        String url = "jdbc:sqlite:" + AntiVPN.getInstance().getPluginFolder().toPath() +  "/database.db";
 
         try {
+            Class.forName("org.sqlite.JDBC");
             Connection connection = DriverManager.getConnection(url);
             Statement statement = connection.createStatement();
             statement.execute("CREATE TABLE IF NOT EXISTS vpn_responses (ip TEXT, response TEXT)");
-            statement.execute("CREATE TABLE IF NOT EXISTS whitelist (uuid TEXT, NUMBER minimum, NUMBER maximum)");
+            statement.execute("CREATE TABLE IF NOT EXISTS whitelist (uuid TEXT, minimum NUMERIC, maximum NUMERIC)");
             statement.execute("CREATE TABLE IF NOT EXISTS alerts (uuid TEXT)");
-            statement.execute("CREATE TABLE IF NOT EXISTS version (PRIMARY KEY(version) NUMBER, updated STATE)");
+            statement.execute("CREATE TABLE IF NOT EXISTS version (version INTEGER PRIMARY KEY, updated BOOLEAN)");
 
             this.connection = connection;
 
@@ -204,7 +205,7 @@ public class LiteDatabase implements VPNDatabase {
                     AntiVPN.getInstance().getExecutor().logException(e);
                 }
             }
-        } catch (SQLException e) {
+        } catch (SQLException | ClassNotFoundException e) {
             AntiVPN.getInstance().getExecutor().logException(e);
         }
     }

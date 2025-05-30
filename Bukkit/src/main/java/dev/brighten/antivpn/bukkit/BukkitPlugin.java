@@ -4,9 +4,7 @@ import dev.brighten.antivpn.AntiVPN;
 import dev.brighten.antivpn.bukkit.command.BukkitCommand;
 import dev.brighten.antivpn.command.Command;
 import dev.brighten.antivpn.database.VPNDatabase;
-import dev.brighten.antivpn.database.local.H2VPN;
-import dev.brighten.antivpn.database.mongo.MongoVPN;
-import dev.brighten.antivpn.database.sql.MySqlVPN;
+import dev.brighten.antivpn.database.sqllite.LiteDatabase;
 import lombok.Getter;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
@@ -118,14 +116,8 @@ public class BukkitPlugin extends JavaPlugin {
     private String getDatabaseType() {
         VPNDatabase database = AntiVPN.getInstance().getDatabase();
 
-        if(database instanceof H2VPN) {
-            return "H2";
-        } else if(database instanceof MySqlVPN) {
-            return "MySQL";
-        } else if(database instanceof MongoVPN) {
-            return "MongoDB";
-        } else {
-            return "No-Database";
-        }
+        if(database instanceof LiteDatabase) {
+            return "SQLLite";
+        }  return "No-Database";
     }
 }

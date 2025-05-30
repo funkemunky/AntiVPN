@@ -4,8 +4,10 @@ import dev.brighten.antivpn.AntiVPN;
 import dev.brighten.antivpn.api.APIPlayer;
 import dev.brighten.antivpn.command.Command;
 import dev.brighten.antivpn.command.CommandExecutor;
+import dev.brighten.antivpn.utils.CIDRUtils;
 import dev.brighten.antivpn.utils.MiscUtils;
 
+import java.net.UnknownHostException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -62,50 +64,75 @@ public class AllowlistCommand extends Command {
         if(!databaseEnabled) executor.sendMessage("&cThe database is currently not setup, " +
                 "so any changes here will disappear after a restart.");
 
+        CIDRUtils cidrUtils;
+
+        try {
+            cidrUtils = new CIDRUtils(args[1]);
+        } catch(IllegalArgumentException | UnknownHostException e) {
+            cidrUtils = null;
+        }
+
+        if(cidrUtils != null) {
+            if(!databaseEnabled) {
+                return switch (args[0].toLowerCase()) {
+                    case "add", "insert" -> {
+                        AntiVPN.getInstance().getExecutor().getWhitelistedIps().add(cidrUtils.getCidr());
+                        yield String.format("&aAdded &6%s &ato exemption allowlist.", cidrUtils.getCidr());
+                    }
+                    case "remove", "delete" -> {
+                        AntiVPN.getInstance().getExecutor().getWhitelistedIps().remove(cidrUtils.getCidr());
+                        yield String.format("&cRemoved &%s &cfrom the exemption allowlist.", cidrUtils.getCidr());
+                    }
+                    default -> "&c\"" + args[0] + "\" is not a valid argument";
+                };
+            } else return switch (args[0].toLowerCase()) {
+                case "add", "insert" -> {
+                    AntiVPN.getInstance().getExecutor().getWhitelistedIps().add(cidrUtils.getCidr());
+                    AntiVPN.getInstance().getDatabase().addWhitelist(cidrUtils.getCidr());
+                    yield String.format("&aAdded &6%s &ato exemption allowlist.", cidrUtils.getCidr());
+                }
+                case "remove", "delete" -> {
+                    AntiVPN.getInstance().getExecutor().getWhitelistedIps().remove(cidrUtils.getCidr());
+                    AntiVPN.getInstance().getDatabase().removeWhitelist(cidrUtils.getCidr());
+                    yield String.format("&cRemoved &6%s &cfrom the exemption allowlist.", cidrUtils.getCidr());
+                }
+                default -> "&c\"" + args[0] + "\" is not a valid argument";
+            };
+        }
         if(MiscUtils.isIpv4(args[1])) {
             if(!databaseEnabled) {
-                switch(args[0].toLowerCase()) {
-                    case "add":
-                    case "insert": {
-                        AntiVPN.getInstance().getExecutor().getWhitelistedIps().add(args[1]);
-                        AntiVPN.getInstance().getDatabase().removeWhitelist(args[1]);
-                        return String.format("&aAdded &6%s &ato the exemption allowlist.", args[1]);
+                return switch(args[0].toLowerCase()) {
+                    case "add", "insert" -> {
+                        AntiVPN.getInstance().getExecutor().getWhitelistedIps().add(args[1] + "/32");
+                        AntiVPN.getInstance().getDatabase().addWhitelist(args[1] + "/32");
+                        yield String.format("&aAdded &6%s &ato the exemption allowlist.", args[1] + "/32");
                     }
-                    case "remove":
-                    case "delete": {
-                        AntiVPN.getInstance().getExecutor().getWhitelistedIps().remove(args[1]);
-                        AntiVPN.getInstance().getDatabase().removeWhitelist(args[1]);
-                        return String.format("&cRemoved &6%s &cfrom the exemption allowlist.", args[1]);
+                    case "remove", "delete" -> {
+                        AntiVPN.getInstance().getExecutor().getWhitelistedIps().remove(args[1] + "/32");
+                        AntiVPN.getInstance().getDatabase().removeWhitelist(args[1] + "/32");
+                        yield String.format("&cRemoved &6%s &cfrom the exemption allowlist.", args[1] + "/32");
                     }
-                    default: {
-                        return "&c\"" + args[0] + "\" is not a valid argument";
+                    default -> "&c\"" + args[0] + "\" is not a valid argument";
+                };
+            } else return switch (args[0].toLowerCase()) {
+                    case "add", "insert" -> {
+                        AntiVPN.getInstance().getDatabase().addWhitelist(args[1] + "/32");
+                        yield String.format("&aAdded &6%s &a to the exemption allowlist.", args[1] + "/32");
                     }
-                }
-            } else {
-                switch(args[0].toLowerCase()) {
-                    case "add":
-                    case "insert": {
-                        AntiVPN.getInstance().getDatabase().addWhitelist(args[1]);
-                        return String.format("&aAdded &6%s &a to the exemption allowlist.", args[1]);
+                    case "remove", "delete" -> {
+                        AntiVPN.getInstance().getDatabase().removeWhitelist(args[1] + "/32");
+                        yield String.format("&cRemoved &6%s &c from the exemption allowlist.", args[1] + "/32");
                     }
-                    case "remove":
-                    case "delete": {
-                        AntiVPN.getInstance().getDatabase().removeWhitelist(args[1]);
-                        return String.format("&cRemoved &6%s &c from the exemption allowlist.", args[1]);
-                    }
-                    default: {
-                        return "&c\"" + args[0] + "\" is not a valid argument";
-                    }
-                }
-            }
+                    default -> "&c\"" + args[0] + "\" is not a valid argument";
+            };
         } else {
-            UUID uuid = null;
+            UUID uuid;
             try {
                 uuid = UUID.fromString(args[1]);
             } catch(IllegalArgumentException e) {
                 Optional<APIPlayer> player = AntiVPN.getInstance().getPlayerExecutor().getPlayer(args[1]);
 
-                if(!player.isPresent()) {
+                if(player.isEmpty()) {
                     return "&cThe player \"" + args[1] + "\" is not online, so please provide a UUID.";
                 }
 
@@ -113,54 +140,44 @@ public class AllowlistCommand extends Command {
             }
 
             if(!databaseEnabled) {
-                switch(args[0].toLowerCase()) {
-                    case "add": {
+                return switch (args[0].toLowerCase()) {
+                    case "add" -> {
                         AntiVPN.getInstance().getExecutor().getWhitelisted().add(uuid);
-                        return String.format("&aAdded &6%s &auuid to the exemption allowlist.", uuid.toString());
+                        yield String.format("&aAdded &6%s &auuid to the exemption allowlist.", uuid.toString());
                     }
-                    case "remove":
-                    case "delete": {
+                    case "remove", "delete" -> {
                         AntiVPN.getInstance().getExecutor().getWhitelisted().remove(uuid);
-                        return String.format("&cRemoved &6%s &cuuid from the exemption allowlist.", uuid.toString());
+                        yield String.format("&cRemoved &6%s &cuuid from the exemption allowlist.", uuid.toString());
                     }
-                    default: {
-                        return "&c\"" + args[0] + "\" is not a valid argument";
-                    }
-                }
+                    default -> "&c\"" + args[0] + "\" is not a valid argument";
+                };
             } else {
-                switch(args[0].toLowerCase()) {
-                    case "add": {
+                return switch (args[0].toLowerCase()) {
+                    case "add" -> {
                         AntiVPN.getInstance().getDatabase().addWhitelist(uuid);
-                        return String.format("&aAdded &6%s &auuid to the exemption allowlist.", uuid.toString());
+                        yield String.format("&aAdded &6%s &auuid to the exemption allowlist.", uuid.toString());
                     }
-                    case "remove":
-                    case "delete": {
+                    case "remove", "delete" -> {
                         AntiVPN.getInstance().getDatabase().removeWhitelist(uuid);
-                        return String.format("&cRemoved &6%s &cuuid from the exemption allowlist.", uuid.toString());
+                        yield String.format("&cRemoved &6%s &cuuid from the exemption allowlist.", uuid.toString());
                     }
-                    default: {
-                        return "&c\"" + args[0] + "\" is not a valid argument";
-                    }
-                }
+                    default -> "&c\"" + args[0] + "\" is not a valid argument";
+                };
             }
         }
     }
 
     @Override
     public List<String> tabComplete(CommandExecutor executor, String alias, String[] args) {
-        switch(args.length) {
-            case 1: {
-                return Arrays.stream(secondArgs)
-                        .filter(narg -> narg.toLowerCase().startsWith(args[0].toLowerCase()))
-                        .collect(Collectors.toList());
-            }
-            case 2: {
-                return AntiVPN.getInstance().getPlayerExecutor().getOnlinePlayers().stream()
-                        .map(APIPlayer::getName)
-                        .filter(name -> name.toLowerCase().startsWith(args[1].toLowerCase()))
-                        .collect(Collectors.toList());
-            }
-        }
-        return Collections.emptyList();
+        return switch (args.length) {
+            case 1 -> Arrays.stream(secondArgs)
+                    .filter(narg -> narg.toLowerCase().startsWith(args[0].toLowerCase()))
+                    .collect(Collectors.toList());
+            case 2 -> AntiVPN.getInstance().getPlayerExecutor().getOnlinePlayers().stream()
+                    .map(APIPlayer::getName)
+                    .filter(name -> name.toLowerCase().startsWith(args[1].toLowerCase()))
+                    .collect(Collectors.toList());
+            default -> Collections.emptyList();
+        };
     }
 }

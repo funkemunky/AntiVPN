@@ -51,7 +51,7 @@ public class PlanCommand extends Command {
 
     @Override
     public String execute(CommandExecutor executor, String[] args) {
-        VPNExecutor.threadExecutor.execute(() -> {
+        AntiVPN.getInstance().getExecutor().getThreadExecutor().execute(() -> {
             QueryResponse result;
             try {
                 if(AntiVPN.getInstance().getVpnConfig().getLicense().isEmpty()) {

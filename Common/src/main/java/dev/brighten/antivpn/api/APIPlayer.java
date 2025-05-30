@@ -47,7 +47,7 @@ public abstract class APIPlayer {
                 //Is exempt
                 || (uuid != null && AntiVPN.getInstance().getExecutor().isWhitelisted(uuid))
                 //Or has a name that starts with a certain prefix. This is for Bedrock exempting.
-                || AntiVPN.getInstance().getExecutor().isWhitelisted(ip.getHostAddress())
+                || AntiVPN.getInstance().getExecutor().isWhitelisted(ip.getHostAddress() + "/32")
                 || AntiVPN.getInstance().getVpnConfig().getPrefixWhitelists().stream()
                 .anyMatch(name::startsWith)) return new CheckResult(null, ResultType.WHITELISTED);
 
@@ -74,7 +74,7 @@ public abstract class APIPlayer {
                             && !((uuid != null && AntiVPN.getInstance().getExecutor()
                             .isWhitelisted(uuid))
                             //Or has a name that starts with a certain prefix. This is for Bedrock exempting.
-                            || AntiVPN.getInstance().getExecutor().isWhitelisted(ip.getHostAddress()))
+                            || AntiVPN.getInstance().getExecutor().isWhitelisted(ip.getHostAddress() + "/32"))
                             // This bit of code will decide whether or not to kick the player
                             // If it contains the code and it is set to whitelist, it will not kick
                             // as they are equal and vise versa. However, if the contains does not match
