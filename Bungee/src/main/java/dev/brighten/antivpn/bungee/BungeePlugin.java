@@ -3,7 +3,7 @@ package dev.brighten.antivpn.bungee;
 import dev.brighten.antivpn.AntiVPN;
 import dev.brighten.antivpn.bungee.command.BungeeCommand;
 import dev.brighten.antivpn.command.Command;
-import dev.brighten.antivpn.database.VPNDatabase;
+import dev.brighten.antivpn.database.Database;
 import dev.brighten.antivpn.database.sqllite.LiteDatabase;
 import net.md_5.bungee.api.plugin.Plugin;
 import org.bstats.bungeecord.Metrics;
@@ -47,7 +47,7 @@ public class BungeePlugin extends Plugin {
     }
 
     private String getDatabaseType() {
-        VPNDatabase database = AntiVPN.getInstance().getDatabase();
+        Database database = AntiVPN.getInstance().getDatabase();
 
         if(database instanceof LiteDatabase) {
             return "SQLLite";

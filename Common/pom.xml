@@ -80,8 +80,8 @@
                                     </excludes>
                                 </relocation>
                                 <relocation>
-                                    <pattern>com.mongodb</pattern>
-                                    <shadedPattern>dev.brighten.antivpn.shaded.com.mongodb</shadedPattern>
+                                    <pattern>com.mongodb.client</pattern>
+                                    <shadedPattern>dev.brighten.antivpn.shaded.com.mongodb.client</shadedPattern>
                                     <excludes>
                                         <!-- Exclude annotation values from relocation -->
                                         <exclude>dev.brighten.antivpn.depends.Relocate</exclude>
@@ -153,6 +153,12 @@
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
             <version>24.0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongodb-driver-sync</artifactId>
+            <version>5.5.0</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>

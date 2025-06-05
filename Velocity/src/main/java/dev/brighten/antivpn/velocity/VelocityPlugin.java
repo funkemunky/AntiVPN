@@ -9,7 +9,7 @@ import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
 import dev.brighten.antivpn.AntiVPN;
 import dev.brighten.antivpn.command.Command;
-import dev.brighten.antivpn.database.VPNDatabase;
+import dev.brighten.antivpn.database.Database;
 import dev.brighten.antivpn.database.sqllite.LiteDatabase;
 import dev.brighten.antivpn.velocity.command.VelocityCommand;
 import lombok.Getter;
@@ -84,7 +84,7 @@ public class VelocityPlugin {
     }
 
     private String getDatabaseType() {
-        VPNDatabase database = AntiVPN.getInstance().getDatabase();
+        Database database = AntiVPN.getInstance().getDatabase();
 
         if(database instanceof LiteDatabase) {
             return "SQLLite";

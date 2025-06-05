@@ -1,20 +1,23 @@
 package dev.brighten.antivpn.database.sqllite;
 
 import dev.brighten.antivpn.AntiVPN;
-import dev.brighten.antivpn.database.VPNDatabase;
+import dev.brighten.antivpn.database.sqllite.version.Version;
 import dev.brighten.antivpn.utils.CIDRUtils;
 import dev.brighten.antivpn.utils.IpUtils;
 import dev.brighten.antivpn.utils.StringUtil;
 import dev.brighten.antivpn.utils.json.JSONException;
 import dev.brighten.antivpn.web.objects.VPNResponse;
+import org.intellij.lang.annotations.Language;
 
 import java.math.BigDecimal;
 import java.net.UnknownHostException;
 import java.sql.*;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
-public class LiteDatabase implements VPNDatabase {
+@SuppressWarnings("SqlSourceToSinkFlow")
+public class LiteDatabase implements dev.brighten.antivpn.database.Database {
 
     protected Connection connection;
 
@@ -36,7 +39,7 @@ public class LiteDatabase implements VPNDatabase {
         String hashedIp = StringUtil.getHash(toCache.getIp());
 
         try {
-            statement("INSERT INTO vpn_responses (ip, response) VALUES (?, ?)", hashedIp, jsonResponse);
+            statement("INSERT INTO vpn_responses (ip, date, response) VALUES (?, ?, ?)", hashedIp, System.currentTimeMillis(), jsonResponse);
         } catch (SQLException e) {
             AntiVPN.getInstance().getExecutor().logException(e);
         }
@@ -60,6 +63,17 @@ public class LiteDatabase implements VPNDatabase {
             statement("DELETE FROM vpn_responses");
         } catch (SQLException e) {
             AntiVPN.getInstance().getExecutor().logException(e);
+        }
+    }
+
+    @Override
+    public void clearOutdatedResponses() {
+        long cutoffTime = System.currentTimeMillis() - TimeUnit.DAYS.toMillis(7);
+
+        try {
+            statement("DELETE FROM vpn_responses WHERE date < ?", cutoffTime);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -194,12 +208,44 @@ public class LiteDatabase implements VPNDatabase {
         }
     }
 
-    @Override
     public void setupTable() throws SQLException {
-        VPNDatabase.super.setupTable();
+        // Run through updates
+        for (Version version : Version.versions) {
+            try(ResultSet result = query("SELECT * FROM version WHERE version = ?",
+                    version.versionNumber())) {
+                if(!result.next()) {
+                    version.update(this);
+                    statement("INSERT INTO version (version, updated) VALUES (?, ?)",
+                            version.versionNumber(), true);
+                }
+            } catch (SQLException e) {
+                AntiVPN.getInstance().getExecutor().logException(e);
+            }
+        }
     }
 
-    @Override
+    protected ResultSet query(@Language("SQL") String query, Object... args) throws SQLException {
+        try(Connection connection = connection()) {
+            PreparedStatement pstmt = connection.prepareStatement(query);
+            for (int i = 0; i < args.length; i++) {
+                pstmt.setObject(i + 1, args[i]);
+            }
+
+            return pstmt.executeQuery();
+        }
+    }
+
+    protected void statement(@Language("SQL") String query, Object... args) throws SQLException {
+        try(Connection connection = connection()) {
+            PreparedStatement pstmt = connection.prepareStatement(query);
+            for (int i = 0; i < args.length; i++) {
+                pstmt.setObject(i + 1, args[i]);
+            }
+
+            pstmt.execute();
+        }
+    }
+
     public Connection connection() {
         return connection;
     }

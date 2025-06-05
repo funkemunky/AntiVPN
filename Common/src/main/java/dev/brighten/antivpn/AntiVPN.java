@@ -5,7 +5,8 @@ import dev.brighten.antivpn.api.VPNConfig;
 import dev.brighten.antivpn.api.VPNExecutor;
 import dev.brighten.antivpn.command.Command;
 import dev.brighten.antivpn.command.impl.AntiVPNCommand;
-import dev.brighten.antivpn.database.VPNDatabase;
+import dev.brighten.antivpn.database.Database;
+import dev.brighten.antivpn.database.mongodb.MongoDatabase;
 import dev.brighten.antivpn.database.postgres.PostgresDatabase;
 import dev.brighten.antivpn.database.sqllite.LiteDatabase;
 import dev.brighten.antivpn.database.sqllite.version.Version;
@@ -42,13 +43,17 @@ import java.util.List;
         relocations = {
                 @Relocate(from = "org\\.postgresql", to = "dev.brighten.antivpn.shaded.org.postgresql")
         })
+@MavenLibrary(groupId = "com\\.mongodb", artifactId = "driver-sync", version = "5.5.0",
+        relocations = {
+                @Relocate(from = "com\\.mongodb.client", to = "dev.brighten.antivpn.shaded.com.mongodb.client")
+        })
 public class AntiVPN {
 
     private static AntiVPN INSTANCE;
     private VPNConfig vpnConfig;
     private VPNExecutor executor;
     private PlayerExecutor playerExecutor;
-    private VPNDatabase database;
+    private Database database;
     private MessageHandler messageHandler;
     private Configuration config;
     private List<Command> commands = new ArrayList<>();
@@ -94,6 +99,7 @@ public class AntiVPN {
         INSTANCE.database = switch (INSTANCE.vpnConfig.getDatabaseType().toLowerCase()) {
             case "sqlite", "sqllite" -> new LiteDatabase();
             case "postgresql", "postgres" -> new PostgresDatabase();
+            case "mongo", "mongodb" -> new MongoDatabase();
             default ->
                     throw new IllegalStateException("Unexpected database type set at config.yml 'database.type': \""
                             + INSTANCE.vpnConfig.getDatabaseType().toLowerCase() + "\"!" +
