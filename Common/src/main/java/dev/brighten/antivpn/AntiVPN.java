@@ -30,6 +30,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Getter
 @Setter(AccessLevel.PRIVATE)
@@ -128,6 +129,8 @@ public class AntiVPN {
 
         // Starting kick checks
         AntiVPN.getInstance().getExecutor().startKickChecks();
+
+        AntiVPN.getInstance().runSpoiledResponseChecks();
     }
 
     public InputStream getResource(String filename) {
@@ -152,6 +155,15 @@ public class AntiVPN {
     public void stop() {
         executor.shutdown();
         if(database != null) database.shutdown();
+    }
+
+    private void runSpoiledResponseChecks() {
+        if(database == null) return;
+
+        AntiVPN.getInstance().getExecutor().getThreadExecutor().scheduleAtFixedRate(
+                () -> database.clearOutdatedResponses(),
+                0, 30, TimeUnit.MINUTES
+        );
     }
 
     public void reloadDatabase() {
