@@ -47,6 +47,12 @@
             <version>3.48.0.0</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.7.6</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
     <properties>
@@ -121,26 +127,8 @@
                                     </excludes>
                                 </relocation>
                                 <relocation>
-                                    <pattern>com.mongodb</pattern>
-                                    <shadedPattern>dev.brighten.antivpn.shaded.com.mongodb</shadedPattern>
-                                    <excludes>
-                                        <!-- Exclude annotation values from relocation -->
-                                        <exclude>dev.brighten.antivpn.depends.Relocate</exclude>
-                                        <exclude>dev.brighten.antivpn.depends.MavenLibraries</exclude>
-                                    </excludes>
-                                </relocation>
-                                <relocation>
-                                    <pattern>com.mysql.cj</pattern>
-                                    <shadedPattern>dev.brighten.antivpn.shaded.com.mysql.cj</shadedPattern>
-                                    <excludes>
-                                        <!-- Exclude annotation values from relocation -->
-                                        <exclude>dev.brighten.antivpn.depends.Relocate</exclude>
-                                        <exclude>dev.brighten.antivpn.depends.MavenLibraries</exclude>
-                                    </excludes>
-                                </relocation>
-                                <relocation>
-                                    <pattern>com.mysql.jdbc</pattern>
-                                    <shadedPattern>dev.brighten.antivpn.shaded.com.mysql.jdbc</shadedPattern>
+                                    <pattern>org.postgresql</pattern>
+                                    <shadedPattern>dev.brighten.antivpn.shaded.org.postgresql</shadedPattern>
                                     <excludes>
                                         <!-- Exclude annotation values from relocation -->
                                         <exclude>dev.brighten.antivpn.depends.Relocate</exclude>
