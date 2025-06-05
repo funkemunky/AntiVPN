@@ -36,6 +36,7 @@ import java.util.List;
         relocations = {
                 @Relocate(from = "com\\.github\\.benmanes\\.caffeine", to = "dev.brighten.antivpn.shaded.com.github.benmanes.caffeine"),
         })
+@MavenLibrary(groupId = "org\\.postgresql", artifactId = "postgresql", version = "42.7.6")
 public class AntiVPN {
 
     private static AntiVPN INSTANCE;
