@@ -49,7 +49,7 @@ public class VelocityListener extends VPNExecutor {
                         LegacyComponentSerializer.builder()
                                 .character('&')
                                 .build().deserialize(AntiVPN.getInstance().getVpnConfig()
-                                        .countryVanillaKickReason()
+                                        .getCountryVanillaKickReason()
                                         .replace("%player%", event.getPlayer().getUsername())
                                         .replace("%country%", instantResult.response().getCountryName())
                                         .replace("%code%", instantResult.response().getCountryCode()))));
@@ -59,7 +59,7 @@ public class VelocityListener extends VPNExecutor {
                     event.setResult(ResultedEvent.ComponentResult.denied(LegacyComponentSerializer.builder()
                             .character('&')
                             .build().deserialize(AntiVPN.getInstance().getVpnConfig()
-                                    .getKickString()
+                                    .getKickMessage()
                                     .replace("%player%", event.getPlayer().getUsername())
                                     .replace("%country%", instantResult.response().getCountryName())
                                     .replace("%code%", instantResult.response().getCountryCode()))));
@@ -77,12 +77,12 @@ public class VelocityListener extends VPNExecutor {
     private void handleDeniedTasks(LoginEvent event, CheckResult checkResult, boolean deniedOnLogin) {
         VPNResponse result = checkResult.response();
         //Ensuring the user wishes to alert to staff
-        if (AntiVPN.getInstance().getVpnConfig().alertToStaff())
+        if (AntiVPN.getInstance().getVpnConfig().isAlertToStaff())
             AntiVPN.getInstance().getPlayerExecutor().getOnlinePlayers().stream()
                     .filter(APIPlayer::isAlertsEnabled)
                     .forEach(pl ->
                             pl.sendMessage(dev.brighten.antivpn.AntiVPN.getInstance().getVpnConfig()
-                                    .alertMessage()
+                                    .getAlertMsg()
                                     .replace("%player%",
                                             event.getPlayer().getUsername())
                                     .replace("%reason%",
@@ -97,14 +97,14 @@ public class VelocityListener extends VPNExecutor {
         //In case the user wants to run their own commands instead of using the
         // built in kicking
 
-        if (AntiVPN.getInstance().getVpnConfig().kickPlayersOnDetect()) {
+        if (AntiVPN.getInstance().getVpnConfig().isKickPlayers()) {
             switch (checkResult.resultType()) {
                 case DENIED_PROXY -> VelocityPlugin.INSTANCE.getServer().getScheduler()
                         .buildTask(VelocityPlugin.INSTANCE, () ->
                                 event.getPlayer().disconnect(LegacyComponentSerializer.builder()
                                         .character('&')
                                         .build().deserialize(AntiVPN.getInstance().getVpnConfig()
-                                                .getKickString()
+                                                .getKickMessage()
                                                 .replace("%player%", event.getPlayer().getUsername())
                                                 .replace("%country%", result.getCountryName())
                                                 .replace("%code%", result.getCountryCode()))))
@@ -114,7 +114,7 @@ public class VelocityListener extends VPNExecutor {
                                 event.getPlayer().disconnect(LegacyComponentSerializer.builder()
                                         .character('&')
                                         .build().deserialize(AntiVPN.getInstance().getVpnConfig()
-                                                .countryVanillaKickReason()
+                                                .getCountryVanillaKickReason()
                                                 .replace("%player%", event.getPlayer().getUsername())
                                                 .replace("%country%", result.getCountryName())
                                                 .replace("%code%", result.getCountryCode()))))
@@ -122,11 +122,11 @@ public class VelocityListener extends VPNExecutor {
             }
         }
 
-        if (!AntiVPN.getInstance().getVpnConfig().runCommands()) return;
+        if (!AntiVPN.getInstance().getVpnConfig().isCommandsEnabled()) return;
 
         switch (checkResult.resultType()) {
             case DENIED_PROXY -> {
-                for (String command : AntiVPN.getInstance().getVpnConfig().commands()) {
+                for (String command : AntiVPN.getInstance().getVpnConfig().getCommands()) {
                     VelocityPlugin.INSTANCE.getServer().getCommandManager()
                             .executeAsync(VelocityPlugin.INSTANCE.getServer()
                                             .getConsoleCommandSource(),
@@ -144,7 +144,7 @@ public class VelocityListener extends VPNExecutor {
                 }
             }
             case DENIED_COUNTRY -> {
-                for (String cmd : AntiVPN.getInstance().getVpnConfig().countryKickCommands()) {
+                for (String cmd : AntiVPN.getInstance().getVpnConfig().getCountryKickCommands()) {
                     final String formattedCommand = StringUtil
                             .translateAlternateColorCodes('&',
                                     StringUtil.varReplace(

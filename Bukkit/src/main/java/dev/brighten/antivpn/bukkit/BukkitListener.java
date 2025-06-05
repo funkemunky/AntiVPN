@@ -77,7 +77,7 @@ public class BukkitListener extends VPNExecutor implements Listener {
         AntiVPN.getInstance().getExecutor().getToKick()
                 .add(new Tuple<>(instantResult, event.getPlayer().getUniqueId()));
 
-        if(!AntiVPN.getInstance().getVpnConfig().kickPlayersOnDetect()) {
+        if(!AntiVPN.getInstance().getVpnConfig().isKickPlayers()) {
             return;
         }
 
@@ -87,25 +87,25 @@ public class BukkitListener extends VPNExecutor implements Listener {
         switch (instantResult.resultType()) {
             case DENIED_COUNTRY -> event.setKickMessage(StringUtil.translateAlternateColorCodes('&',
                     StringUtil.varReplace(
-                            AntiVPN.getInstance().getVpnConfig().countryVanillaKickReason(),
+                            AntiVPN.getInstance().getVpnConfig().getCountryVanillaKickReason(),
                             player,
                             instantResult.response()
                     )));
             case DENIED_PROXY -> {
-                if(AntiVPN.getInstance().getVpnConfig().alertToStaff()) {
+                if(AntiVPN.getInstance().getVpnConfig().isAlertToStaff()) {
                     AntiVPN.getInstance().getPlayerExecutor().getOnlinePlayers().stream()
                             .filter(APIPlayer::isAlertsEnabled)
                             .forEach(pl ->
                                     pl.sendMessage(StringUtil.varReplace(
                                             ChatColor.translateAlternateColorCodes(
                                                     '&',
-                                                    AntiVPN.getInstance().getVpnConfig().alertMessage()),
+                                                    AntiVPN.getInstance().getVpnConfig().getAlertMsg()),
                                             player,
                                             instantResult.response())));
                 }
                 event.setKickMessage(StringUtil.translateAlternateColorCodes('&',
                         StringUtil.varReplace(
-                                AntiVPN.getInstance().getVpnConfig().getKickString(),
+                                AntiVPN.getInstance().getVpnConfig().getKickMessage(),
                                 player,
                                 instantResult.response()
                         )));
@@ -116,16 +116,14 @@ public class BukkitListener extends VPNExecutor implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onJoin(final PlayerJoinEvent event) {
         AntiVPN.getInstance().getPlayerExecutor().getPlayer(event.getPlayer().getUniqueId())
-                .ifPresent(player -> {
-                    AntiVPN.getInstance().getExecutor().getThreadExecutor().execute(() -> {
-                        if(AntiVPN.getInstance().getDatabase().getAlertsState(player.getUuid())) {
-                            player.setAlertsEnabled(true);
-                            player.sendMessage(AntiVPN.getInstance().getMessageHandler()
-                                    .getString("command-alerts-toggled")
-                                    .getFormattedMessage(new VpnString.Var<>("state", true)));
-                        }
-                    });
-                });
+                .ifPresent(player -> AntiVPN.getInstance().getExecutor().getThreadExecutor().execute(() -> {
+                    if(AntiVPN.getInstance().getDatabase().getAlertsState(player.getUuid())) {
+                        player.setAlertsEnabled(true);
+                        player.sendMessage(AntiVPN.getInstance().getMessageHandler()
+                                .getString("command-alerts-toggled")
+                                .getFormattedMessage(new VpnString.Var<>("state", true)));
+                    }
+                }));
     }
 
     @EventHandler

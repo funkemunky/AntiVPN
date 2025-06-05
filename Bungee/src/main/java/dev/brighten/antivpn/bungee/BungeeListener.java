@@ -96,7 +96,7 @@ public class BungeeListener extends VPNExecutor implements Listener {
         AntiVPN.getInstance().getExecutor().getToKick()
                 .add(new Tuple<>(instantResult, player.getUuid()));
 
-        if (!AntiVPN.getInstance().getVpnConfig().kickPlayersOnDetect()) {
+        if (!AntiVPN.getInstance().getVpnConfig().isKickPlayers()) {
             return;
         }
 
@@ -110,13 +110,13 @@ public class BungeeListener extends VPNExecutor implements Listener {
             case DENIED_PROXY -> event.setReason(TextComponent.fromLegacy(ChatColor
                     .translateAlternateColorCodes('&',
                             StringUtil.varReplace(
-                                    AntiVPN.getInstance().getVpnConfig().getKickString(),
+                                    AntiVPN.getInstance().getVpnConfig().getKickMessage(),
                                     player,
                                     instantResult.response()))));
             case DENIED_COUNTRY -> event.setReason(TextComponent.fromLegacy(ChatColor
                     .translateAlternateColorCodes('&',
                             StringUtil.varReplace(
-                                    AntiVPN.getInstance().getVpnConfig().countryVanillaKickReason(),
+                                    AntiVPN.getInstance().getVpnConfig().getCountryVanillaKickReason(),
                                     player,
                                     instantResult.response()))));
         }

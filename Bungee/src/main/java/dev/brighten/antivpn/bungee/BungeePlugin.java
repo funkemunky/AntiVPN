@@ -27,7 +27,7 @@ public class BungeePlugin extends Plugin {
         getProxy().getLogger().info("Starting AntiVPN services...");
         AntiVPN.start(new BungeeListener(), new BungeePlayerExecutor(), getDataFolder());
 
-        if(AntiVPN.getInstance().getVpnConfig().metrics()) {
+        if(AntiVPN.getInstance().getVpnConfig().isMetrics()) {
             getProxy().getLogger().info("Starting bStats metrics...");
             Metrics metrics = new Metrics(this, 12616);
             metrics.addCustomChart(new SimplePie("database_used", this::getDatabaseType));

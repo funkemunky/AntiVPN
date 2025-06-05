@@ -2,13 +2,11 @@ package dev.brighten.antivpn.database.sqllite;
 
 import dev.brighten.antivpn.AntiVPN;
 import dev.brighten.antivpn.database.VPNDatabase;
-import dev.brighten.antivpn.database.sqllite.version.Version;
 import dev.brighten.antivpn.utils.CIDRUtils;
 import dev.brighten.antivpn.utils.IpUtils;
 import dev.brighten.antivpn.utils.StringUtil;
 import dev.brighten.antivpn.utils.json.JSONException;
 import dev.brighten.antivpn.web.objects.VPNResponse;
-import org.intellij.lang.annotations.Language;
 
 import java.math.BigDecimal;
 import java.net.UnknownHostException;
@@ -18,7 +16,7 @@ import java.util.UUID;
 
 public class LiteDatabase implements VPNDatabase {
 
-    private Connection connection;
+    protected Connection connection;
 
     @Override
     public Optional<VPNResponse> getStoredResponse(String ip) {
@@ -55,6 +53,7 @@ public class LiteDatabase implements VPNDatabase {
         }
     }
 
+    @SuppressWarnings("SqlWithoutWhere")
     @Override
     public void clearResponses() {
         try {
@@ -170,8 +169,11 @@ public class LiteDatabase implements VPNDatabase {
     @Override
     public void updateAlertsState(UUID uuid, boolean state) {
         try {
-            statement("INSERT INTO alerts (uuid, STATE) VALUES (?, ?) ON CONFLICT(uuid) DO UPDATE SET STATE = ?",
-                    uuid.toString(), state, state);
+            statement("DELETE FROM alerts WHERE uuid = ?", uuid.toString());
+            if(state) {
+                statement("INSERT INTO alerts (uuid) VALUES (?)",
+                        uuid.toString());
+            }
         } catch (SQLException e) {
             AntiVPN.getInstance().getExecutor().logException(e);
         }
@@ -183,31 +185,23 @@ public class LiteDatabase implements VPNDatabase {
 
         try {
             Class.forName("org.sqlite.JDBC");
-            Connection connection = DriverManager.getConnection(url);
-            Statement statement = connection.createStatement();
-            statement.execute("CREATE TABLE IF NOT EXISTS vpn_responses (ip TEXT, response TEXT)");
-            statement.execute("CREATE TABLE IF NOT EXISTS whitelist (uuid TEXT, minimum NUMERIC, maximum NUMERIC)");
-            statement.execute("CREATE TABLE IF NOT EXISTS alerts (uuid TEXT)");
-            statement.execute("CREATE TABLE IF NOT EXISTS version (version INTEGER PRIMARY KEY, updated BOOLEAN)");
 
-            this.connection = connection;
+            this.connection = DriverManager.getConnection(url);
 
-            // Run through updates
-            for (Version version : Version.versions) {
-                try(ResultSet result = query("SELECT * FROM version WHERE version = ?",
-                        version.versionNumber())) {
-                    if(!result.next()) {
-                        version.update(this);
-                        statement("INSERT INTO version (version, updated) VALUES (?, ?)",
-                                version.versionNumber(), true);
-                    }
-                } catch (SQLException e) {
-                    AntiVPN.getInstance().getExecutor().logException(e);
-                }
-            }
+            setupTable();
         } catch (SQLException | ClassNotFoundException e) {
             AntiVPN.getInstance().getExecutor().logException(e);
         }
+    }
+
+    @Override
+    public void setupTable() throws SQLException {
+        VPNDatabase.super.setupTable();
+    }
+
+    @Override
+    public Connection connection() {
+        return connection;
     }
 
     @Override
@@ -217,23 +211,5 @@ public class LiteDatabase implements VPNDatabase {
         } catch (SQLException e) {
             AntiVPN.getInstance().getExecutor().logException(e);
         }
-    }
-
-    private ResultSet query(@Language("SQL") String query, Object... args) throws SQLException {
-        PreparedStatement pstmt = connection.prepareStatement(query);
-        for (int i = 0; i < args.length; i++) {
-            pstmt.setObject(i + 1, args[i]);
-        }
-
-        return pstmt.executeQuery();
-    }
-
-    public void statement(@Language("SQL") String query, Object... args) throws SQLException {
-        PreparedStatement pstmt = connection.prepareStatement(query);
-        for (int i = 0; i < args.length; i++) {
-            pstmt.setObject(i + 1, args[i]);
-        }
-
-        pstmt.execute();
     }
 }

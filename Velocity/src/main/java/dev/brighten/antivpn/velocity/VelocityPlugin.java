@@ -52,7 +52,7 @@ public class VelocityPlugin {
         logger.info("Starting AntiVPN services...");
         AntiVPN.start(new VelocityListener(), new VelocityPlayerExecutor(), configDir.toFile());
 
-        if(AntiVPN.getInstance().getVpnConfig().metrics()) {
+        if(AntiVPN.getInstance().getVpnConfig().isMetrics()) {
             logger.info("Starting metrics...");
             metrics = metricsFactory.make(this, 12791);
 

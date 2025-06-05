@@ -70,7 +70,7 @@ public abstract class APIPlayer {
                     // If the countryList() size is zero, no need to check.
                     // Running country check first
                     CheckResult checkResult;
-                    if (!AntiVPN.getInstance().getVpnConfig().countryList().isEmpty()
+                    if (!AntiVPN.getInstance().getVpnConfig().getCountryList().isEmpty()
                             && !((uuid != null && AntiVPN.getInstance().getExecutor()
                             .isWhitelisted(uuid))
                             //Or has a name that starts with a certain prefix. This is for Bedrock exempting.
@@ -79,9 +79,9 @@ public abstract class APIPlayer {
                             // If it contains the code and it is set to whitelist, it will not kick
                             // as they are equal and vise versa. However, if the contains does not match
                             // the state, it will kick.
-                            && AntiVPN.getInstance().getVpnConfig().countryList()
+                            && AntiVPN.getInstance().getVpnConfig().getCountryList()
                             .contains(result.getCountryCode())
-                            != AntiVPN.getInstance().getVpnConfig().whitelistCountries()) {
+                            != AntiVPN.getInstance().getVpnConfig().isWhitelistCountries()) {
                         //Using our built in kicking system if no commands are configured
                         checkResult = new CheckResult(result, ResultType.DENIED_COUNTRY);
                     } else if (result.isProxy()) {

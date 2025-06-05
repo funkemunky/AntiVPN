@@ -38,7 +38,7 @@ public class SpongeListener extends VPNExecutor {
 
         AntiVPN.getInstance().getExecutor().getToKick().add(new Tuple<>(instantResult, player.get().getUuid()));
 
-        if(!AntiVPN.getInstance().getVpnConfig().kickPlayersOnDetect()) {
+        if(!AntiVPN.getInstance().getVpnConfig().isKickPlayers()) {
             return;
         }
 
@@ -51,7 +51,7 @@ public class SpongeListener extends VPNExecutor {
                         + " joined on a VPN/Proxy (" + instantResult.response().getMethod() + ")");
                 event.setMessage(Component.text(StringUtil
                         .translateColorCodes('&', AntiVPN.getInstance().getVpnConfig()
-                                .getKickString()
+                                .getKickMessage()
                                 .replace("%player%", player.get().getName())
                                 .replace("%country%", instantResult.response().getCountryName())
                                 .replace("%code%", instantResult.response().getCountryCode()))));
@@ -59,7 +59,7 @@ public class SpongeListener extends VPNExecutor {
             case DENIED_COUNTRY ->
                     event.setMessage(Component.text(StringUtil
                             .translateColorCodes('&', AntiVPN.getInstance().getVpnConfig()
-                                    .countryVanillaKickReason()
+                                    .getCountryVanillaKickReason()
                                     .replace("%player%", player.get().getName())
                                     .replace("%country%", instantResult.response().getCountryName())
                                     .replace("%code%", instantResult.response().getCountryCode()))));

@@ -39,7 +39,7 @@ public class BukkitPlugin extends JavaPlugin {
         playerCommandRunner.start();
 
         // Loading our bStats metrics to be pushed to https://bstats.org
-        if(AntiVPN.getInstance().getVpnConfig().metrics()) {
+        if(AntiVPN.getInstance().getVpnConfig().isMetrics()) {
             Bukkit.getLogger().info("Starting bStats metrics...");
             Metrics metrics = new Metrics(this, 12615);
             metrics.addCustomChart(new SimplePie("database_used", this::getDatabaseType));

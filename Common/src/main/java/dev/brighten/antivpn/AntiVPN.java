@@ -6,7 +6,9 @@ import dev.brighten.antivpn.api.VPNExecutor;
 import dev.brighten.antivpn.command.Command;
 import dev.brighten.antivpn.command.impl.AntiVPNCommand;
 import dev.brighten.antivpn.database.VPNDatabase;
+import dev.brighten.antivpn.database.postgres.PostgresDatabase;
 import dev.brighten.antivpn.database.sqllite.LiteDatabase;
+import dev.brighten.antivpn.database.sqllite.version.Version;
 import dev.brighten.antivpn.depends.LibraryLoader;
 import dev.brighten.antivpn.depends.MavenLibrary;
 import dev.brighten.antivpn.depends.Relocate;
@@ -36,7 +38,10 @@ import java.util.List;
         relocations = {
                 @Relocate(from = "com\\.github\\.benmanes\\.caffeine", to = "dev.brighten.antivpn.shaded.com.github.benmanes.caffeine"),
         })
-@MavenLibrary(groupId = "org\\.postgresql", artifactId = "postgresql", version = "42.7.6")
+@MavenLibrary(groupId = "org\\.postgresql", artifactId = "postgresql", version = "42.7.6",
+        relocations = {
+                @Relocate(from = "org\\.postgresql", to = "dev.brighten.antivpn.shaded.org.postgresql")
+        })
 public class AntiVPN {
 
     private static AntiVPN INSTANCE;
@@ -61,6 +66,8 @@ public class AntiVPN {
 
         LibraryLoader.loadAll(INSTANCE);
 
+        Version.register();
+
         try {
             File configFile = new File(pluginFolder, "config.yml");
             if(!configFile.exists()){
@@ -84,7 +91,14 @@ public class AntiVPN {
 
         INSTANCE.messageHandler = new MessageHandler();
 
-        INSTANCE.database = new LiteDatabase();
+        INSTANCE.database = switch (INSTANCE.vpnConfig.getDatabaseType().toLowerCase()) {
+            case "sqlite", "sqllite" -> new LiteDatabase();
+            case "postgresql", "postgres" -> new PostgresDatabase();
+            default ->
+                    throw new IllegalStateException("Unexpected database type set at config.yml 'database.type': \""
+                            + INSTANCE.vpnConfig.getDatabaseType().toLowerCase() + "\"!" +
+                            "Available types: 'sqlite', 'postgresql', 'mongodb'");
+        };
         INSTANCE.database.init();
 
         //Registering commands

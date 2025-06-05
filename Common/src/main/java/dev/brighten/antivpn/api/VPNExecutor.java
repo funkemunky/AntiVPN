@@ -73,35 +73,35 @@ public abstract class VPNExecutor {
     }
 
     public void handleKickingOfPlayer(CheckResult result, APIPlayer player) {
-        if (AntiVPN.getInstance().getVpnConfig().alertToStaff()) AntiVPN.getInstance().getPlayerExecutor()
+        if (AntiVPN.getInstance().getVpnConfig().isAlertToStaff()) AntiVPN.getInstance().getPlayerExecutor()
                 .getOnlinePlayers()
                 .stream()
                 .filter(APIPlayer::isAlertsEnabled)
                 .forEach(pl ->
                         pl.sendMessage(StringUtil.translateAlternateColorCodes('&',
                                 StringUtil.varReplace(dev.brighten.antivpn.AntiVPN.getInstance().getVpnConfig()
-                                        .alertMessage(), player, result.response()))));
+                                        .getAlertMsg(), player, result.response()))));
 
-        if(AntiVPN.getInstance().getVpnConfig().kickPlayersOnDetect()) {
+        if(AntiVPN.getInstance().getVpnConfig().isKickPlayers()) {
             switch (result.resultType()) {
                 case DENIED_PROXY -> player.kickPlayer(StringUtil.varReplace(AntiVPN.getInstance().getVpnConfig()
-                        .getKickString(), player, result.response()));
+                        .getKickMessage(), player, result.response()));
                 case DENIED_COUNTRY -> player.kickPlayer(StringUtil.varReplace(AntiVPN.getInstance().getVpnConfig()
-                        .countryVanillaKickReason(), player, result.response()));
+                        .getCountryVanillaKickReason(), player, result.response()));
             }
         }
 
-        if(!AntiVPN.getInstance().getVpnConfig().runCommands()) return;
+        if(!AntiVPN.getInstance().getVpnConfig().isCommandsEnabled()) return;
 
         switch (result.resultType()) {
             case DENIED_PROXY -> {
-                for (String command : AntiVPN.getInstance().getVpnConfig().commands()) {
+                for (String command : AntiVPN.getInstance().getVpnConfig().getCommands()) {
                     runCommand(StringUtil.translateAlternateColorCodes('&',
                             StringUtil.varReplace(command, player, result.response())));
                 }
             }
             case DENIED_COUNTRY -> {
-                for (String command : AntiVPN.getInstance().getVpnConfig().countryKickCommands()) {
+                for (String command : AntiVPN.getInstance().getVpnConfig().getCountryKickCommands()) {
                     runCommand(StringUtil.translateAlternateColorCodes('&',
                             StringUtil.varReplace(command, player, result.response())));
                 }
