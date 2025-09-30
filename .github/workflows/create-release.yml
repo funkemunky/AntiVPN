@@ -2,10 +2,9 @@ name: create-release.yml
 on:
   workflow_dispatch:
 jobs:
-  build:
-    name: Build and Test
+  build-and-release:
+    name: Build and Release
     runs-on: ubuntu-latest
-
     steps:
       - name: Cache local Maven repository
         uses: actions/cache@v4
@@ -28,30 +27,6 @@ jobs:
         run: mvn -B package --file pom.xml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Upload AntiVPN
-        uses: actions/upload-artifact@v4
-        with:
-          name: AntiVPN-Universal
-          path: Universal/target/AntiVPN-*.jar
-      - name: Upload Sponge plugin
-        uses: actions/upload-artifact@v4
-        with:
-          name: AntiVPN-Sponge
-          path: Sponge/target/Sponge-*.jar
-  release:
-    name: Create Release
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
-      - name: Download AntiVPN
-        uses: actions/download-artifact@v5
-        with:
-          name: AntiVPN-Universal
-      - name: Download Sponge plugin
-        uses: actions/download-artifact@v5
-        with:
-          name: AntiVPN-Sponge
       - name: Get Version Number from Pom
         id: get_version
         run: echo "VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
@@ -69,17 +44,17 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-            tag_name: v${{ github.run_number }}
-            release_name: Release v${{ github.run_number }}
-            draft: false
-            prerelease: false
-            body: ${{ steps.changelog.outputs.content }}
+          tag_name: v${{ env.VERSION }}
+          release_name: Release v${{ env.VERSION }}
+          draft: false
+          prerelease: false
+          body: ${{ steps.changelog.outputs.content }}
       - uses: actions/upload-release-asset@v1
         env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: AntiVPN-*-universal.jar
+          asset_path: Universal/target/AntiVPN-*.jar
           asset_name: AntiVPN-Universal-v${{ env.VERSION }}.jar
           asset_content_type: application/java-archive
       - uses: actions/upload-release-asset@v1
@@ -87,7 +62,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: Sponge-*.jar
+          asset_path: Sponge/target/Sponge-*.jar
           asset_name: AntiVPN-Sponge-v${{ env.VERSION }}.jar
           asset_content_type: application/java-archive
-
