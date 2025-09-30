@@ -74,49 +74,20 @@ jobs:
             draft: false
             prerelease: false
             body: ${{ steps.changelog.outputs.content }}
-      - name: Locate downloaded artifacts
-        run: |
-          echo "Listing workspace:"
-          ls -la
-
-          echo "Listing downloaded artifact dirs (if present):"
-          ls -la AntiVPN-Universal || true
-          ls -la AntiVPN-Sponge || true
-
-          ANTI_JAR=$(ls AntiVPN-Universal/*.jar 2>/dev/null | head -n1 || true)
-          SPONGE_JAR=$(ls AntiVPN-Sponge/*.jar 2>/dev/null | head -n1 || true)
-
-          if [ -z "$ANTI_JAR" ]; then
-            echo "ERROR: AntiVPN jar not found in AntiVPN-Universal"
-            exit 1
-          fi
-
-          echo "Found AntiVPN jar: $ANTI_JAR"
-          echo "ANTI_JAR=$ANTI_JAR" >> $GITHUB_ENV
-
-          if [ -n "$SPONGE_JAR" ]; then
-            echo "Found Sponge jar: $SPONGE_JAR"
-            echo "SPONGE_JAR=$SPONGE_JAR" >> $GITHUB_ENV
-          else
-            echo "No Sponge jar found; continuing without it."
-          fi
-
       - uses: actions/upload-release-asset@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ env.ANTI_JAR }}
+          asset_path: ./AntiVPN-*.jar
           asset_name: AntiVPN-Universal-v${{ env.VERSION }}.jar
           asset_content_type: application/java-archive
-
       - uses: actions/upload-release-asset@v1
-        if: ${{ env.SPONGE_JAR != '' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ env.SPONGE_JAR }}
+          asset_path: ./Sponge-*.jar
           asset_name: AntiVPN-Sponge-v${{ env.VERSION }}.jar
           asset_content_type: application/java-archive
 
