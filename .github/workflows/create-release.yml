@@ -1,0 +1,92 @@
+name: create-release.yml
+on:
+  workflow_dispatch:
+jobs:
+  build:
+    name: Build and Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Cache local Maven repository
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - uses: actions/checkout@v5
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          java-version: '21'
+          distribution: 'zulu'
+      - name: Set up Maven
+        uses: stCarolas/setup-maven@v5
+        with:
+          maven-version: 3.9.6
+      - name: Compile
+        run: mvn -B package --file pom.xml
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload AntiVPN
+        uses: actions/upload-artifact@v4
+        with:
+          name: AntiVPN-Universal
+          path: Universal/target/AntiVPN-*.jar
+      - name: Upload Sponge plugin
+        uses: actions/upload-artifact@v4
+        with:
+          name: AntiVPN-Sponge
+          path: Sponge/target/Sponge-*.jar
+  release:
+    name: Create Release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download AntiVPN
+        uses: actions/download-artifact@v4
+        with:
+          name: AntiVPN-Universal
+      - name: Download Sponge plugin
+        uses: actions/download-artifact@v4
+        with:
+          name: AntiVPN-Sponge
+      - name: Get Version Number from Pom
+        id: get_version
+        run: echo "VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
+      - name: Extract latest CHANGELOG entry
+        id: changelog
+        run: |
+          CHANGELOG_CONTENT=$(awk 'BEGIN {print_section=0;} /^## \[/ {if (print_section == 0) {print_section=1;} else {exit;}} print_section {print;}' CHANGELOG.md)
+          CHANGELOG_ESCAPED=$(echo "$CHANGELOG_CONTENT" | sed ':a;N;$!ba;s/\n/%0A/g')
+          echo "Extracted latest release notes from CHANGELOG.md:" 
+          echo -e "$CHANGELOG_CONTENT" 
+          echo "::set-output name=content::$CHANGELOG_ESCAPED"
+      - name: Create Release
+        uses: actions/create-release@v1
+        id: create_release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+            tag_name: v${{ github.run_number }}
+            release_name: Release v${{ github.run_number }}
+            draft: false
+            prerelease: false
+            body: ${{ steps.changelog.outputs.content }}
+      - uses: actions/upload-release-asset@v1
+        env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./AntiVPN-Universal/AntiVPN-*.jar
+          asset_name: AntiVPN-Universal-v${{ env.VERSION }}.jar
+          asset_content_type: application/java-archive
+      - uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./AntiVPN-Sponge/Sponge-*.jar
+          asset_name: AntiVPN-Sponge-v${{ env.VERSION }}.jar
+          asset_content_type: application/java-archive
+
