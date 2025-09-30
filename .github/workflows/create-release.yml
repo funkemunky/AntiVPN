@@ -43,12 +43,13 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v5
       - name: Download AntiVPN
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: AntiVPN-Universal
       - name: Download Sponge plugin
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: AntiVPN-Sponge
       - name: Get Version Number from Pom
