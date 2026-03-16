@@ -37,7 +37,7 @@ public class Third implements Version<VPNDatabase> {
         List<CIDRUtils> ipRanges = new ArrayList<>();
         List<CIDRUtils> rangesToInsert = new ArrayList<>();
         List<BigInteger[]> rangesToRemove = new ArrayList<>(); 
-        try (var preparedQuery = Query.prepare("select ip_start, ip_end from `whitelist-ranges`")) {
+        try (var preparedQuery = Query.prepare("select ip_start, ip_end from `whitelisted-ranges`")) {
             preparedQuery.execute(set -> {
                 BigInteger start = set.getBigDecimal("ip_start").toBigInteger();
                 BigInteger end = set.getBigDecimal("ip_end").toBigInteger();
