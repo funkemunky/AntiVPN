@@ -54,14 +54,11 @@ public class MySQL {
         }
     }
 
-    private static boolean didRetry = false;
-
     public static void initH2() {
-        if(didRetry) {
-            AntiVPN.getInstance().getExecutor().log(Level.WARNING,
-                    "Already attempted to retry H2 connection, skipping.");
-            return;
-        }
+        initH2(true);
+    }
+
+    private static void initH2(boolean allowRetry) {
         File dataFolder = new File(AntiVPN.getInstance().getPluginFolder(), "databases");
         if (!dataFolder.exists() && dataFolder.mkdirs()) {
             AntiVPN.getInstance().getExecutor().log("Created database directory");
@@ -85,9 +82,13 @@ public class MySQL {
                 AntiVPN.getInstance().getExecutor()
                         .log("H2 database file is incompatible with this version of AntiVPN. " +
                                 "Backing up old database file...");
-                backupOldDB(dbFile, dataFolder);
-                initH2();
-                didRetry = true;
+                shutdown();
+                if (allowRetry && backupOldDB(dbFile, dataFolder)) {
+                    initH2(false);
+                } else {
+                    AntiVPN.getInstance().getExecutor().log(
+                            "Could not back up and remove the incompatible H2 database file automatically.");
+                }
             } else {
                 AntiVPN.getInstance().getExecutor().logException("Failed to load H2 database: " + ex.getCause().toString(), ex);
             }
@@ -97,31 +98,42 @@ public class MySQL {
         }
     }
 
-    public static void backupOldDB(File dbFile, File dataFolder) {
-        if (dbFile.exists()) {
-            try {
-                // Optional: Make backup first
-                File backupDir = new File(dataFolder, "backups");
-                if(backupDir.mkdirs()) {
-                    AntiVPN.getInstance().getExecutor().log("Created backup directory");
-                } else {
-                    AntiVPN.getInstance().getExecutor().log("Backup directory already exists");
-                }
-                File backupFile = new File(backupDir, dbFile.getName() + ".backup_" + System.currentTimeMillis());
-                Files.copy(dbFile.toPath(), backupFile.toPath());
-
-                // Actually delete the file
-                if (!dbFile.delete()) {
-                    // If normal delete fails, try force delete on JVM exit
-                    dbFile.deleteOnExit();
-                    AntiVPN.getInstance().getExecutor().log("Could not delete database file - will try again on shutdown");
-                } else {
-                    AntiVPN.getInstance().getExecutor().log("Successfully deleted incompatible database file");
-                }
-            } catch (IOException ex) {
-                AntiVPN.getInstance().getExecutor().logException("Failed to handle database file", ex);
-            }
+    public static boolean backupOldDB(File dbFile, File dataFolder) {
+        if (!dbFile.exists()) {
+            return true;
         }
+
+        if (!dbFile.isFile()) {
+            AntiVPN.getInstance().getExecutor().log("Skipping backup for non-file path: " + dbFile.getAbsolutePath());
+            return false;
+        }
+
+        try {
+            File backupDir = new File(dataFolder, "backups");
+            if(backupDir.mkdirs()) {
+                AntiVPN.getInstance().getExecutor().log("Created backup directory");
+            } else if (backupDir.exists()) {
+                AntiVPN.getInstance().getExecutor().log("Backup directory already exists");
+            } else {
+                AntiVPN.getInstance().getExecutor().log("Could not create backup directory");
+                return false;
+            }
+            File backupFile = new File(backupDir, dbFile.getName() + ".backup_" + System.currentTimeMillis());
+            Files.copy(dbFile.toPath(), backupFile.toPath());
+
+            if (!dbFile.delete()) {
+                dbFile.deleteOnExit();
+                AntiVPN.getInstance().getExecutor().log("Could not delete database file - will try again on shutdown");
+                return false;
+            }
+
+            AntiVPN.getInstance().getExecutor().log("Successfully deleted incompatible database file");
+            return true;
+        } catch (IOException ex) {
+            AntiVPN.getInstance().getExecutor().logException("Failed to handle database file", ex);
+        }
+
+        return false;
     }
 
     public static void use() {

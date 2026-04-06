@@ -57,10 +57,10 @@ import java.util.List;
 @MavenLibrary(
         groupId = "com.mysql",
         artifactId = "mysql-connector-j",
-        version = "9.1.0",
+        version = "9.3.0",
         relocations = {
                 @Relocate(from = "com.my\\" + "sql.cj", to = "dev.brighten.antivpn.shaded.com.mysql.cj"),
-                @Relocate(from = "com.my\\" + "sql.jdbc", to = "dev.brighten.antivpn.shaded.com.mysql.jdbc")
+                @Relocate(from = "com.my\\" + "sql.jdbc", to = "dev.brighten.antivpn.shaded.com.mysql.jdbc"),
         }
 )
 @MavenLibrary(groupId = "com.\\github\\.ben-manes\\.caffeine", artifactId = "caffeine", version = "3.1.8",

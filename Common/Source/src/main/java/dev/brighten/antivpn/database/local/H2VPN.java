@@ -359,15 +359,37 @@ public class H2VPN implements VPNDatabase {
     public void backupDatabase() {
         File dataFolder = new File(AntiVPN.getInstance().getPluginFolder(), "databases");
 
-        if(!dataFolder.exists()) {
+        if(!dataFolder.exists() || MySQL.isClosed()) {
             return;
         }
 
-        List<File> files = new ArrayList<>(List.of(Optional.ofNullable(dataFolder.listFiles()).orElse(new File[0])));
-        files.sort(Comparator.comparingLong(File::lastModified));
+        try {
+            var connection = Query.getConn();
+            if (connection == null || connection.getMetaData() == null
+                    || !connection.getMetaData().getDatabaseProductName().equalsIgnoreCase("H2")) {
+                return;
+            }
+        } catch (SQLException e) {
+            AntiVPN.getInstance().getExecutor().logException("Could not verify database type before H2 backup.", e);
+            return;
+        }
 
-        for (File file : files) {
-            MySQL.backupOldDB(file, dataFolder);
+        File backupDir = new File(dataFolder, "backups");
+        if (!backupDir.exists() && !backupDir.mkdirs()) {
+            AntiVPN.getInstance().getExecutor().log("Could not create backup directory");
+            return;
+        }
+
+        File backupFile = new File(backupDir, "database.h2_backup_" + System.currentTimeMillis() + ".zip");
+        String backupPath = backupFile.getAbsolutePath()
+                .replace("\\", "/")
+                .replace("'", "''");
+
+        try (var statement = Query.prepare("BACKUP TO '" + backupPath + "'")) {
+            statement.execute();
+            AntiVPN.getInstance().getExecutor().log("Created H2 backup at " + backupFile.getName());
+        } catch (SQLException e) {
+            AntiVPN.getInstance().getExecutor().logException("Could not create H2 backup before migration.", e);
         }
     }
 }

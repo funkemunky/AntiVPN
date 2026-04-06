@@ -24,6 +24,7 @@ import dev.brighten.antivpn.database.sql.utils.Query;
 import dev.brighten.antivpn.database.version.Version;
 import dev.brighten.antivpn.utils.MiscUtils;
 
+import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -51,11 +52,11 @@ public class First implements Version<VPNDatabase> {
                     .append(versionNumber())).execute();
 
             AntiVPN.getInstance().getExecutor().log("Creating indexes...");
-            closeOnEnd(Query.prepare("create index if not exists `uuid_1` on `whitelisted` (`uuid`)")).execute();
-            closeOnEnd(Query.prepare("create index if not exists `ip_1` on `responses` (`ip`)")).execute();
-            closeOnEnd(Query.prepare("create index if not exists `proxy_1` on `responses` (`proxy`)")).execute();
-            closeOnEnd(Query.prepare("create index if not exists `inserted_1` on `responses` (`inserted`)")).execute();
-            closeOnEnd(Query.prepare("create index if not exists `ip_1` on `whitelisted-ips` (`ip`)")).execute();
+            createIndexIfAbsent("whitelisted", "uuid_1", "`uuid`");
+            createIndexIfAbsent("responses", "ip_1", "`ip`");
+            createIndexIfAbsent("responses", "proxy_1", "`proxy`");
+            createIndexIfAbsent("responses", "inserted_1", "`inserted`");
+            createIndexIfAbsent("whitelisted-ips", "ip_1", "`ip`");
         } catch (SQLException e) {
             throw new DatabaseException("Failed to update database", e);
         } finally {
@@ -69,6 +70,47 @@ public class First implements Version<VPNDatabase> {
         return statement;
     }
 
+    protected void createIndexIfAbsent(String tableName, String indexName, String columnList) throws SQLException {
+        if (hasIndex(tableName, indexName)) {
+            return;
+        }
+
+        closeOnEnd(Query.prepare(String.format(
+                "create index `%s` on `%s` (%s)",
+                indexName,
+                tableName,
+                columnList
+        ))).execute();
+    }
+
+    protected void dropIndexIfPresent(String tableName, String indexName) throws SQLException {
+        if (!hasIndex(tableName, indexName)) {
+            return;
+        }
+
+        closeOnEnd(Query.prepare(String.format(
+                "drop index `%s` on `%s`",
+                indexName,
+                tableName
+        ))).execute();
+    }
+
+    protected boolean hasIndex(String tableName, String indexName) throws SQLException {
+        DatabaseMetaData metaData = Query.getConn().getMetaData();
+
+        try (ResultSet indexes = metaData.getIndexInfo(null, null, tableName, false, false)) {
+            while (indexes.next()) {
+                String existingIndexName = indexes.getString("INDEX_NAME");
+
+                if (existingIndexName != null && existingIndexName.equalsIgnoreCase(indexName)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
     @Override
     public int versionNumber() {
         return 0;
@@ -78,7 +120,7 @@ public class First implements Version<VPNDatabase> {
     public boolean needsUpdate(VPNDatabase database) {
         try(var statement = Query.prepare("select * from `database_version` where version = 0")) {
             try(ResultSet set =  statement.executeQuery()) {
-                return set.getFetchSize() == 0;
+                return !set.next();
             }
         } catch (SQLException e) {
             return true;

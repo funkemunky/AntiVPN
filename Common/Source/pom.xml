@@ -63,7 +63,7 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <minimizeJar>true</minimizeJar>
+                            <minimizeJar>false</minimizeJar>
                             <relocations>
                                 <relocation>
                                     <pattern>org.yaml.snakeyaml</pattern>
@@ -148,7 +148,7 @@
         <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
-            <version>9.1.0</version>
+            <version>9.3.0</version>
             <type>jar</type>
             <scope>provided</scope>
         </dependency>
@@ -182,7 +182,6 @@
             <version>3.1.8</version>
             <scope>provided</scope>
         </dependency>
-
         <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongo-java-driver</artifactId>

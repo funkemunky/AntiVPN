@@ -106,7 +106,7 @@ public class Third implements Version<VPNDatabase> {
     public boolean needsUpdate(VPNDatabase database) {
         try (var statement = Query.prepare("select * from `database_version` where version = 2")) {
             try(var set = statement.executeQuery()) {
-                return set.getFetchSize() == 0;
+                return !set.next();
             }
         } catch (SQLException e) {
             return true;

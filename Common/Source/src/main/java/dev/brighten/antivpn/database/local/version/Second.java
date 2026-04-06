@@ -20,6 +20,7 @@ import dev.brighten.antivpn.AntiVPN;
 import dev.brighten.antivpn.database.DatabaseException;
 import dev.brighten.antivpn.database.VPNDatabase;
 import dev.brighten.antivpn.database.local.H2VPN;
+import dev.brighten.antivpn.database.sql.MySqlVPN;
 import dev.brighten.antivpn.database.sql.utils.ExecutableStatement;
 import dev.brighten.antivpn.database.sql.utils.Query;
 import dev.brighten.antivpn.database.version.Version;
@@ -31,12 +32,12 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Second implements Version<VPNDatabase> {
+public class Second extends First implements Version<VPNDatabase> {
     private final List<AutoCloseable> toClose = new ArrayList<>();
 
     @Override
     public void update(VPNDatabase database) throws DatabaseException {
-        if(database instanceof H2VPN h2VPN) {
+        if(database instanceof H2VPN h2VPN && !(database instanceof MySqlVPN)) {
             h2VPN.backupDatabase();
         }
         List<String> whitelistedIps = new ArrayList<>();
@@ -58,7 +59,7 @@ public class Second implements Version<VPNDatabase> {
                     "ip_start BIGINT NOT NULL, " +
                     "ip_end BIGINT NOT NULL)"))
                     .execute();
-            closeOnEnd(Query.prepare("CREATE INDEX idx_ip_range ON `whitelisted-ranges` (ip_start, ip_end)")).execute();
+            createIndexIfAbsent("whitelisted-ranges", "idx_ip_range", "ip_start, ip_end");
 
             var cidrs = whitelistedIps.stream().map(ip -> {
                 try {
@@ -84,7 +85,7 @@ public class Second implements Version<VPNDatabase> {
                 }
             }
 
-            closeOnEnd(Query.prepare("DROP INDEX ip_1 on `whitelisted-ips`")).execute();
+            dropIndexIfPresent("whitelisted-ips", "ip_1");
             closeOnEnd(Query.prepare("DROP TABLE `whitelisted-ips`")).execute();
             closeOnEnd(Query.prepare("INSERT INTO `database_version` (`version`) VALUES (?)").append(versionNumber())).execute();
         } catch (Throwable e) {
@@ -109,9 +110,7 @@ public class Second implements Version<VPNDatabase> {
 
     private void rollback(List<String> ipAddresses) throws SQLException {
         AntiVPN.getInstance().getExecutor().log("Rolling back to version 0...");
-        try(var statement = Query.prepare("DROP INDEX idx_ip_range ON `whitelisted-ranges`")) {
-            statement.execute();
-        }
+        dropIndexIfPresent("whitelisted-ranges", "idx_ip_range");
         try(var statement = Query.prepare("DROP TABLE `whitelisted-ranges`")) {
             statement.execute();
         }
@@ -124,9 +123,7 @@ public class Second implements Version<VPNDatabase> {
             statement.execute();
         }
 
-        try(var statement = Query.prepare("create index if not exists `ip_1` on `whitelisted-ips` (`ip`)")) {
-            statement.execute();
-        }
+        createIndexIfAbsent("whitelisted-ips", "ip_1", "`ip`");
 
         try(var statement = Query.prepare("DELETE FROM `whitelisted-ips`")) {
             statement.execute();
@@ -151,7 +148,7 @@ public class Second implements Version<VPNDatabase> {
     public boolean needsUpdate(VPNDatabase database) {
         try (var statement = Query.prepare("select * from `database_version` where version = 1")) {
            try(var set = statement.executeQuery()) {
-               return set.getFetchSize() == 0;
+               return !set.next();
            }
         } catch (SQLException e) {
             return true;
