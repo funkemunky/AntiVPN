@@ -255,7 +255,6 @@ public class H2VPN implements VPNDatabase {
                         try {
                             String cidrString = set.getString("cidr_string");
 
-                            AntiVPN.getInstance().getExecutor().log("CIDR String: %s", cidrString);
                             ips.add(new CIDRUtils(cidrString));
 
                         } catch (UnknownHostException e) {

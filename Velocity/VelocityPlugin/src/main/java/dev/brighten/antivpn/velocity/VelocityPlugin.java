@@ -31,7 +31,6 @@ import org.bstats.velocity.Metrics;
 
 import javax.annotation.Nullable;
 import java.io.File;
-import java.nio.file.Path;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -41,7 +40,7 @@ public class VelocityPlugin implements LoaderBootstrap {
     private final ProxyServer server;
     private final Logger logger;
     private final Metrics.Factory metricsFactory;
-    private final Path configDir;
+    private File dataFolder;
 
     @Nullable
     private Metrics metrics;
@@ -54,7 +53,6 @@ public class VelocityPlugin implements LoaderBootstrap {
     public VelocityPlugin(Map<Class<?>, Object> objectsMap) {
         this.server = (ProxyServer) objectsMap.get(ProxyServer.class);
         this.logger = (Logger) objectsMap.get(Logger.class);
-        this.configDir = (Path) objectsMap.get(Path.class);
         this.metricsFactory = (Metrics.Factory) objectsMap.get(String.class);
         this.pluginInstance = objectsMap.get(LoaderBootstrap.class);
     }
@@ -74,7 +72,7 @@ public class VelocityPlugin implements LoaderBootstrap {
 
     @Override
     public void onLoad(File dataFolder) {
-
+        this.dataFolder = dataFolder;
     }
 
     @Override
@@ -84,7 +82,7 @@ public class VelocityPlugin implements LoaderBootstrap {
 
         //Loading plugin
         logger.info("Starting AntiVPN services...");
-        AntiVPN.start(new VelocityListener(), new VelocityPlayerExecutor(), configDir.toFile());
+        AntiVPN.start(new VelocityListener(), new VelocityPlayerExecutor(), dataFolder);
 
 
         if(AntiVPN.getInstance().getVpnConfig().metrics()) {

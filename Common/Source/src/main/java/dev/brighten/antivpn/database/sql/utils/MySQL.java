@@ -25,7 +25,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -36,12 +35,17 @@ public class MySQL {
     public static void init() {
         try {
             if (conn == null || conn.isClosed()) {
-                DriverManager.registerDriver(new Driver());
-                conn = DriverManager.getConnection("jdbc:mysql://" + AntiVPN.getInstance().getVpnConfig().getIp()
-                                + ":" + AntiVPN.getInstance().getVpnConfig().getPort()
-                                + "/?useSSL=true&autoReconnect=true",
-                        AntiVPN.getInstance().getVpnConfig().getUsername(),
-                        AntiVPN.getInstance().getVpnConfig().getPassword());
+                String url = "jdbc:mysql://" + AntiVPN.getInstance().getVpnConfig().getIp()
+                        + ":" + AntiVPN.getInstance().getVpnConfig().getPort()
+                        + "/?useSSL=true&autoReconnect=true";
+                Properties properties = new Properties();
+                properties.setProperty("user", AntiVPN.getInstance().getVpnConfig().getUsername());
+                properties.setProperty("password", AntiVPN.getInstance().getVpnConfig().getPassword());
+
+                conn = new Driver().connect(url, properties);
+                if (conn == null) {
+                    throw new SQLException("MySQL driver did not accept URL: " + url);
+                }
                 conn.setAutoCommit(true);
                 Query.use(conn);
                 Query.prepare("CREATE DATABASE IF NOT EXISTS `"
@@ -51,6 +55,7 @@ public class MySQL {
             }
         } catch (Exception e) {
             AntiVPN.getInstance().getExecutor().logException("Failed to load mysql: " + e.getMessage(), e);
+            throw new RuntimeException("Could not initialize MySQL connection", e);
         }
     }
 
