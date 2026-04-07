@@ -55,13 +55,5 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./Universal/target/AntiVPN-${{ env.VERSION }}-universal.jar
-          asset_name: AntiVPN-Universal-v${{ env.VERSION }}.jar
-          asset_content_type: application/java-archive
-      - uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./Sponge/target/Sponge-${{ env.VERSION }}.jar
-          asset_name: AntiVPN-Sponge-v${{ env.VERSION }}.jar
+          asset_name: AntiVPN-v${{ env.VERSION }}.jar
           asset_content_type: application/java-archive
