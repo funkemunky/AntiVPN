@@ -15,3 +15,4 @@ include 'Sponge:SpongeLoader'
 include 'Velocity:VelocityPlugin'
 include 'Velocity:VelocityLoader'
 
+include 'Universal'

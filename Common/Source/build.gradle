@@ -1,5 +1,5 @@
 plugins {
-    id 'com.gradleup.shadow'
+    id 'com.github.johnrengelman.shadow'
 }
 
 dependencies {
@@ -12,10 +12,6 @@ dependencies {
     compileOnly 'com.h2database:h2:2.2.220'
     compileOnly 'com.github.ben-manes.caffeine:caffeine:3.1.8'
     compileOnly 'org.mongodb:mongo-java-driver:3.12.14'
-}
-
-jar {
-    enabled = false
 }
 
 shadowJar {
@@ -35,6 +31,3 @@ shadowJar {
 }
 
 tasks.build.dependsOn shadowJar
-components.java.withVariantsFromConfiguration(configurations.shadowRuntimeElements) {
-    skip()
-}

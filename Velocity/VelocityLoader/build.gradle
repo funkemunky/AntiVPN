@@ -1,5 +1,5 @@
 plugins {
-    id 'com.gradleup.shadow'
+    id 'com.github.johnrengelman.shadow'
 }
 
 evaluationDependsOn(':Velocity:VelocityPlugin')
@@ -8,7 +8,6 @@ dependencies {
     compileOnly 'com.velocitypowered:velocity-api:3.4.0-SNAPSHOT'
     compileOnly project(':Velocity:VelocityPlugin')
     implementation project(':Common:loader-utils')
-    implementation 'org.bstats:bstats-velocity:2.2.1'
 }
 
 shadowJar {
