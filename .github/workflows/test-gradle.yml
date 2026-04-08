@@ -17,6 +17,6 @@ jobs:
         with:
           gradle-version: 'wrapper'
       - name: Build
-        run: gradle build --no-daemon
+        run: ./gradlew build --no-daemon
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

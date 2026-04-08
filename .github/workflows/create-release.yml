@@ -17,13 +17,13 @@ jobs:
         with:
           gradle-version: 'wrapper'
       - name: Build
-        run: gradle build --no-daemon
+        run: ./gradlew build --no-daemon
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Get Version Number from Gradle
         id: get_version
         run: |
-          VERSION=$(gradle properties -q | awk -F': ' '/^version:/ {print $2; exit}')
+          VERSION=$(./gradlew properties -q | awk -F': ' '/^version:/ {print $2; exit}')
           echo "VERSION=$VERSION" >> "$GITHUB_ENV"
       - name: Extract latest CHANGELOG entry
         id: changelog
@@ -49,6 +49,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./Universal/build/libs/AntiVPN-${{ env.VERSION }}-universal.jar
+          asset_path: ./build/libs/AntiVPN-${{ env.VERSION }}-universal.jar
           asset_name: AntiVPN-v${{ env.VERSION }}.jar
           asset_content_type: application/java-archive
