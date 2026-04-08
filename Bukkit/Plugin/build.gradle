@@ -1,0 +1,18 @@
+plugins {
+    id 'com.github.johnrengelman.shadow'
+}
+
+dependencies {
+    compileOnly 'org.spigotmc:spigot-api:1.20.2-R0.1-SNAPSHOT'
+    compileOnly project(':Common:Source')
+    compileOnly project(':Common:loader-utils')
+    implementation 'org.bstats:bstats-bukkit:2.2.1'
+}
+
+shadowJar {
+    archiveClassifier.set('')
+    relocate 'org.bstats', 'dev.brighten.antivpn.bukkit.org.bstats'
+    relocate 'org.yaml.snakeyaml', 'dev.brighten.antivpn.shaded.org.yaml.snakeyaml'
+}
+
+tasks.build.dependsOn shadowJar

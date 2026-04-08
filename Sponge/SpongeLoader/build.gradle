@@ -1,0 +1,26 @@
+plugins {
+    id 'com.github.johnrengelman.shadow'
+}
+
+evaluationDependsOn(':Sponge:SpongePlugin')
+
+dependencies {
+    compileOnly 'org.spongepowered:spongeapi:11.0.0'
+    compileOnly project(':Sponge:SpongePlugin')
+    implementation project(':Common:loader-utils')
+}
+
+shadowJar {
+    archiveClassifier.set('')
+
+    // Include the shaded plugin jar as a single resource file
+    from(project(':Sponge:SpongePlugin').tasks.shadowJar) {
+        rename { 'antivpn-sponge.jarinjar' }
+    }
+}
+
+tasks.named('shadowJar') {
+    dependsOn(':Sponge:SpongePlugin:shadowJar')
+}
+
+tasks.build.dependsOn shadowJar

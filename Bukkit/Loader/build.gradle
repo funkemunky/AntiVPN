@@ -1,0 +1,27 @@
+plugins {
+    id 'com.github.johnrengelman.shadow'
+}
+
+evaluationDependsOn(':Bukkit:Plugin')
+
+dependencies {
+    compileOnly 'org.spigotmc:spigot-api:1.20.2-R0.1-SNAPSHOT'
+    compileOnly project(':Bukkit:Plugin')
+    implementation project(':Common:loader-utils')
+}
+
+shadowJar {
+    archiveClassifier.set('')
+
+    // Include the shaded plugin jar as a single resource file
+    from(project(':Bukkit:Plugin').tasks.shadowJar) {
+        rename { 'antivpn-bukkit.jarinjar' }
+    }
+}
+
+// Ensure the plugin is built before packaging the loader
+tasks.named('shadowJar') {
+    dependsOn(':Bukkit:Plugin:shadowJar')
+}
+
+tasks.build.dependsOn shadowJar

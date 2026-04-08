@@ -1,0 +1,18 @@
+plugins {
+    id 'com.github.johnrengelman.shadow'
+}
+
+dependencies {
+    compileOnly 'com.velocitypowered:velocity-api:3.4.0-SNAPSHOT'
+    compileOnly project(':Common:Source')
+    compileOnly project(':Common:loader-utils')
+    implementation 'org.bstats:bstats-velocity:2.2.1'
+}
+
+shadowJar {
+    archiveClassifier.set('')
+    relocate 'org.bstats', 'dev.brighten.antivpn.velocity.org.bstats'
+    relocate 'org.yaml.snakeyaml', 'dev.brighten.antivpn.shaded.org.yaml.snakeyaml'
+}
+
+tasks.build.dependsOn shadowJar

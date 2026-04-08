@@ -1,0 +1,37 @@
+plugins {
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '8.1.1' apply false
+}
+
+allprojects {
+    group = 'dev.brighten.antivpn'
+    version = '1.10.0'
+
+    repositories {
+        mavenCentral()
+        maven { url 'https://nexus.funkemunky.cc/content/repositories/releases/' }
+        maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
+        maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+        maven { url 'https://repo.spongepowered.org/repository/maven-public/' }
+        maven { url 'https://repo.velocitypowered.com/releases/' }
+        maven { url 'https://jitpack.io' }
+    }
+
+    apply plugin: 'java'
+
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(17)
+        }
+    }
+
+    tasks.withType(JavaCompile).configureEach {
+        options.encoding = 'UTF-8'
+        options.compilerArgs << '-XDignore.symbol.file'
+    }
+
+    dependencies {
+        compileOnly 'org.projectlombok:lombok:1.18.44'
+        annotationProcessor 'org.projectlombok:lombok:1.18.44'
+    }
+}
