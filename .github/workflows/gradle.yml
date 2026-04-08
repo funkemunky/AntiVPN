@@ -19,10 +19,10 @@ jobs:
           distribution: 'zulu'
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
-      - name: Make Gradle wrapper executable
-        run: chmod +x ./gradlew
+        with:
+          gradle-version: 'wrapper'
       - name: Build
-        run: ./gradlew build --no-daemon
+        run: gradle build --no-daemon
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Upload AntiVPN
