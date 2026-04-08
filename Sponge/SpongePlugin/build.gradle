@@ -1,10 +1,10 @@
 plugins {
-    id 'com.github.johnrengelman.shadow'
+    id 'com.gradleup.shadow'
 }
 
 dependencies {
     compileOnly 'org.spongepowered:spongeapi:11.0.0'
-    compileOnly project(':Common:Source')
+    compileOnly project(path: ':Common:Source', configuration: 'shadow')
     compileOnly project(':Common:loader-utils')
 }
 
