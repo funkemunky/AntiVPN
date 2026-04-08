@@ -14,16 +14,16 @@ jobs:
           distribution: 'zulu'
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
-      - name: Make Gradle wrapper executable
-        run: chmod +x ./gradlew
+        with:
+          gradle-version: 'wrapper'
       - name: Build
-        run: ./gradlew build --no-daemon
+        run: gradle build --no-daemon
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Get Version Number from Gradle
         id: get_version
         run: |
-          VERSION=$(./gradlew properties -q | awk -F': ' '/^version:/ {print $2; exit}')
+          VERSION=$(gradle properties -q | awk -F': ' '/^version:/ {print $2; exit}')
           echo "VERSION=$VERSION" >> "$GITHUB_ENV"
       - name: Extract latest CHANGELOG entry
         id: changelog
