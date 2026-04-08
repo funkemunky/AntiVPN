@@ -3,24 +3,14 @@ plugins {
     id 'com.gradleup.shadow' version '9.4.1'
 }
 
-def aggregateTestProjects = [
-        project(':Common:Source'),
-        project(':Bukkit:Plugin'),
-        project(':Bungee:BungeePlugin'),
-        project(':Sponge:SpongePlugin'),
-        project(':Velocity:VelocityPlugin')
-]
-
 allprojects {
     group = 'dev.brighten.antivpn'
     version = '1.10.0'
 
     repositories {
-        maven { url 'https://repo.papermc.io/repository/maven-public/' }
-        maven { url 'https://nexus.funkemunky.cc/repository/papermc-public/' }
-        maven { url 'https://nexus.funkemunky.cc/repository/maven-public/' }
-        maven { url 'https://nexus.funkemunky.cc/repository/maven-central/' }
+        maven {url 'https://nexus.funkemunky.cc/repository/maven-central/'}
         maven { url 'https://nexus.funkemunky.cc/content/repositories/releases/' }
+        maven { url 'https://nexus.funkemunky.cc/repository/papermc-public/' }
         maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
         maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
         maven { url 'https://repo.spongepowered.org/repository/maven-public/' }
@@ -43,30 +33,7 @@ allprojects {
     dependencies {
         compileOnly 'org.projectlombok:lombok:1.18.44'
         annotationProcessor 'org.projectlombok:lombok:1.18.44'
-        testImplementation 'org.junit.jupiter:junit-jupiter:5.11.4'
-        testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     }
-
-    test {
-        useJUnitPlatform()
-        systemProperty 'mockito.mockmaker', 'subclass'
-    }
-}
-
-dependencies {
-    testImplementation 'org.junit.platform:junit-platform-suite:1.11.4'
-}
-
-sourceSets {
-    test {
-        compileClasspath += files(aggregateTestProjects.collect { it.sourceSets.test.output + it.sourceSets.test.compileClasspath })
-        runtimeClasspath += files(aggregateTestProjects.collect { it.sourceSets.test.output + it.sourceSets.test.runtimeClasspath })
-    }
-}
-
-tasks.named('test') {
-    dependsOn(aggregateTestProjects.collect { it.tasks.named('testClasses') })
-    jvmArgs("-XX:+EnableDynamicAgentLoading")
 }
 
 evaluationDependsOn(':Common:Source')

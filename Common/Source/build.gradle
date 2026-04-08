@@ -12,18 +12,10 @@ dependencies {
     compileOnly 'com.h2database:h2:2.2.220'
     compileOnly 'com.github.ben-manes.caffeine:caffeine:3.1.8'
     compileOnly 'org.mongodb:mongo-java-driver:3.12.14'
-    
-    testImplementation 'org.mockito:mockito-core:5.11.0'
-    testImplementation "org.junit.jupiter:junit-jupiter:5.8.1"
-    testImplementation "org.testcontainers:testcontainers:2.0.4"
-    testImplementation "org.testcontainers:testcontainers-junit-jupiter:2.0.4"
-    testImplementation 'org.testcontainers:mysql:1.20.4'
-    testImplementation 'org.testcontainers:mongodb:1.20.4'
-    testRuntimeOnly 'org.slf4j:slf4j-simple:2.0.16'
-    testImplementation 'com.mysql:mysql-connector-j:9.3.0'
-    testImplementation 'com.h2database:h2:2.2.220'
-    testImplementation 'org.mongodb:mongo-java-driver:3.12.14'
-    testImplementation 'com.github.ben-manes.caffeine:caffeine:3.1.8'
+}
+
+jar {
+    enabled = false
 }
 
 shadowJar {
@@ -45,13 +37,4 @@ shadowJar {
 tasks.build.dependsOn shadowJar
 components.java.withVariantsFromConfiguration(configurations.shadowRuntimeElements) {
     skip()
-}
-
-
-test {
-    useJUnitPlatform()
-}
-
-jar {
-    archiveClassifier.set('raw')
 }

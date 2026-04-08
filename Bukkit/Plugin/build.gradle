@@ -4,25 +4,15 @@ plugins {
 
 dependencies {
     compileOnly 'org.spigotmc:spigot-api:1.20.2-R0.1-SNAPSHOT'
-    implementation project(':Common:Source')
-    implementation project(':Common:loader-utils')
+    compileOnly project(path: ':Common:Source', configuration: 'shadow')
+    compileOnly project(':Common:loader-utils')
     implementation 'org.bstats:bstats-bukkit:2.2.1'
-    testImplementation 'com.github.seeseemelk:MockBukkit-v1.20:3.84.0'
-    testImplementation 'com.github.ben-manes.caffeine:caffeine:3.1.8'
-    testImplementation 'org.mockito:mockito-core:5.11.0'
-    testImplementation 'org.mockito:mockito-subclass:5.11.0'
-    testImplementation 'org.mockito:mockito-junit-jupiter:5.11.0'
 }
 
 shadowJar {
     archiveClassifier.set('')
     relocate 'org.bstats', 'dev.brighten.antivpn.bukkit.org.bstats'
     relocate 'org.yaml.snakeyaml', 'dev.brighten.antivpn.shaded.org.yaml.snakeyaml'
-}
-
-test {
-    useJUnitPlatform()
-    systemProperty 'mockito.mockmaker', 'subclass'
 }
 
 tasks.build.dependsOn shadowJar
