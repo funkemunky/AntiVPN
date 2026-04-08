@@ -8,12 +8,12 @@ allprojects {
     version = '1.10.0'
 
     repositories {
-        mavenCentral()
+        maven {url 'https://nexus.funkemunky.cc/repository/maven-central/'}
         maven { url 'https://nexus.funkemunky.cc/content/repositories/releases/' }
+        maven { url 'https://nexus.funkemunky.cc/repository/papermc-public/' }
         maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
         maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
         maven { url 'https://repo.spongepowered.org/repository/maven-public/' }
-        maven { url 'https://repo.velocitypowered.com/releases/' }
         maven { url 'https://jitpack.io' }
     }
 
