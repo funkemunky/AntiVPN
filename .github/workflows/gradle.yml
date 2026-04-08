@@ -9,8 +9,6 @@ jobs:
   build:
     name: Build and Test
     runs-on: ubuntu-latest
-    env:
-      JAVA_TOOL_OPTIONS: -Djavax.net.ssl.trustStoreType=JKS -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
 
     steps:
       - uses: actions/checkout@v5
@@ -21,17 +19,17 @@ jobs:
           distribution: 'zulu'
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: '9.4.1'
+      - name: Make Gradle wrapper executable
+        run: chmod +x ./gradlew
       - name: Build
-        run: gradle build --no-daemon
+        run: ./gradlew build --no-daemon
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Upload AntiVPN
         uses: actions/upload-artifact@v4
         with:
           name: AntiVPN-Universal
-          path: build/libs/AntiVPN-*-universal.jar
+          path: Universal/build/libs/AntiVPN-*-universal.jar
       - name: Upload Sponge plugin
         uses: actions/upload-artifact@v4
         with:
