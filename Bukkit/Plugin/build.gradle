@@ -3,10 +3,12 @@ plugins {
 }
 
 dependencies {
-    compileOnly 'org.spigotmc:spigot-api:1.20.2-R0.1-SNAPSHOT'
-    compileOnly project(path: ':Common:Source', configuration: 'shadow')
-    compileOnly project(':Common:loader-utils')
+    implementation 'org.spigotmc:spigot-api:1.20.2-R0.1-SNAPSHOT'
+    implementation project(path: ':Common:Source', configuration: 'shadow')
+    implementation project(':Common:loader-utils')
     implementation 'org.bstats:bstats-bukkit:2.2.1'
+    testImplementation 'com.github.seeseemelk:MockBukkit-v1.20:3.84.0'
+    testImplementation 'io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT'
 }
 
 shadowJar {

@@ -7,6 +7,10 @@ dependencies {
     compileOnly project(path: ':Common:Source', configuration: 'shadow')
     compileOnly project(':Common:loader-utils')
     implementation 'org.bstats:bstats-velocity:2.2.1'
+    testImplementation 'org.mockito:mockito-core:5.11.0'
+    testImplementation 'org.mockito:mockito-junit-jupiter:5.11.0'
+    testImplementation project(path: ':Common:Source', configuration: 'shadow')
+    testImplementation project(':Common:loader-utils')
 }
 
 shadowJar {
