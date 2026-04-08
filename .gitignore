@@ -188,6 +188,7 @@ fabric.properties
 
 # Package Files #
 *.jar
+!gradle/wrapper/gradle-wrapper.jar
 *.war
 *.nar
 *.ear
@@ -293,3 +294,4 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.toptal.com/developers/gitignore/api/windows,macos,linux,maven,java,intellij,eclipse,netbeans
+/.gradle/

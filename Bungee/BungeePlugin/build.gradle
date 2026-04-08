@@ -1,0 +1,18 @@
+plugins {
+    id 'com.gradleup.shadow'
+}
+
+dependencies {
+    compileOnly 'net.md-5:bungeecord-api:1.21-R0.2'
+    compileOnly project(path: ':Common:Source', configuration: 'shadow')
+    compileOnly project(':Common:loader-utils')
+    implementation 'org.bstats:bstats-bungeecord:2.2.1'
+}
+
+shadowJar {
+    archiveClassifier.set('')
+    relocate 'org.bstats', 'dev.brighten.antivpn.bungee.org.bstats'
+    relocate 'org.yaml.snakeyaml', 'dev.brighten.antivpn.shaded.org.yaml.snakeyaml'
+}
+
+tasks.build.dependsOn shadowJar

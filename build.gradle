@@ -1,0 +1,70 @@
+plugins {
+    id 'java'
+    id 'com.gradleup.shadow' version '9.4.1'
+}
+
+allprojects {
+    group = 'dev.brighten.antivpn'
+    version = '1.10.0'
+
+    repositories {
+        maven {url 'https://nexus.funkemunky.cc/repository/maven-central/'}
+        maven { url 'https://nexus.funkemunky.cc/content/repositories/releases/' }
+        maven { url 'https://nexus.funkemunky.cc/repository/papermc-public/' }
+        maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
+        maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+        maven { url 'https://repo.spongepowered.org/repository/maven-public/' }
+        maven { url 'https://jitpack.io' }
+    }
+
+    apply plugin: 'java'
+
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(21)
+        }
+    }
+
+    tasks.withType(JavaCompile).configureEach {
+        options.encoding = 'UTF-8'
+        options.compilerArgs << '-XDignore.symbol.file'
+    }
+
+    dependencies {
+        compileOnly 'org.projectlombok:lombok:1.18.44'
+        annotationProcessor 'org.projectlombok:lombok:1.18.44'
+    }
+}
+
+evaluationDependsOn(':Common:Source')
+evaluationDependsOn(':Bukkit:Loader')
+evaluationDependsOn(':Velocity:VelocityLoader')
+evaluationDependsOn(':Bungee:BungeeLoader')
+
+dependencies {
+    implementation project(':Bukkit:Loader')
+    implementation project(':Velocity:VelocityLoader')
+    implementation project(':Bungee:BungeeLoader')
+}
+
+shadowJar {
+    archiveFileName.set("AntiVPN-${project.version}-universal.jar")
+
+    // Include the shaded Common:Source jar as a single resource
+    from(project(':Common:Source').tasks.shadowJar) {
+        rename { 'antivpn-source.jarinjar' }
+    }
+
+    relocate 'org.yaml.snakeyaml', 'dev.brighten.antivpn.shaded.org.yaml.snakeyaml'
+    relocate 'org.bstats', 'dev.brighten.antivpn.shaded.org.bstats'
+    relocate 'org.objectweb', 'dev.brighten.antivpn.shaded.org.objectweb'
+}
+
+tasks.named('shadowJar') {
+    dependsOn(':Common:Source:shadowJar')
+    dependsOn(':Bukkit:Loader:shadowJar')
+    dependsOn(':Velocity:VelocityLoader:shadowJar')
+    dependsOn(':Bungee:BungeeLoader:shadowJar')
+}
+
+tasks.build.dependsOn shadowJar

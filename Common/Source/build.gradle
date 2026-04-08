@@ -1,0 +1,40 @@
+plugins {
+    id 'com.gradleup.shadow'
+}
+
+dependencies {
+    implementation 'org.ow2.asm:asm:9.8'
+    implementation 'org.ow2.asm:asm-commons:9.8'
+    implementation 'org.yaml:snakeyaml:2.2'
+    implementation 'org.jetbrains:annotations:26.0.2'
+    
+    compileOnly 'com.mysql:mysql-connector-j:9.3.0'
+    compileOnly 'com.h2database:h2:2.2.220'
+    compileOnly 'com.github.ben-manes.caffeine:caffeine:3.1.8'
+    compileOnly 'org.mongodb:mongo-java-driver:3.12.14'
+}
+
+jar {
+    enabled = false
+}
+
+shadowJar {
+    archiveClassifier.set('')
+    relocate 'org.yaml.snakeyaml', 'dev.brighten.antivpn.shaded.org.yaml.snakeyaml'
+    relocate 'com.github.benmanes.caffeine', 'dev.brighten.antivpn.shaded.com.github.benmanes.caffeine'
+    relocate 'org.h2', 'dev.brighten.antivpn.shaded.org.h2'
+    relocate 'org.bson', 'dev.brighten.antivpn.shaded.org.bson'
+    relocate 'com.mongodb', 'dev.brighten.antivpn.shaded.com.mongodb'
+    relocate 'com.mysql.cj', 'dev.brighten.antivpn.shaded.com.mysql.cj'
+    relocate 'com.mysql.jdbc', 'dev.brighten.antivpn.shaded.com.mysql.jdbc'
+    
+    dependencies {
+        exclude 'dev/brighten/antivpn/depends/Relocate*'
+        exclude 'dev/brighten/antivpn/depends/MavenLibraries*'
+    }
+}
+
+tasks.build.dependsOn shadowJar
+components.java.withVariantsFromConfiguration(configurations.shadowRuntimeElements) {
+    skip()
+}

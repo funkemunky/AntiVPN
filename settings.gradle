@@ -1,0 +1,17 @@
+rootProject.name = 'AntiVPN'
+
+include 'Common:Source'
+include 'Common:loader-utils'
+
+include 'Bukkit:Plugin'
+include 'Bukkit:Loader'
+
+include 'Bungee:BungeePlugin'
+include 'Bungee:BungeeLoader'
+
+include 'Sponge:SpongePlugin'
+include 'Sponge:SpongeLoader'
+
+include 'Velocity:VelocityPlugin'
+include 'Velocity:VelocityLoader'
+

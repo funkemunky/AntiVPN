@@ -1,0 +1,26 @@
+plugins {
+    id 'com.gradleup.shadow'
+}
+
+evaluationDependsOn(':Bungee:BungeePlugin')
+
+dependencies {
+    compileOnly 'net.md-5:bungeecord-api:1.21-R0.2'
+    compileOnly project(':Bungee:BungeePlugin')
+    implementation project(':Common:loader-utils')
+}
+
+shadowJar {
+    archiveClassifier.set('')
+
+    // Include the shaded plugin jar as a single resource file
+    from(project(':Bungee:BungeePlugin').tasks.shadowJar) {
+        rename { 'antivpn-bungee.jarinjar' }
+    }
+}
+
+tasks.named('shadowJar') {
+    dependsOn(':Bungee:BungeePlugin:shadowJar')
+}
+
+tasks.build.dependsOn shadowJar
