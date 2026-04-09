@@ -45,6 +45,10 @@ allprojects {
     }
 }
 
+tasks.named('test') {
+    dependsOn(subprojects.collect { it.tasks.named('test') })
+}
+
 evaluationDependsOn(':Common:Source')
 evaluationDependsOn(':Bukkit:Loader')
 evaluationDependsOn(':Velocity:VelocityLoader')
@@ -77,4 +81,3 @@ tasks.named('shadowJar') {
 }
 
 tasks.build.dependsOn shadowJar
-
