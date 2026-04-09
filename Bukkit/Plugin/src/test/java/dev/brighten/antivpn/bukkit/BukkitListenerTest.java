@@ -15,7 +15,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.InetAddress;
 import java.util.Optional;
@@ -29,21 +28,17 @@ public class BukkitListenerTest {
 
     private ServerMock server;
     private BukkitListener listener;
-    private AntiVPN antiVPN;
-    private VPNConfig config;
-    private PlayerExecutor playerExecutor;
     private VPNExecutor vpnExecutor;
-    private MessageHandler messageHandler;
 
     @BeforeEach
     public void setUp() throws Exception {
         server = MockBukkit.mock();
-        
-        antiVPN = mock(AntiVPN.class);
-        config = mock(VPNConfig.class);
-        playerExecutor = mock(PlayerExecutor.class);
+
+        AntiVPN antiVPN = mock(AntiVPN.class);
+        VPNConfig config = mock(VPNConfig.class);
+        PlayerExecutor playerExecutor = mock(PlayerExecutor.class);
         vpnExecutor = mock(VPNExecutor.class);
-        messageHandler = mock(MessageHandler.class);
+        MessageHandler messageHandler = mock(MessageHandler.class);
         
         when(antiVPN.getVpnConfig()).thenReturn(config);
         when(antiVPN.getPlayerExecutor()).thenReturn(playerExecutor);
@@ -103,7 +98,7 @@ public class BukkitListenerTest {
         // Mock proxy response
         when(vpnExecutor.checkIp("1.1.1.1")).thenReturn(CompletableFuture.completedFuture(
                 VPNResponse.builder().success(true).proxy(true).ip("1.1.1.1")
-                        .method("N/A").countryName("N/A").city("N/A").build()
+                        .method("N/A").countryName("N/A").countryCode("N/A").city("N/A").build()
         ));
         
         PlayerLoginEvent event = new PlayerLoginEvent(player, "localhost", address);
@@ -111,6 +106,6 @@ public class BukkitListenerTest {
         listener.onLogin(event);
         
         assertEquals(PlayerLoginEvent.Result.KICK_BANNED, event.getResult());
-        assertEquals("Blocked!", event.getKickMessage());
+        assertEquals("Blocked!", net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection().serialize(event.kickMessage()));
     }
 }
