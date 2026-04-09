@@ -41,6 +41,7 @@ allprojects {
 
     test {
         useJUnitPlatform()
+        systemProperty 'mockito.mockmaker', 'subclass'
     }
 }
 
@@ -77,6 +78,3 @@ tasks.named('shadowJar') {
 
 tasks.build.dependsOn shadowJar
 
-task testIntegration(type: Test) {
-    dependsOn ':Integration:test'
-}

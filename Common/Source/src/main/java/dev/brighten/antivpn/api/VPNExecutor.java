@@ -16,6 +16,8 @@
 
 package dev.brighten.antivpn.api;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import dev.brighten.antivpn.AntiVPN;
 import dev.brighten.antivpn.utils.CIDRUtils;
 import dev.brighten.antivpn.utils.StringUtil;
@@ -146,7 +148,18 @@ public abstract class VPNExecutor {
         }
     }
 
+    private final Cache<String, VPNResponse> cachedResponses = Caffeine.newBuilder()
+            .expireAfterWrite(20, TimeUnit.MINUTES)
+            .maximumSize(4000)
+            .build();
+
     public CompletableFuture<VPNResponse> checkIp(String ip) {
+        VPNResponse cached = cachedResponses.getIfPresent(ip);
+
+        if(cached != null) {
+            return CompletableFuture.completedFuture(cached);
+        }
+
         return CompletableFuture.supplyAsync(() -> {
             Optional<VPNResponse> cachedRes = AntiVPN.getInstance().getDatabase().getStoredResponse(ip);
 
