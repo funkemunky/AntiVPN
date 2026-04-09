@@ -25,19 +25,15 @@ import static org.mockito.Mockito.*;
 public class SpongeListenerTest {
 
     private SpongeListener listener;
-    private AntiVPN antiVPN;
-    private VPNConfig config;
-    private PlayerExecutor playerExecutor;
     private VPNExecutor vpnExecutor;
-    private MessageHandler messageHandler;
 
     @BeforeEach
     public void setUp() throws Exception {
-        antiVPN = mock(AntiVPN.class);
-        config = mock(VPNConfig.class);
-        playerExecutor = mock(PlayerExecutor.class);
+        AntiVPN antiVPN = mock(AntiVPN.class);
+        VPNConfig config = mock(VPNConfig.class);
+        PlayerExecutor playerExecutor = mock(PlayerExecutor.class);
         vpnExecutor = mock(VPNExecutor.class);
-        messageHandler = mock(MessageHandler.class);
+        MessageHandler messageHandler = mock(MessageHandler.class);
 
         when(antiVPN.getVpnConfig()).thenReturn(config);
         when(antiVPN.getPlayerExecutor()).thenReturn(playerExecutor);
@@ -76,7 +72,7 @@ public class SpongeListenerTest {
     }
 
     @Test
-    public void testLoginEventAllowed() throws Exception {
+    public void testLoginEventAllowed() {
         ServerSideConnectionEvent.Login event = mock(ServerSideConnectionEvent.Login.class);
         GameProfile profile = mock(GameProfile.class);
         ServerSideConnection connection = mock(ServerSideConnection.class);
@@ -93,7 +89,7 @@ public class SpongeListenerTest {
     }
 
     @Test
-    public void testLoginEventBlocked() throws Exception {
+    public void testLoginEventBlocked() {
         ServerSideConnectionEvent.Login event = mock(ServerSideConnectionEvent.Login.class);
         GameProfile profile = mock(GameProfile.class);
         ServerSideConnection connection = mock(ServerSideConnection.class);
@@ -107,7 +103,7 @@ public class SpongeListenerTest {
         // Mock proxy response
         when(vpnExecutor.checkIp("1.1.1.1")).thenReturn(CompletableFuture.completedFuture(
                 VPNResponse.builder().success(true).proxy(true).ip("1.1.1.1")
-                        .method("N/A").countryName("N/A").city("N/A").build()
+                        .method("N/A").countryName("N/A").countryCode("N/A").city("N/A").build()
         ));
 
         listener.onJoin(event);
