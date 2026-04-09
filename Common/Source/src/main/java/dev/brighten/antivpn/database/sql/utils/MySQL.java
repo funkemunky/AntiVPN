@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.SQLSyntaxErrorException;
 import java.util.Properties;
 import java.util.logging.Level;
 
@@ -48,15 +49,33 @@ public class MySQL {
                 }
                 conn.setAutoCommit(true);
                 Query.use(conn);
-                Query.prepare("CREATE DATABASE IF NOT EXISTS `"
-                        + AntiVPN.getInstance().getVpnConfig().getDatabaseName() + "`").execute();
-                Query.prepare("USE `" + AntiVPN.getInstance().getVpnConfig().getDatabaseName() + "`").execute();
+                String databaseName = AntiVPN.getInstance().getVpnConfig().getDatabaseName();
+
+                try {
+                    Query.prepare("CREATE DATABASE IF NOT EXISTS `" + databaseName + "`").execute();
+                } catch (SQLException ex) {
+                    if (!isDatabaseCreationPermissionIssue(ex)) {
+                        throw ex;
+                    }
+
+                    AntiVPN.getInstance().getExecutor().log(
+                            "No permission to create MySQL database `" + databaseName
+                                    + "`. Attempting to use the existing database instead.");
+                }
+
+                Query.prepare("USE `" + databaseName + "`").execute();
                 AntiVPN.getInstance().getExecutor().log("Connection to MySQL has been established.");
             }
         } catch (Exception e) {
             AntiVPN.getInstance().getExecutor().logException("Failed to load mysql: " + e.getMessage(), e);
             throw new RuntimeException("Could not initialize MySQL connection", e);
         }
+    }
+
+    private static boolean isDatabaseCreationPermissionIssue(SQLException ex) {
+        return ex instanceof SQLSyntaxErrorException
+                && ex.getMessage() != null
+                && ex.getMessage().contains("Access denied");
     }
 
     public static void initH2() {

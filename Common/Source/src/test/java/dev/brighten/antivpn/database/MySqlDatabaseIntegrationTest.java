@@ -7,8 +7,6 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.sql.DriverManager;
-import java.util.UUID;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
@@ -38,7 +36,7 @@ class MySqlDatabaseIntegrationTest extends DatabaseIntegrationTestSupport {
 
         when(vpnConfig.getIp()).thenReturn(MYSQL.getHost());
         when(vpnConfig.getPort()).thenReturn(MYSQL.getMappedPort(3306));
-        when(vpnConfig.getDatabaseName()).thenReturn("antivpn_" + UUID.randomUUID().toString().replace("-", ""));
+        when(vpnConfig.getDatabaseName()).thenReturn(MYSQL.getDatabaseName());
         when(vpnConfig.getUsername()).thenReturn(MYSQL.getUsername());
         when(vpnConfig.getPassword()).thenReturn(MYSQL.getPassword());
 
