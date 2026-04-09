@@ -41,43 +41,45 @@ public class VelocityListener extends VPNExecutor {
                         .unloadPlayer(event.getPlayer().getUniqueId()));
 
         VelocityPlugin.INSTANCE.getServer().getEventManager().register(VelocityPlugin.INSTANCE.getPluginInstance(), LoginEvent.class,
-                event -> {
-            APIPlayer player = AntiVPN.getInstance().getPlayerExecutor().getPlayer(event.getPlayer().getUniqueId())
-                    .orElse(new OfflinePlayer(
-                            event.getPlayer().getUniqueId(),
-                            event.getPlayer().getUsername(),
-                            event.getPlayer().getRemoteAddress().getAddress()
-                    ));
+                this::onLogin);
+    }
 
-            player.checkPlayer(result -> {
-                if(!result.resultType().isShouldBlock()) return;
+    public void onLogin(LoginEvent event) {
+        APIPlayer player = AntiVPN.getInstance().getPlayerExecutor().getPlayer(event.getPlayer().getUniqueId())
+                .orElse(new OfflinePlayer(
+                        event.getPlayer().getUniqueId(),
+                        event.getPlayer().getUsername(),
+                        event.getPlayer().getRemoteAddress().getAddress()
+                ));
 
-                if(!AntiVPN.getInstance().getVpnConfig().isKickPlayers()) {
-                    return;
-                }
+        player.checkPlayer(result -> {
+            if(!result.resultType().isShouldBlock()) return;
 
-                switch (result.resultType()) {
-                    case DENIED_COUNTRY -> event.setResult(ResultedEvent.ComponentResult.denied(
-                            LegacyComponentSerializer.builder()
-                                    .character('&')
-                                    .build().deserialize(AntiVPN.getInstance().getVpnConfig()
-                                            .getCountryVanillaKickReason()
-                                            .replace("%player%", event.getPlayer().getUsername())
-                                            .replace("%country%", result.response().getCountryName())
-                                            .replace("%code%", result.response().getCountryCode()))));
-                    case DENIED_PROXY -> {
-                        VelocityPlugin.INSTANCE.getLogger().info(event.getPlayer().getUsername()
-                                + " joined on a VPN/Proxy (" + result.response().getMethod() + ")");
-                        event.setResult(ResultedEvent.ComponentResult.denied(LegacyComponentSerializer.builder()
+            if(!AntiVPN.getInstance().getVpnConfig().isKickPlayers()) {
+                return;
+            }
+
+            switch (result.resultType()) {
+                case DENIED_COUNTRY -> event.setResult(ResultedEvent.ComponentResult.denied(
+                        LegacyComponentSerializer.builder()
                                 .character('&')
                                 .build().deserialize(AntiVPN.getInstance().getVpnConfig()
-                                        .getKickMessage()
+                                        .getCountryVanillaKickReason()
                                         .replace("%player%", event.getPlayer().getUsername())
                                         .replace("%country%", result.response().getCountryName())
                                         .replace("%code%", result.response().getCountryCode()))));
-                    }
+                case DENIED_PROXY -> {
+                    VelocityPlugin.INSTANCE.getLogger().info(event.getPlayer().getUsername()
+                            + " joined on a VPN/Proxy (" + result.response().getMethod() + ")");
+                    event.setResult(ResultedEvent.ComponentResult.denied(LegacyComponentSerializer.builder()
+                            .character('&')
+                            .build().deserialize(AntiVPN.getInstance().getVpnConfig()
+                                    .getKickMessage()
+                                    .replace("%player%", event.getPlayer().getUsername())
+                                    .replace("%country%", result.response().getCountryName())
+                                    .replace("%code%", result.response().getCountryCode()))));
                 }
-            });
+            }
         });
     }
 

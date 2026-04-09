@@ -4,13 +4,23 @@ plugins {
 
 dependencies {
     compileOnly 'com.velocitypowered:velocity-api:3.4.0-SNAPSHOT'
-    compileOnly project(path: ':Common:Source', configuration: 'shadow')
+    testImplementation 'com.velocitypowered:velocity-api:3.4.0-SNAPSHOT'
+    compileOnly project(':Common:Source')
     compileOnly project(':Common:loader-utils')
     implementation 'org.bstats:bstats-velocity:2.2.1'
     testImplementation 'org.mockito:mockito-core:5.11.0'
     testImplementation 'org.mockito:mockito-junit-jupiter:5.11.0'
-    testImplementation project(path: ':Common:Source', configuration: 'shadow')
+    testImplementation 'net.java.dev.jna:jna:5.14.0'
+    testImplementation 'com.github.ben-manes.caffeine:caffeine:3.1.8'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.11.4'
+    testImplementation project(':Common:Source')
     testImplementation project(':Common:loader-utils')
+}
+tasks.compileJava.dependsOn(':Common:Source:jar')
+
+test {
+    useJUnitPlatform()
+    jvmArgs("-XX:+EnableDynamicAgentLoading")
 }
 
 shadowJar {

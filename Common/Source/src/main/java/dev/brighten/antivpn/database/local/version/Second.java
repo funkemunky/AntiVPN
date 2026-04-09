@@ -86,6 +86,7 @@ public class Second extends First implements Version<VPNDatabase> {
             }
 
             dropIndexIfPresent("whitelisted-ips", "ip_1");
+            dropIndexIfPresent("whitelisted-ips", "whitelisted_ips_ip_1");
             closeOnEnd(Query.prepare("DROP TABLE `whitelisted-ips`")).execute();
             closeOnEnd(Query.prepare("INSERT INTO `database_version` (`version`) VALUES (?)").append(versionNumber())).execute();
         } catch (Throwable e) {
@@ -123,7 +124,7 @@ public class Second extends First implements Version<VPNDatabase> {
             statement.execute();
         }
 
-        createIndexIfAbsent("whitelisted-ips", "ip_1", "`ip`");
+        createIndexIfAbsent("whitelisted-ips", "whitelisted_ips_ip_1", "`ip`");
 
         try(var statement = Query.prepare("DELETE FROM `whitelisted-ips`")) {
             statement.execute();

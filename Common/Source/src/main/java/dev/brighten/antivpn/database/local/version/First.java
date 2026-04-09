@@ -52,11 +52,11 @@ public class First implements Version<VPNDatabase> {
                     .append(versionNumber())).execute();
 
             AntiVPN.getInstance().getExecutor().log("Creating indexes...");
-            createIndexIfAbsent("whitelisted", "uuid_1", "`uuid`");
-            createIndexIfAbsent("responses", "ip_1", "`ip`");
-            createIndexIfAbsent("responses", "proxy_1", "`proxy`");
-            createIndexIfAbsent("responses", "inserted_1", "`inserted`");
-            createIndexIfAbsent("whitelisted-ips", "ip_1", "`ip`");
+            createIndexIfAbsent("whitelisted", "whitelisted_uuid_1", "`uuid`");
+            createIndexIfAbsent("responses", "responses_ip_1", "`ip`");
+            createIndexIfAbsent("responses", "responses_proxy_1", "`proxy`");
+            createIndexIfAbsent("responses", "responses_inserted_1", "`inserted`");
+            createIndexIfAbsent("whitelisted-ips", "whitelisted_ips_ip_1", "`ip`");
         } catch (SQLException e) {
             throw new DatabaseException("Failed to update database", e);
         } finally {
