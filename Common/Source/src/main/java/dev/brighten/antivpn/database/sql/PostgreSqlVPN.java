@@ -21,21 +21,22 @@ import dev.brighten.antivpn.database.local.H2VPN;
 import dev.brighten.antivpn.database.sql.utils.MySQL;
 import dev.brighten.antivpn.database.version.Version;
 
-public class MySqlVPN extends H2VPN {
+public class PostgreSqlVPN extends H2VPN {
 
     @Override
     public void init() {
-        if (!AntiVPN.getInstance().getVpnConfig().isDatabaseEnabled())
+        if (!AntiVPN.getInstance().getVpnConfig().isDatabaseEnabled()) {
             return;
-        AntiVPN.getInstance().getExecutor().log("Initializing MySQL...");
-        MySQL.initMySql();
+        }
+
+        AntiVPN.getInstance().getExecutor().log("Initializing PostgreSQL...");
+        MySQL.initPostgreSql();
 
         AntiVPN.getInstance().getExecutor().log("Checking for updates...");
 
-        //Running check for old table types to update
         try {
-            for (Version<MySqlVPN> version : Version.mysqlVersions) {
-                if(version.needsUpdate(this)) {
+            for (Version<PostgreSqlVPN> version : Version.postgresVersions) {
+                if (version.needsUpdate(this)) {
                     version.update(this);
                 }
             }

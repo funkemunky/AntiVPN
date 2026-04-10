@@ -21,6 +21,7 @@ import dev.brighten.antivpn.database.DatabaseException;
 import dev.brighten.antivpn.database.VPNDatabase;
 import dev.brighten.antivpn.database.local.H2VPN;
 import dev.brighten.antivpn.database.sql.MySqlVPN;
+import dev.brighten.antivpn.database.sql.PostgreSqlVPN;
 import dev.brighten.antivpn.database.sql.utils.ExecutableStatement;
 import dev.brighten.antivpn.database.sql.utils.Query;
 import dev.brighten.antivpn.database.version.Version;
@@ -37,7 +38,9 @@ public class Second extends First implements Version<VPNDatabase> {
 
     @Override
     public void update(VPNDatabase database) throws DatabaseException {
-        if(database instanceof H2VPN h2VPN && !(database instanceof MySqlVPN)) {
+        if(database instanceof H2VPN h2VPN
+                && !(database instanceof MySqlVPN)
+                && !(database instanceof PostgreSqlVPN)) {
             h2VPN.backupDatabase();
         }
         List<String> whitelistedIps = new ArrayList<>();

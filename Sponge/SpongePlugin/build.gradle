@@ -37,6 +37,7 @@ shadowJar {
     relocate 'com.mongodb', 'dev.brighten.antivpn.shaded.com.mongodb'
     relocate 'com.mysql.cj', 'dev.brighten.antivpn.shaded.com.mysql.cj'
     relocate 'com.mysql.jdbc', 'dev.brighten.antivpn.shaded.com.mysql.jdbc'
+    relocate 'org.postgresql', 'dev.brighten.antivpn.shaded.org.postgresql'
 }
 
 tasks.build.dependsOn shadowJar

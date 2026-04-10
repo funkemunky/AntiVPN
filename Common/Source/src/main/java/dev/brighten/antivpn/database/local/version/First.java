@@ -88,11 +88,11 @@ public class First implements Version<VPNDatabase> {
             return;
         }
 
-        closeOnEnd(Query.prepare(String.format(
-                "drop index `%s` on `%s`",
-                indexName,
-                tableName
-        ))).execute();
+        String sql = Query.getDialect().isPostgreSql()
+                ? String.format("drop index \"%s\"", indexName)
+                : String.format("drop index `%s` on `%s`", indexName, tableName);
+
+        closeOnEnd(Query.prepare(sql)).execute();
     }
 
     protected boolean hasIndex(String tableName, String indexName) throws SQLException {
