@@ -17,7 +17,6 @@
 package dev.brighten.antivpn.bukkit;
 
 import dev.brighten.antivpn.api.APIPlayer;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -26,7 +25,7 @@ public class BukkitPlayer extends APIPlayer {
 
     private final Player player;
     public BukkitPlayer(Player player) {
-        super(player.getUniqueId(), player.getName(), player.getAddress().getAddress());
+        super(player.getUniqueId(), player.getName(), player.getAddress() != null ? player.getAddress().getAddress() : null);
 
         this.player = player;
     }
@@ -38,13 +37,11 @@ public class BukkitPlayer extends APIPlayer {
 
     @Override
     public void kickPlayer(String reason) {
-        if(!Bukkit.isPrimaryThread()) {
-            new BukkitRunnable() {
-                public void run() {
-                    player.kickPlayer(ChatColor.translateAlternateColorCodes('&', reason));
-                }
-            }.runTask(BukkitPlugin.pluginInstance.getPlugin());
-        } else player.kickPlayer(ChatColor.translateAlternateColorCodes('&', reason));
+        new BukkitRunnable() {
+            public void run() {
+                player.kickPlayer(ChatColor.translateAlternateColorCodes('&', reason));
+            }
+        }.runTask(BukkitPlugin.pluginInstance.getPlugin());
     }
 
     @Override
