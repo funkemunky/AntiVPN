@@ -21,6 +21,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
@@ -105,6 +106,24 @@ public class BukkitListenerTest {
         
         listener.onLogin(event);
         
+        assertEquals(PlayerLoginEvent.Result.KICK_BANNED, event.getResult());
+        assertEquals("Blocked!", net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection().serialize(event.kickMessage()));
+    }
+
+    @Test
+    public void testLoginPipelineProxyPlayerIsKickedWithoutErrors() throws Exception {
+        PlayerMock player = server.addPlayer("PipelineProxyPlayer");
+        InetAddress address = InetAddress.getByName("1.1.1.1");
+
+        when(vpnExecutor.checkIp("1.1.1.1")).thenReturn(CompletableFuture.completedFuture(
+                VPNResponse.builder().success(true).proxy(true).ip("1.1.1.1")
+                        .method("N/A").countryName("N/A").countryCode("N/A").city("N/A").build()
+        ));
+
+        PlayerLoginEvent event = new PlayerLoginEvent(player, "localhost", address);
+
+        assertDoesNotThrow(() -> listener.onLogin(event));
+
         assertEquals(PlayerLoginEvent.Result.KICK_BANNED, event.getResult());
         assertEquals("Blocked!", net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection().serialize(event.kickMessage()));
     }

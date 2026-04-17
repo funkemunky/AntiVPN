@@ -80,7 +80,7 @@ public class AllowlistCommand extends Command {
                     page = Integer.parseInt(args[1]);
                     if (page < 1) page = 1;
                 } catch (NumberFormatException e) {
-                    page = 1;
+                    return "&cUsage: /antivpn allowlist show [page]";
                 }
             }
 
@@ -242,12 +242,14 @@ public class AllowlistCommand extends Command {
                 uuid = UUID.fromString(args[1]);
             } catch(IllegalArgumentException e) {
                 Optional<APIPlayer> player = AntiVPN.getInstance().getPlayerExecutor().getPlayer(args[1]);
-
-                if(player.isEmpty()) {
-                    return "&cThe player \"" + args[1] + "\" is not online, so please provide a UUID.";
+                if (player.isPresent()) {
+                    uuid = player.get().getUuid();
+                } else {
+                    uuid = MiscUtils.lookupUUID(args[1]);
+                    if (uuid == null) {
+                        return "&cCould not find a UUID for \"" + args[1] + "\". They might not have provided a valid username.";
+                    }
                 }
-
-                uuid = player.get().getUuid();
             }
 
             if(!databaseEnabled) {
