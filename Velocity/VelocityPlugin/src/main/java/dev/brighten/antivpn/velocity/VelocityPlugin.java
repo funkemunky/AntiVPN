@@ -23,7 +23,6 @@ import dev.brighten.antivpn.database.VPNDatabase;
 import dev.brighten.antivpn.database.local.H2VPN;
 import dev.brighten.antivpn.database.mongo.MongoVPN;
 import dev.brighten.antivpn.database.sql.MySqlVPN;
-import dev.brighten.antivpn.database.sql.PostgreSqlVPN;
 import dev.brighten.antivpn.loader.LoaderBootstrap;
 import dev.brighten.antivpn.velocity.command.VelocityCommand;
 import lombok.Getter;
@@ -62,8 +61,6 @@ public class VelocityPlugin implements LoaderBootstrap {
         VPNDatabase database = AntiVPN.getInstance().getDatabase();
         if(database instanceof MySqlVPN) {
             return "MySQL";
-        } else if(database instanceof PostgreSqlVPN) {
-            return "PostgreSQL";
         } else if(database instanceof H2VPN) {
             return "H2";
         }  else if(database instanceof MongoVPN) {

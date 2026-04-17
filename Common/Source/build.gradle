@@ -9,7 +9,6 @@ dependencies {
     implementation 'org.jetbrains:annotations:26.0.2'
     
     compileOnly 'com.mysql:mysql-connector-j:9.3.0'
-    compileOnly 'org.postgresql:postgresql:42.7.3'
     compileOnly 'com.h2database:h2:2.2.220'
     compileOnly 'com.github.ben-manes.caffeine:caffeine:3.1.8'
     compileOnly 'org.mongodb:mongo-java-driver:3.12.14'
@@ -19,11 +18,9 @@ dependencies {
     testImplementation "org.testcontainers:testcontainers:2.0.4"
     testImplementation "org.testcontainers:testcontainers-junit-jupiter:2.0.4"
     testImplementation 'org.testcontainers:mysql:1.20.4'
-    testImplementation 'org.testcontainers:postgresql:1.20.4'
     testImplementation 'org.testcontainers:mongodb:1.20.4'
     testRuntimeOnly 'org.slf4j:slf4j-simple:2.0.16'
     testImplementation 'com.mysql:mysql-connector-j:9.3.0'
-    testImplementation 'org.postgresql:postgresql:42.7.3'
     testImplementation 'com.h2database:h2:2.2.220'
     testImplementation 'org.mongodb:mongo-java-driver:3.12.14'
     testImplementation 'com.github.ben-manes.caffeine:caffeine:3.1.8'
@@ -38,7 +35,6 @@ shadowJar {
     relocate 'com.mongodb', 'dev.brighten.antivpn.shaded.com.mongodb'
     relocate 'com.mysql.cj', 'dev.brighten.antivpn.shaded.com.mysql.cj'
     relocate 'com.mysql.jdbc', 'dev.brighten.antivpn.shaded.com.mysql.jdbc'
-    relocate 'org.postgresql', 'dev.brighten.antivpn.shaded.org.postgresql'
     
     dependencies {
         exclude 'dev/brighten/antivpn/depends/Relocate*'

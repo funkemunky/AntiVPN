@@ -20,12 +20,10 @@ import com.mysql.cj.jdbc.Driver;
 import dev.brighten.antivpn.AntiVPN;
 import org.h2.jdbc.JdbcSQLFeatureNotSupportedException;
 import org.h2.jdbc.JdbcSQLNonTransientConnectionException;
-import org.postgresql.util.PSQLException;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.sql.Statement;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.SQLSyntaxErrorException;
@@ -36,10 +34,6 @@ public class MySQL {
     private static Connection conn;
 
     public static void init() {
-        initMySql();
-    }
-
-    public static void initMySql() {
         try {
             if (conn == null || conn.isClosed()) {
                 String url = "jdbc:mysql://" + AntiVPN.getInstance().getVpnConfig().getIp()
@@ -78,88 +72,10 @@ public class MySQL {
         }
     }
 
-    public static void initPostgreSql() {
-        try {
-            if (conn == null || conn.isClosed()) {
-                Properties properties = new Properties();
-                properties.setProperty("user", AntiVPN.getInstance().getVpnConfig().getUsername());
-                properties.setProperty("password", AntiVPN.getInstance().getVpnConfig().getPassword());
-
-                String host = AntiVPN.getInstance().getVpnConfig().getIp();
-                int port = AntiVPN.getInstance().getVpnConfig().getPort();
-                String databaseName = AntiVPN.getInstance().getVpnConfig().getDatabaseName();
-
-                String adminUrl = "jdbc:postgresql://" + host + ":" + port + "/postgres";
-                try (Connection adminConnection = new org.postgresql.Driver().connect(adminUrl, properties)) {
-                    if (adminConnection == null) {
-                        throw new SQLException("PostgreSQL driver did not accept URL: " + adminUrl);
-                    }
-
-                    adminConnection.setAutoCommit(true);
-                    ensurePostgreSqlDatabase(adminConnection, databaseName);
-                }
-
-                String databaseUrl = "jdbc:postgresql://" + host + ":" + port + "/" + databaseName;
-                conn = new org.postgresql.Driver().connect(databaseUrl, properties);
-                if (conn == null) {
-                    throw new SQLException("PostgreSQL driver did not accept URL: " + databaseUrl);
-                }
-
-                conn.setAutoCommit(true);
-                Query.use(conn);
-                AntiVPN.getInstance().getExecutor().log("Connection to PostgreSQL has been established.");
-            }
-        } catch (Exception e) {
-            AntiVPN.getInstance().getExecutor().logException("Failed to load postgresql: " + e.getMessage(), e);
-            throw new RuntimeException("Could not initialize PostgreSQL connection", e);
-        }
-    }
-
     private static boolean isDatabaseCreationPermissionIssue(SQLException ex) {
         return ex instanceof SQLSyntaxErrorException
                 && ex.getMessage() != null
                 && ex.getMessage().contains("Access denied");
-    }
-
-    private static void ensurePostgreSqlDatabase(Connection adminConnection, String databaseName) throws SQLException {
-        try (var statement = adminConnection.prepareStatement("SELECT 1 FROM pg_database WHERE datname = ?")) {
-            statement.setString(1, databaseName);
-
-            try (var resultSet = statement.executeQuery()) {
-                if (resultSet.next()) {
-                    return;
-                }
-            }
-        }
-
-        try (Statement statement = adminConnection.createStatement()) {
-            statement.execute("CREATE DATABASE " + quotePostgreSqlIdentifier(databaseName));
-        } catch (SQLException ex) {
-            if (isPostgreSqlAlreadyExists(ex)) {
-                return;
-            }
-
-            if (!isPostgreSqlCreationPermissionIssue(ex)) {
-                throw ex;
-            }
-
-            AntiVPN.getInstance().getExecutor().log(
-                    "No permission to create PostgreSQL database \"" + databaseName
-                            + "\". Attempting to use the existing database instead."
-            );
-        }
-    }
-
-    private static boolean isPostgreSqlAlreadyExists(SQLException ex) {
-        return ex instanceof PSQLException && "42P04".equals(ex.getSQLState());
-    }
-
-    private static boolean isPostgreSqlCreationPermissionIssue(SQLException ex) {
-        return "42501".equals(ex.getSQLState());
-    }
-
-    private static String quotePostgreSqlIdentifier(String identifier) {
-        return "\"" + identifier.replace("\"", "\"\"") + "\"";
     }
 
     public static void initH2() {
@@ -258,9 +174,8 @@ public class MySQL {
                 if(conn instanceof NonClosableConnection) {
                     ((NonClosableConnection)conn).shutdown();
                 } else conn.close();
+                conn = null;
             }
-            conn = null;
-            Query.use(null);
         } catch (Exception e) {
             AntiVPN.getInstance().getExecutor().logException(e);
         }

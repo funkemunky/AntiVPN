@@ -175,10 +175,6 @@ public class VPNConfig {
                 case "mongo":
                 case "mongod":
                     return 27017;
-                case "postgresql":
-                case "postgres":
-                case "psql":
-                    return 5432;
                 case "sql":
                 case "mysql":
                     return 3306;

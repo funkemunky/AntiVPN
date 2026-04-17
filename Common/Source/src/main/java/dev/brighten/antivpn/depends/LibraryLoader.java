@@ -325,9 +325,7 @@ public final class LibraryLoader {
             return className;
         }
 
-        if (className.startsWith("com.mysql.cj")
-                || className.startsWith("com.mysql.jdbc")
-                || className.startsWith("org.postgresql")) {
+        if (className.startsWith("com.mysql.cj") || className.startsWith("com.mysql.jdbc")) {
             return "dev.brighten.antivpn.shaded." + className;
         }
 

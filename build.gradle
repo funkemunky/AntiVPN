@@ -16,7 +16,6 @@ allprojects {
     version = '1.10.0'
 
     repositories {
-        mavenCentral()
         maven { url 'https://repo.papermc.io/repository/maven-public/' }
         maven { url 'https://nexus.funkemunky.cc/repository/papermc-public/' }
         maven { url 'https://nexus.funkemunky.cc/repository/maven-public/' }

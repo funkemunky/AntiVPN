@@ -25,17 +25,14 @@ import java.sql.SQLException;
 public class Query {
     @Getter
     private static Connection conn;
-    @Getter
-    private static SqlDialect dialect = SqlDialect.GENERIC;
 
     public static void use(Connection conn) {
         Query.conn = conn;
-        Query.dialect = SqlDialect.from(conn);
     }
 
     @SuppressWarnings("SqlSourceToSinkFlow")
     public static ExecutableStatement prepare(@Language("SQL") String sql) throws SQLException {
-        return new ExecutableStatement(conn.prepareStatement(dialect.translate(sql)));
+        return new ExecutableStatement(conn.prepareStatement(sql));
     }
 
 

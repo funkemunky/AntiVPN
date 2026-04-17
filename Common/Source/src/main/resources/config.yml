@@ -18,7 +18,7 @@ database:
   # Enable to cache queries and save alerts state beyond restarts
   enabled: true
   useCredentials: false
-  #Options Mongo, MySQL, PostgreSQL, or H2
+  #Options Mongo, MySQL, or H2
   type: H2
   # The database name you would like to use
   database: kaurivpn
@@ -30,7 +30,7 @@ database:
   password: password
   # The IP of your database goes here
   ip: localhost
-  # -1 will use default port of databases (MySQL:3306, PostgreSQL:5432, Mongo:27017). Otherwise, enter an alternative port here.
+  # -1 will use default port of databases (MySQL:3306, Mongo:27017). Otherwise, enter alternative ports here.
   port: -1
 commands:
   # Enable this to override the default kick function of the plugin with your own commands

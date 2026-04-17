@@ -23,7 +23,6 @@ import dev.brighten.antivpn.database.VPNDatabase;
 import dev.brighten.antivpn.database.local.H2VPN;
 import dev.brighten.antivpn.database.mongo.MongoVPN;
 import dev.brighten.antivpn.database.sql.MySqlVPN;
-import dev.brighten.antivpn.database.sql.PostgreSqlVPN;
 import dev.brighten.antivpn.loader.LoaderBootstrap;
 import lombok.Getter;
 import org.bstats.bukkit.Metrics;
@@ -152,8 +151,6 @@ public class BukkitPlugin implements LoaderBootstrap {
 
         if(database instanceof MySqlVPN) {
             return "MySQL";
-        } else if(database instanceof PostgreSqlVPN) {
-            return "PostgreSQL";
         } else if(database instanceof H2VPN) {
             return "H2";
         } else if(database instanceof MongoVPN) {
