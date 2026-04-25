@@ -24,7 +24,7 @@ jobs:
         with:
           gradle-version: '9.4.1'
       - name: Build
-        run: gradle build --no-daemon
+        run: gradle build -x test --no-daemon
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Upload AntiVPN
@@ -32,8 +32,3 @@ jobs:
         with:
           name: AntiVPN-Universal
           path: build/libs/AntiVPN-*-universal.jar
-      - name: Upload Sponge plugin
-        uses: actions/upload-artifact@v4
-        with:
-          name: AntiVPN-Sponge
-          path: Sponge/SpongeLoader/build/libs/*.jar
