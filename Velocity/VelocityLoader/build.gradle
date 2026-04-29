@@ -11,6 +11,12 @@ dependencies {
     implementation 'org.bstats:bstats-velocity:2.2.1'
 }
 
+tasks.processResources {
+    filesMatching('velocity-plugin.json') {
+        expand(projectVersion: project.version)
+    }
+}
+
 shadowJar {
     archiveClassifier.set('')
 
@@ -28,3 +34,7 @@ tasks.named('shadowJar') {
 }
 
 tasks.build.dependsOn shadowJar
+
+jar {
+    archiveClassifier.set('raw')
+}

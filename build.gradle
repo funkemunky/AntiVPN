@@ -13,7 +13,7 @@ def aggregateTestProjects = [
 
 allprojects {
     group = 'dev.brighten.antivpn'
-    version = '1.10.1'
+    version = '1.10.1.1'
 
     repositories {
         maven { url 'https://repo.papermc.io/repository/maven-public/' }
@@ -76,7 +76,6 @@ evaluationDependsOn(':Bungee:BungeeLoader')
 
 dependencies {
     implementation project(':Bukkit:Loader')
-    implementation project(':Velocity:VelocityLoader')
     implementation project(':Bungee:BungeeLoader')
 }
 
@@ -87,6 +86,10 @@ shadowJar {
     from(project(':Common:Source').tasks.shadowJar) {
         rename { 'antivpn-source.jarinjar' }
     }
+
+    from({
+        zipTree(project(':Velocity:VelocityLoader').tasks.shadowJar.archiveFile.get().asFile)
+    })
 }
 
 tasks.named('shadowJar') {

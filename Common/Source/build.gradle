@@ -28,11 +28,6 @@ dependencies {
 
 shadowJar {
     archiveClassifier.set('')
-
-    dependencies {
-        exclude 'dev/brighten/antivpn/depends/Relocate*'
-        exclude 'dev/brighten/antivpn/depends/MavenLibraries*'
-    }
 }
 
 tasks.build.dependsOn shadowJar
