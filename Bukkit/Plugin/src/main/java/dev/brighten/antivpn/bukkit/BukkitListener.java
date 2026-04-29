@@ -30,6 +30,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.logging.Level;
 
@@ -58,8 +59,12 @@ public class BukkitListener extends VPNExecutor implements Listener {
 
     @Override
     public void runCommand(String command) {
-        Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(),
-                ChatColor.translateAlternateColorCodes('&', command));
+        new BukkitRunnable() {
+            public void run() {
+                Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(),
+                        ChatColor.translateAlternateColorCodes('&', command));
+            }
+        }.runTask(BukkitPlugin.pluginInstance.getPlugin());
     }
 
     @Override
