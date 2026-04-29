@@ -7,13 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.10.1] - 2026-04-28
 
 ### Fixed
-- Async kick error that caused issues during player removal when running commands.
-- Startup error caused by a packaging issue is now corrected.
-
-### Changed
-- Players can now be whitelisted even while offline (on non-cracked servers)
-
-### Added
+- Startup error on velocity instances is now corrected.
 
 ## [1.10.0] - 2026-04-07
 
