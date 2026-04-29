@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.10.1] - 2026-04-28
+
+### Fixed
+- Kick errors on Bukkit-based platforms by forcing `BukkitPlayer#kickPlayer` to always run on the main thread using `BukkitRunnable`
+- Async kick error that caused issues during player removal
+- Startup bug caused by a packaging issue
+
+### Changed
+- Players can now be whitelisted even while offline (on non-cracked servers)
+
+### Added
+- Regression test to prevent kick-related async errors from recurring
+
 ## [1.10.0] - 2026-04-07
 
 ### Added
