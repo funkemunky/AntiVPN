@@ -17,7 +17,6 @@ dependencies {
 shadowJar {
     archiveClassifier.set('')
     relocate 'org.bstats', 'dev.brighten.antivpn.bukkit.org.bstats'
-    relocate 'org.yaml.snakeyaml', 'dev.brighten.antivpn.shaded.org.yaml.snakeyaml'
 }
 
 test {

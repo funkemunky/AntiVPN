@@ -27,7 +27,6 @@ import dev.brighten.antivpn.database.mongo.MongoVPN;
 import dev.brighten.antivpn.database.sql.MySqlVPN;
 import dev.brighten.antivpn.depends.LibraryLoader;
 import dev.brighten.antivpn.depends.MavenLibrary;
-import dev.brighten.antivpn.depends.Relocate;
 import dev.brighten.antivpn.message.MessageHandler;
 import dev.brighten.antivpn.utils.ConfigDefault;
 import dev.brighten.antivpn.utils.MiscUtils;
@@ -48,25 +47,13 @@ import java.util.List;
 
 @Getter
 @Setter(AccessLevel.PRIVATE)
-@MavenLibrary(groupId = "com.h2database", artifactId ="h2", version = "2.2.220", relocations = {
-        @Relocate(from ="org" + ".\\h2", to ="dev.brighten.antivpn.shaded.org.h2")})
-@MavenLibrary(groupId = "org.mongodb", artifactId = "mongo-java-driver", version = "3.12.14", relocations = {
-        @Relocate(from = "com." + "\\mongodb", to = "dev.brighten.antivpn.shaded.com.mongodb"),
-        @Relocate(from = "org" + "\\.bson", to = "dev.brighten.antivpn.shaded.org.bson")
-})
+@MavenLibrary(groupId = "com.h2database", artifactId ="h2", version = "2.2.220")
+@MavenLibrary(groupId = "org.mongodb", artifactId = "mongo-java-driver", version = "3.12.14")
 @MavenLibrary(
         groupId = "com.mysql",
         artifactId = "mysql-connector-j",
-        version = "9.3.0",
-        relocations = {
-                @Relocate(from = "com.my\\" + "sql.cj", to = "dev.brighten.antivpn.shaded.com.mysql.cj"),
-                @Relocate(from = "com.my\\" + "sql.jdbc", to = "dev.brighten.antivpn.shaded.com.mysql.jdbc"),
-        }
+        version = "9.3.0"
 )
-@MavenLibrary(groupId = "com.\\github\\.ben-manes\\.caffeine", artifactId = "caffeine", version = "3.1.8",
-        relocations = {
-                @Relocate(from = "com\\.github\\.benmanes\\.caffeine", to = "dev.brighten.antivpn.shaded.com.github.benmanes.caffeine"),
-        })
 public class AntiVPN {
 
     private static AntiVPN INSTANCE;

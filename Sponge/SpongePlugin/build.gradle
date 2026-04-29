@@ -29,14 +29,6 @@ shadowJar {
     exclude 'com/google/**'
     exclude 'org/objectweb/**'
     exclude 'org/checkerframework/**'
-
-    relocate 'org.yaml.snakeyaml', 'dev.brighten.antivpn.shaded.org.yaml.snakeyaml'
-    relocate 'com.github.benmanes.caffeine', 'dev.brighten.antivpn.shaded.com.github.benmanes.caffeine'
-    relocate 'org.h2', 'dev.brighten.antivpn.shaded.org.h2'
-    relocate 'org.bson', 'dev.brighten.antivpn.shaded.org.bson'
-    relocate 'com.mongodb', 'dev.brighten.antivpn.shaded.com.mongodb'
-    relocate 'com.mysql.cj', 'dev.brighten.antivpn.shaded.com.mysql.cj'
-    relocate 'com.mysql.jdbc', 'dev.brighten.antivpn.shaded.com.mysql.jdbc'
 }
 
 tasks.build.dependsOn shadowJar
