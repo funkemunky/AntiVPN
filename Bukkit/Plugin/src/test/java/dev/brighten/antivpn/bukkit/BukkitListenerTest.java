@@ -11,6 +11,10 @@ import dev.brighten.antivpn.message.MessageHandler;
 import dev.brighten.antivpn.message.VpnString;
 import dev.brighten.antivpn.web.objects.VPNResponse;
 import org.bukkit.event.player.PlayerLoginEvent;
+import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.PluginDescriptionFile;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,9 +24,16 @@ import java.net.InetAddress;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 public class BukkitListenerTest {
@@ -33,7 +44,12 @@ public class BukkitListenerTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        server = MockBukkit.mock();
+        server = MockBukkit.mock(new RecordingServerMock());
+        JavaPlugin plugin = MockBukkit.loadWith(
+                TestPlugin.class,
+                new PluginDescriptionFile("AntiVPNTest", "1.0.0", TestPlugin.class.getName())
+        );
+        BukkitPlugin.pluginInstance = new BukkitPlugin(plugin);
 
         AntiVPN antiVPN = mock(AntiVPN.class);
         VPNConfig config = mock(VPNConfig.class);
@@ -75,6 +91,7 @@ public class BukkitListenerTest {
         Field instanceField = AntiVPN.class.getDeclaredField("INSTANCE");
         instanceField.setAccessible(true);
         instanceField.set(null, null);
+        BukkitPlugin.pluginInstance = null;
         
         MockBukkit.unmock();
     }
@@ -126,5 +143,58 @@ public class BukkitListenerTest {
 
         assertEquals(PlayerLoginEvent.Result.KICK_BANNED, event.getResult());
         assertEquals("Blocked!", net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection().serialize(event.kickMessage()));
+    }
+
+    @Test
+    public void testRunCommandDispatchesOnPrimaryThreadWhenCalledAsynchronously() {
+        RecordingServerMock recordingServer = (RecordingServerMock) server;
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+
+        try {
+            CompletableFuture<Void> asyncCall = CompletableFuture.runAsync(
+                    () -> listener.runCommand("antivpn-test &aok"),
+                    executor
+            );
+
+            assertDoesNotThrow(() -> asyncCall.get(5, TimeUnit.SECONDS));
+            assertFalse(recordingServer.commandDispatched(), "Command should be scheduled, not dispatched asynchronously");
+
+            server.getScheduler().performOneTick();
+
+            assertTrue(recordingServer.commandDispatched(), "Scheduled command should be dispatched on the next server tick");
+            assertTrue(recordingServer.dispatchedOnPrimaryThread(), "Command dispatch must happen on Bukkit's primary thread");
+            assertEquals("antivpn-test §aok", recordingServer.dispatchedCommand());
+        } finally {
+            executor.shutdownNow();
+        }
+    }
+
+    public static class TestPlugin extends JavaPlugin {
+    }
+
+    private static class RecordingServerMock extends ServerMock {
+        private final AtomicBoolean commandDispatched = new AtomicBoolean();
+        private final AtomicBoolean dispatchedOnPrimaryThread = new AtomicBoolean();
+        private final AtomicReference<String> dispatchedCommand = new AtomicReference<>();
+
+        @Override
+        public boolean dispatchCommand(@NotNull CommandSender sender, @NotNull String commandLine) {
+            commandDispatched.set(true);
+            dispatchedOnPrimaryThread.set(isPrimaryThread());
+            dispatchedCommand.set(commandLine);
+            return super.dispatchCommand(sender, commandLine);
+        }
+
+        private boolean commandDispatched() {
+            return commandDispatched.get();
+        }
+
+        private boolean dispatchedOnPrimaryThread() {
+            return dispatchedOnPrimaryThread.get();
+        }
+
+        private String dispatchedCommand() {
+            return dispatchedCommand.get();
+        }
     }
 }
