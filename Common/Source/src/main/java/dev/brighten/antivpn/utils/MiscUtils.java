@@ -23,8 +23,7 @@ import dev.brighten.antivpn.utils.json.JsonReader;
 
 import java.io.*;
 import java.math.BigInteger;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+import java.net.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -34,6 +33,10 @@ import java.util.regex.Pattern;
 public class MiscUtils {
 
     private static final Pattern ipv4 = Pattern.compile("[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}");
+    private static final String DEFAULT_FUNKEMUNKY_UUID_ENDPOINT = "https://funkemunky.cc/mojang/uuid?name=";
+    private static final String DEFAULT_MOJANG_UUID_ENDPOINT = "https://api.mojang.com/users/profiles/minecraft/";
+    private static volatile String funkemunkyUuidEndpoint = DEFAULT_FUNKEMUNKY_UUID_ENDPOINT;
+    private static volatile String mojangUuidEndpoint = DEFAULT_MOJANG_UUID_ENDPOINT;
 
     public static void close(Closeable... closeables) {
         try {
@@ -94,7 +97,7 @@ public class MiscUtils {
             int prefixLen = 32 - blockBits; // use 128 for IPv6
 
             // Build the CIDR string
-            byte[] addrBytes = toFixedLengthBytes(start, 4); // use 16 for IPv6
+            byte[] addrBytes = toFixedLengthBytes(start); // use 16 for IPv6
             String cidr = InetAddress.getByAddress(addrBytes).getHostAddress() + "/" + prefixLen;
             cidrs.add(new CIDRUtils(cidr));
 
@@ -105,24 +108,22 @@ public class MiscUtils {
         return cidrs;
     }
 
-    private static byte[] toFixedLengthBytes(BigInteger value, int length) {
+    private static byte[] toFixedLengthBytes(BigInteger value) {
         byte[] raw = value.toByteArray();
-        byte[] result = new byte[length];
-        int srcPos = Math.max(0, raw.length - length);
-        int destPos = Math.max(0, length - raw.length);
-        System.arraycopy(raw, srcPos, result, destPos, Math.min(raw.length, length));
+        byte[] result = new byte[4];
+        int srcPos = Math.max(0, raw.length - 4);
+        int destPos = Math.max(0, 4 - raw.length);
+        System.arraycopy(raw, srcPos, result, destPos, Math.min(raw.length, 4));
         return result;
     }
 
     public static UUID lookupUUID(String playername) {
         try {
-            JSONObject object = JsonReader
-                    .readJsonFromUrl("https://funkemunky.cc/mojang/uuid?name=" + playername);
-
-            if(object.has("uuid")) {
-                return UUID.fromString(object.getString("uuid"));
+            UUID uuid = lookupUuidFromUrl(funkemunkyUuidEndpoint + playername);
+            if (uuid != null) {
+                return uuid;
             }
-        } catch (IOException | JSONException e) {
+        } catch (IOException | JSONException | URISyntaxException e) {
             AntiVPN.getInstance().getExecutor().logException("Error while looking up UUID for " + playername + "! Falling back to Mojang API", e);
             return lookupMojangUuid(playername);
         }
@@ -130,18 +131,62 @@ public class MiscUtils {
         return null;
     }
 
+    private static UUID lookupUuidFromUrl(String url) throws IOException, JSONException, URISyntaxException {
+        HttpURLConnection connection = (HttpURLConnection) new URI(url).toURL().openConnection();
+        connection.setConnectTimeout(5000);
+        connection.setReadTimeout(5000);
+        connection.setInstanceFollowRedirects(true);
+
+        int responseCode = connection.getResponseCode();
+        if (responseCode >= 500) {
+            throw new IOException("Server returned HTTP " + responseCode + " for " + url);
+        }
+        if (responseCode != HttpURLConnection.HTTP_OK) {
+            return null;
+        }
+
+        try (InputStream inputStream = connection.getInputStream()) {
+            JSONObject object = new JSONObject(JsonReader.readAll(new InputStreamReader(inputStream, java.nio.charset.StandardCharsets.UTF_8)));
+            if (object.has("uuid")) {
+                return parseUuid(object.getString("uuid"));
+            }
+            if (object.has("id")) {
+                return parseUuid(object.getString("id"));
+            }
+        }
+
+        return null;
+    }
+
+    private static UUID parseUuid(String value) {
+        if (value.length() == 32) {
+            value = value.replaceFirst(
+                    "([0-9a-fA-F]{8})([0-9a-fA-F]{4})([0-9a-fA-F]{4})([0-9a-fA-F]{4})([0-9a-fA-F]{12})",
+                    "$1-$2-$3-$4-$5"
+            );
+        }
+
+        return UUID.fromString(value);
+    }
+
     private static UUID lookupMojangUuid(String playerName) {
         try {
-            JSONObject object = JsonReader.readJsonFromUrl("https://api.mojang.com/users/profiles/minecraft/" + playerName);
-
-            if(object.has("id")) {
-                return UUID.fromString(object.getString("id"));
-            }
-        } catch (IOException | JSONException e) {
+            return lookupUuidFromUrl(mojangUuidEndpoint + playerName);
+        } catch (IOException | JSONException | URISyntaxException e) {
             AntiVPN.getInstance().getExecutor().logException("Error while looking up UUID for " + playerName + " from Mojang!:", e);
         }
 
         return null;
+    }
+
+    static void setLookupEndpointsForTesting(String funkemunkyEndpoint, String mojangEndpoint) {
+        funkemunkyUuidEndpoint = funkemunkyEndpoint;
+        mojangUuidEndpoint = mojangEndpoint;
+    }
+
+    static void resetLookupEndpointsForTesting() {
+        funkemunkyUuidEndpoint = DEFAULT_FUNKEMUNKY_UUID_ENDPOINT;
+        mojangUuidEndpoint = DEFAULT_MOJANG_UUID_ENDPOINT;
     }
     public static boolean isIpv4(String ip)
     {

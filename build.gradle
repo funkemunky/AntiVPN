@@ -13,7 +13,7 @@ def aggregateTestProjects = [
 
 allprojects {
     group = 'dev.brighten.antivpn'
-    version = '1.10.0'
+    version = '1.10.1'
 
     repositories {
         maven { url 'https://repo.papermc.io/repository/maven-public/' }
@@ -87,10 +87,6 @@ shadowJar {
     from(project(':Common:Source').tasks.shadowJar) {
         rename { 'antivpn-source.jarinjar' }
     }
-
-    relocate 'org.yaml.snakeyaml', 'dev.brighten.antivpn.shaded.org.yaml.snakeyaml'
-    relocate 'org.bstats', 'dev.brighten.antivpn.shaded.org.bstats'
-    relocate 'org.objectweb', 'dev.brighten.antivpn.shaded.org.objectweb'
 }
 
 tasks.named('shadowJar') {
