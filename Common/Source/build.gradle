@@ -9,7 +9,7 @@ dependencies {
     implementation 'org.jetbrains:annotations:26.0.2'
     
     compileOnly 'com.mysql:mysql-connector-j:9.3.0'
-    compileOnly 'com.h2database:h2:2.2.220'
+    compileOnly 'com.h2database:h2:2.2.240'
     implementation'com.github.ben-manes.caffeine:caffeine:3.1.8'
     compileOnly 'org.mongodb:mongo-java-driver:3.12.14'
     
@@ -21,7 +21,7 @@ dependencies {
     testImplementation 'org.testcontainers:mongodb:1.20.4'
     testRuntimeOnly 'org.slf4j:slf4j-simple:2.0.16'
     testImplementation 'com.mysql:mysql-connector-j:9.3.0'
-    testImplementation 'com.h2database:h2:2.2.220'
+    testImplementation 'com.h2database:h2:2.2.240'
     testImplementation 'org.mongodb:mongo-java-driver:3.12.14'
     testImplementation 'com.github.ben-manes.caffeine:caffeine:3.1.8'
 }
