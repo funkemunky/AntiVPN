@@ -23,6 +23,8 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '9.4.1'
+          cache-read-only: ${{ github.event_name == 'pull_request' }}
+          cache-cleanup: on-success
       - name: Build
         run: gradle build -x test --no-daemon
         env:
