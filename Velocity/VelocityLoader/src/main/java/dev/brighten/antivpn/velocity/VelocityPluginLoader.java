@@ -40,6 +40,7 @@ public class VelocityPluginLoader {
     private static final String BOOTSTRAP_CLASS = "dev.brighten.antivpn.velocity.VelocityPlugin";
 
     private final LoaderBootstrap plugin;
+    private final ClassLoader pluginClassLoader;
 
     @Inject
     public VelocityPluginLoader(ProxyServer server, Logger logger, @DataDirectory Path path, Metrics.Factory metricsFactory) {
@@ -50,18 +51,30 @@ public class VelocityPluginLoader {
         instances.put(String.class, metricsFactory);
         instances.put(LoaderBootstrap.class, this);
         JarInJarClassLoader loader = new JarInJarClassLoader(getClass().getClassLoader(), JAR_NAME, SOURCE_NAME);
+        this.pluginClassLoader = loader;
         this.plugin = loader.instantiatePlugin(BOOTSTRAP_CLASS, Map.class, instances);
-        plugin.onLoad(path.toFile());
+        runWithPluginClassLoader(() -> plugin.onLoad(path.toFile()));
     }
 
     @Subscribe
     public void onInit(ProxyInitializeEvent event) {
-        plugin.onEnable();
+        runWithPluginClassLoader(plugin::onEnable);
     }
 
     @Subscribe
     public void onDisable(ProxyShutdownEvent event) {
-        plugin.onDisable();
+        runWithPluginClassLoader(plugin::onDisable);
+    }
+
+    private void runWithPluginClassLoader(Runnable action) {
+        Thread thread = Thread.currentThread();
+        ClassLoader previousClassLoader = thread.getContextClassLoader();
+        thread.setContextClassLoader(pluginClassLoader);
+        try {
+            action.run();
+        } finally {
+            thread.setContextClassLoader(previousClassLoader);
+        }
     }
 
 }

@@ -27,6 +27,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  * Classloader that can load a jar from within another jar file.
@@ -38,6 +42,26 @@ import java.util.Arrays;
  * by the loading code & this classloader.</p>
  */
 public class JarInJarClassLoader extends URLClassLoader {
+    private static final String[] PARENT_FIRST_PACKAGES = {
+            "java.",
+            "javax.",
+            "jdk.",
+            "sun.",
+            "com.sun.",
+            "org.w3c.",
+            "org.xml.",
+            "org.slf4j.",
+            "com.google.inject.",
+            "javax.inject.",
+            "com.velocitypowered.",
+            "org.bukkit.",
+            "net.md_5.bungee.",
+            "org.spongepowered.",
+            "org.bstats.",
+            "dev.brighten.antivpn.velocity.org.bstats.",
+            "dev.brighten.antivpn.loader."
+    };
+
     static {
         ClassLoader.registerAsParallelCapable();
     }
@@ -57,6 +81,74 @@ public class JarInJarClassLoader extends URLClassLoader {
 
     public void addJarToClasspath(URL url) {
         addURL(url);
+    }
+
+    @Override
+    protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+        synchronized (getClassLoadingLock(name)) {
+            Class<?> loadedClass = findLoadedClass(name);
+            if (loadedClass == null) {
+                loadedClass = shouldLoadParentFirst(name) ? loadParentThenChild(name) : loadChildThenParent(name);
+            }
+
+            if (resolve) {
+                resolveClass(loadedClass);
+            }
+
+            return loadedClass;
+        }
+    }
+
+    @Override
+    public URL getResource(String name) {
+        URL resource = findResource(name);
+        if (resource != null) {
+            return resource;
+        }
+        return super.getResource(name);
+    }
+
+    @Override
+    public Enumeration<URL> getResources(String name) throws IOException {
+        Set<URL> resources = new LinkedHashSet<>();
+        Enumeration<URL> childResources = findResources(name);
+        while (childResources.hasMoreElements()) {
+            resources.add(childResources.nextElement());
+        }
+
+        Enumeration<URL> parentResources = getParent() == null
+                ? ClassLoader.getSystemResources(name)
+                : getParent().getResources(name);
+        while (parentResources.hasMoreElements()) {
+            resources.add(parentResources.nextElement());
+        }
+
+        return Collections.enumeration(resources);
+    }
+
+    private Class<?> loadChildThenParent(String name) throws ClassNotFoundException {
+        try {
+            return findClass(name);
+        } catch (ClassNotFoundException ignored) {
+            return super.loadClass(name, false);
+        }
+    }
+
+    private Class<?> loadParentThenChild(String name) throws ClassNotFoundException {
+        try {
+            return super.loadClass(name, false);
+        } catch (ClassNotFoundException ignored) {
+            return findClass(name);
+        }
+    }
+
+    private static boolean shouldLoadParentFirst(String className) {
+        for (String prefix : PARENT_FIRST_PACKAGES) {
+            if (className.startsWith(prefix)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public void deleteJarResource() {
