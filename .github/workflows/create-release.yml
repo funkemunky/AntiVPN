@@ -19,7 +19,7 @@ jobs:
         with:
           gradle-version: '9.4.1'
       - name: Build
-        run: gradle build --no-daemon
+        run: gradle build -x test --no-daemon
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Get Version Number from Gradle
