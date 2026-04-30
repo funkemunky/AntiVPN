@@ -10,6 +10,12 @@ dependencies {
     implementation project(':Common:loader-utils')
 }
 
+tasks.processResources {
+    filesMatching('plugin.yml') {
+        expand(project: project, projectVersion: project.version)
+    }
+}
+
 shadowJar {
     archiveClassifier.set('')
 

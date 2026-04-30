@@ -1,6 +1,6 @@
 name: KauriVPN
 main: dev.brighten.antivpn.bukkit.loader.BukkitLoaderPlugin
-version: ${projectVersion}
+version: ${project.version}
 author: funkemunky
 api-version: 1.13
 folia-supported: true

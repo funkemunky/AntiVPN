@@ -81,7 +81,7 @@ dependencies {
 }
 
 shadowJar {
-    archiveFileName.set("AntiVPN-${projectVersion}-universal.jar")
+    archiveFileName.set("AntiVPN-${project.version}-universal.jar")
 
     // Include the shaded Common:Source jar as a single resource
     from(project(':Common:Source').tasks.shadowJar) {
