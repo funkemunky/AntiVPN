@@ -1,5 +1,5 @@
 name: KauriVPN
 main: dev.brighten.antivpn.bungee.BungeeLoaderPlugin
 description: A simple and fast antivpn plugin.
-version: ${project.version}
+version: ${projectVersion}
 author: funkemunky
