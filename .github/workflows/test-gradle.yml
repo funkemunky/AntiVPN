@@ -18,6 +18,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '9.4.1'
+          cache-overwrite-existing: 'true'
           cache-read-only: ${{ github.event_name == 'pull_request' }}
           cache-cleanup: on-success
       - name: Build
