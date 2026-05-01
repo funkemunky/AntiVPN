@@ -59,3 +59,18 @@ jobs:
           asset_path: ./build/libs/AntiVPN-${{ env.VERSION }}-universal.jar
           asset_name: AntiVPN-v${{ env.VERSION }}.jar
           asset_content_type: application/java-archive
+      - name: Upload to Hangar
+        uses: benwoo1110/hangar-upload-action@v1
+        with:
+          api_token: ${{ secrets.HANGAR_API_TOKEN }}
+          slug: AntiVPN
+          version: ${{ env.VERSION }}
+          channel: release
+          files: |
+            [
+              {
+                "path": "./build/libs/AntiVPN-${{ env.VERSION }}-universal.jar",
+                "platforms": ["PAPER", "VELOCITY", "WATERFALL"]
+              }
+            ]
+          description: ${{ steps.changelog.outputs.content }}
