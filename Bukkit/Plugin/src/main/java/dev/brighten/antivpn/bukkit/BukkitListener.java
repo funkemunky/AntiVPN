@@ -18,6 +18,7 @@ package dev.brighten.antivpn.bukkit;
 
 import dev.brighten.antivpn.AntiVPN;
 import dev.brighten.antivpn.api.APIPlayer;
+import dev.brighten.antivpn.api.CheckResult;
 import dev.brighten.antivpn.api.OfflinePlayer;
 import dev.brighten.antivpn.api.VPNExecutor;
 import dev.brighten.antivpn.utils.StringUtil;
@@ -82,28 +83,28 @@ public class BukkitListener extends VPNExecutor implements Listener {
                         event.getAddress()
                 ));
 
-        player.checkPlayer(result -> {
-            if(!result.resultType().isShouldBlock()) return;
+        CheckResult result = player.checkPlayer();
 
-            if(!AntiVPN.getInstance().getVpnConfig().isKickPlayers()) {
-                return;
-            }
+        if(!result.resultType().isShouldBlock()) return;
 
-            event.setResult(PlayerLoginEvent.Result.KICK_BANNED);
-            event.setKickMessage(switch (result.resultType()) {
-                case DENIED_COUNTRY -> StringUtil.varReplace(
-                        AntiVPN.getInstance().getVpnConfig().getCountryVanillaKickReason(),
-                        player,
-                        result.response()
-                );
-                case DENIED_PROXY ->
-                        StringUtil.varReplace(
-                                AntiVPN.getInstance().getVpnConfig().getKickMessage(),
-                                player,
-                                result.response()
-                        );
-                default -> "You were kicked by KauriVPN for an unknown reason!";
-            });
+        if(!AntiVPN.getInstance().getVpnConfig().isKickPlayers()) {
+            return;
+        }
+
+        event.setResult(PlayerLoginEvent.Result.KICK_BANNED);
+        event.setKickMessage(switch (result.resultType()) {
+            case DENIED_COUNTRY -> StringUtil.varReplace(
+                    AntiVPN.getInstance().getVpnConfig().getCountryVanillaKickReason(),
+                    player,
+                    result.response()
+            );
+            case DENIED_PROXY ->
+                    StringUtil.varReplace(
+                            AntiVPN.getInstance().getVpnConfig().getKickMessage(),
+                            player,
+                            result.response()
+                    );
+            default -> "You were kicked by KauriVPN for an unknown reason!";
         });
     }
 

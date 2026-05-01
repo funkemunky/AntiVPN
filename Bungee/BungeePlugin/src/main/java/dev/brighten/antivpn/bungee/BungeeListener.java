@@ -77,7 +77,6 @@ public class BungeeListener extends VPNExecutor implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onListener(final PreLoginEvent event) {
-
         APIPlayer player = AntiVPN.getInstance().getPlayerExecutor().getPlayer(event.getConnection().getUniqueId())
                 .orElseGet(() -> {
                     UUID uuid = MiscUtils.lookupUUID(event.getConnection().getName());
@@ -88,22 +87,22 @@ public class BungeeListener extends VPNExecutor implements Listener {
                             ((InetSocketAddress) event.getConnection().getSocketAddress()).getAddress());
                 });
 
-        player.checkPlayer(result -> {
-            if (!result.resultType().isShouldBlock()) return;
+        CheckResult result = player.checkPlayer();
 
-            if(!AntiVPN.getInstance().getVpnConfig().isKickPlayers()) {
-                return;
-            }
+        if (!result.resultType().isShouldBlock()) return;
 
-            event.setCancelled(true);
-            event.setReason(TextComponent.fromLegacy(StringUtil.varReplace(switch (result.resultType()) {
-                case DENIED_PROXY -> StringUtil.varReplace(AntiVPN.getInstance().getVpnConfig()
-                        .getKickMessage(), player, result.response());
-                case DENIED_COUNTRY -> StringUtil.varReplace(AntiVPN.getInstance().getVpnConfig()
-                        .getCountryVanillaKickReason(), player, result.response());
-                default -> "You were kicked by KauriVPN for an unknown reason!";
-            }, player, result.response())));
-        });
+        if(!AntiVPN.getInstance().getVpnConfig().isKickPlayers()) {
+            return;
+        }
+
+        event.setCancelled(true);
+        event.setReason(TextComponent.fromLegacy(StringUtil.varReplace(switch (result.resultType()) {
+            case DENIED_PROXY -> StringUtil.varReplace(AntiVPN.getInstance().getVpnConfig()
+                    .getKickMessage(), player, result.response());
+            case DENIED_COUNTRY -> StringUtil.varReplace(AntiVPN.getInstance().getVpnConfig()
+                    .getCountryVanillaKickReason(), player, result.response());
+            default -> "You were kicked by KauriVPN for an unknown reason!";
+        }, player, result.response())));
     }
 
     @EventHandler(priority = EventPriority.HIGH)

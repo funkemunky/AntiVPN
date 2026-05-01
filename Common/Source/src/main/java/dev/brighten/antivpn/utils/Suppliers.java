@@ -16,6 +16,7 @@
 
 package dev.brighten.antivpn.utils;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 import static dev.brighten.antivpn.utils.NullnessCasts.uncheckedCastNullableTToT;
@@ -36,7 +37,7 @@ public final class Suppliers {
 
     /**
      * Returns a supplier which caches the instance retrieved during the first call to {@code get()}
-     * and returns that value on subsequent calls to {@code get()}. See: <a
+     * and returns that value on later calls to {@code get()}. See: <a
      * href="http://en.wikipedia.org/wiki/Memoization">memoization</a>
      *
      * <p>The returned supplier is thread-safe. The delegate's {@code get()} method will be invoked at
@@ -44,7 +45,7 @@ public final class Suppliers {
      * form does not contain the cached value, which will be recalculated when {@code get()} is called
      * on the reserialized instance.
      *
-     * <p>When the underlying delegate throws an exception then this memoizing supplier will keep
+     * <p>When the underlying delegate throws an exception then this memorizing supplier will keep
      * delegating calls until it returns valid data.
      *
      * <p>If {@code delegate} is an instance created by an earlier call to {@code memoize}, it is
@@ -95,6 +96,7 @@ public final class Suppliers {
                     + ")";
         }
 
+        @Serial
         private static final long serialVersionUID = 0;
     }
 

@@ -41,22 +41,22 @@ public class SpongeListener extends VPNExecutor {
                         event.connection().address().getAddress()
                 )));
 
-        player.get().checkPlayer(result -> {
-            if(!result.resultType().isShouldBlock()) return;
+        CheckResult result = player.get().checkPlayer();
 
-            if(!AntiVPN.getInstance().getVpnConfig().isKickPlayers()) {
-                return;
-            }
+        if(!result.resultType().isShouldBlock()) return;
 
-            event.setCancelled(true);
-            event.setMessage(Component.text(switch (result.resultType()) {
-                case DENIED_PROXY -> StringUtil.varReplace(AntiVPN.getInstance().getVpnConfig()
-                        .getKickMessage(), player.get(), result.response());
-                case DENIED_COUNTRY -> StringUtil.varReplace(AntiVPN.getInstance().getVpnConfig()
-                        .getCountryVanillaKickReason(), player.get(), result.response());
-                default -> "You were kicked by KauriVPN for an unknown reason!";
-            }));
-        });
+        if(!AntiVPN.getInstance().getVpnConfig().isKickPlayers()) {
+            return;
+        }
+
+        event.setCancelled(true);
+        event.setMessage(Component.text(switch (result.resultType()) {
+            case DENIED_PROXY -> StringUtil.varReplace(AntiVPN.getInstance().getVpnConfig()
+                    .getKickMessage(), player.get(), result.response());
+            case DENIED_COUNTRY -> StringUtil.varReplace(AntiVPN.getInstance().getVpnConfig()
+                    .getCountryVanillaKickReason(), player.get(), result.response());
+            default -> "You were kicked by KauriVPN for an unknown reason!";
+        }));
     }
 
     @Listener

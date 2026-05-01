@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'com.gradleup.shadow' version '9.4.1'
+    id 'xyz.jpenilla.run-velocity' version '3.0.2' apply false
 }
 
 def aggregateTestProjects = [
@@ -101,3 +102,15 @@ tasks.named('shadowJar') {
 }
 
 tasks.build.dependsOn shadowJar
+
+tasks.register('runVelocity') {
+    group = 'run'
+    description = 'Starts a local Velocity proxy with the AntiVPN Velocity loader installed.'
+    dependsOn(':Velocity:VelocityLoader:runVelocity')
+}
+
+tasks.register('debugVelocity') {
+    group = 'run'
+    description = 'Starts a local Velocity proxy suspended for debugger attach on port 5005.'
+    dependsOn(':Velocity:VelocityLoader:debugVelocity')
+}

@@ -26,7 +26,6 @@ import lombok.Setter;
 import java.net.InetAddress;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 import java.util.logging.Level;
 
 @Getter
@@ -74,7 +73,12 @@ public abstract class APIPlayer {
         );
     }
 
-    public void checkPlayer(Consumer<CheckResult> onResult) {
+    /***
+     * The result is only returned if it is cached. Otherwise, there is an asynchronous call to the API
+     * and will handle kicking the player if necessary.
+     * @return CheckResult - The cached result of the check if it exists.
+     */
+    public CheckResult checkPlayer() {
         if (hasPermission("antivpn.bypass") //Has bypass permission
                 //Is exempt
                 || (uuid != null && AntiVPN.getInstance().getExecutor().isWhitelisted(uuid))
@@ -82,8 +86,7 @@ public abstract class APIPlayer {
                 || AntiVPN.getInstance().getExecutor().isWhitelisted(ip.getHostAddress() + "/32")
                 || AntiVPN.getInstance().getVpnConfig().getPrefixWhitelists().stream()
                 .anyMatch(name::startsWith)) {
-            onResult.accept(new CheckResult(null, ResultType.WHITELISTED, false));
-            return;
+            return new CheckResult(null, ResultType.WHITELISTED, false);
         }
 
         CheckResult cachedResult = checkResultCache.getIfPresent(ip.getHostAddress());
@@ -94,8 +97,7 @@ public abstract class APIPlayer {
                 if(cachedResult.resultType().isShouldBlock()) {
                     AntiVPN.getInstance().getExecutor().handleKickingOfPlayer(cachedResult, this);
                 }
-                onResult.accept(cachedResult);
-                return;
+                return cachedResult;
             }
         }
 
@@ -105,7 +107,6 @@ public abstract class APIPlayer {
                         AntiVPN.getInstance().getExecutor().log(Level.WARNING, "The API query was not a success! " +
                                 "You may need to upgrade your license on " +
                                 "https://funkemunky.cc/shop");
-                        onResult.accept(new CheckResult(null, ResultType.API_FAILURE, false));
                         return;
                     }
                     // If the countryList() size is zero, no need to check.
@@ -137,9 +138,8 @@ public abstract class APIPlayer {
                     if(checkResult.resultType().isShouldBlock()) {
                         AntiVPN.getInstance().getExecutor().handleKickingOfPlayer(checkResult, this);
                     }
-                    onResult.accept(checkResult);
                     AntiVPN.getInstance().checked++;
                 });
-        onResult.accept(new CheckResult(null, ResultType.UNKNOWN, false));
+       return new CheckResult(null, ResultType.UNKNOWN, false);
     }
 }

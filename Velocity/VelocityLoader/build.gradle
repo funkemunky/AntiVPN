@@ -1,5 +1,6 @@
 plugins {
     id 'com.gradleup.shadow'
+    id 'xyz.jpenilla.run-velocity'
 }
 
 evaluationDependsOn(':Velocity:VelocityPlugin')
@@ -25,15 +26,43 @@ shadowJar {
         rename { 'antivpn-velocity.jarinjar' }
     }
 
+    // Include the shared shaded source jar required by JarInJarClassLoader.
+    from(project(':Common:Source').tasks.named('shadowJar')) {
+        rename { 'antivpn-source.jarinjar' }
+    }
+
     relocate 'org.bstats', 'dev.brighten.antivpn.velocity.org.bstats'
     relocate 'org.yaml.snakeyaml', 'dev.brighten.antivpn.shaded.org.yaml.snakeyaml'
 }
 
 tasks.named('shadowJar') {
+    dependsOn(':Common:Source:shadowJar')
     dependsOn(':Velocity:VelocityPlugin:shadowJar')
 }
 
 tasks.build.dependsOn shadowJar
+
+tasks.named('runVelocity') {
+    velocityVersion('3.4.0-SNAPSHOT')
+    runDirectory.set(rootProject.layout.projectDirectory.dir('run/velocity'))
+    pluginJars.from(tasks.named('shadowJar'))
+    dependsOn(tasks.named('shadowJar'))
+}
+
+tasks.register('debugVelocity', xyz.jpenilla.runvelocity.task.RunVelocity) {
+    group = 'Run Velocity'
+    description = 'Run a local Velocity proxy for plugin debugging on port 5005.'
+    velocityVersion('3.4.0-SNAPSHOT')
+    runDirectory.set(rootProject.layout.projectDirectory.dir('run/velocity'))
+    pluginJars.from(tasks.named('shadowJar'))
+    dependsOn(tasks.named('shadowJar'))
+    debugOptions {
+        enabled = true
+        port = 5005
+        server = true
+        suspend = true
+    }
+}
 
 jar {
     archiveClassifier.set('raw')

@@ -21,6 +21,7 @@ import com.velocitypowered.api.event.connection.DisconnectEvent;
 import com.velocitypowered.api.event.connection.LoginEvent;
 import dev.brighten.antivpn.AntiVPN;
 import dev.brighten.antivpn.api.APIPlayer;
+import dev.brighten.antivpn.api.CheckResult;
 import dev.brighten.antivpn.api.OfflinePlayer;
 import dev.brighten.antivpn.api.VPNExecutor;
 import dev.brighten.antivpn.utils.StringUtil;
@@ -52,35 +53,35 @@ public class VelocityListener extends VPNExecutor {
                         event.getPlayer().getRemoteAddress().getAddress()
                 ));
 
-        player.checkPlayer(result -> {
-            if(!result.resultType().isShouldBlock()) return;
+        CheckResult result = player.checkPlayer();
 
-            if(!AntiVPN.getInstance().getVpnConfig().isKickPlayers()) {
-                return;
-            }
+        if(!result.resultType().isShouldBlock()) return;
 
-            switch (result.resultType()) {
-                case DENIED_COUNTRY -> event.setResult(ResultedEvent.ComponentResult.denied(
-                        LegacyComponentSerializer.builder()
-                                .character('&')
-                                .build().deserialize(AntiVPN.getInstance().getVpnConfig()
-                                        .getCountryVanillaKickReason()
-                                        .replace("%player%", event.getPlayer().getUsername())
-                                        .replace("%country%", result.response().getCountryName())
-                                        .replace("%code%", result.response().getCountryCode()))));
-                case DENIED_PROXY -> {
-                    VelocityPlugin.INSTANCE.getLogger().info(event.getPlayer().getUsername()
-                            + " joined on a VPN/Proxy (" + result.response().getMethod() + ")");
-                    event.setResult(ResultedEvent.ComponentResult.denied(LegacyComponentSerializer.builder()
+        if(!AntiVPN.getInstance().getVpnConfig().isKickPlayers()) {
+            return;
+        }
+
+        switch (result.resultType()) {
+            case DENIED_COUNTRY -> event.setResult(ResultedEvent.ComponentResult.denied(
+                    LegacyComponentSerializer.builder()
                             .character('&')
                             .build().deserialize(AntiVPN.getInstance().getVpnConfig()
-                                    .getKickMessage()
+                                    .getCountryVanillaKickReason()
                                     .replace("%player%", event.getPlayer().getUsername())
                                     .replace("%country%", result.response().getCountryName())
                                     .replace("%code%", result.response().getCountryCode()))));
-                }
+            case DENIED_PROXY -> {
+                VelocityPlugin.INSTANCE.getLogger().info(event.getPlayer().getUsername()
+                        + " joined on a VPN/Proxy (" + result.response().getMethod() + ")");
+                event.setResult(ResultedEvent.ComponentResult.denied(LegacyComponentSerializer.builder()
+                        .character('&')
+                        .build().deserialize(AntiVPN.getInstance().getVpnConfig()
+                                .getKickMessage()
+                                .replace("%player%", event.getPlayer().getUsername())
+                                .replace("%country%", result.response().getCountryName())
+                                .replace("%code%", result.response().getCountryCode()))));
             }
-        });
+        }
     }
 
     @Override
