@@ -62,29 +62,35 @@ public abstract class VPNExecutor {
             synchronized (toKick) {
                 if(toKick.isEmpty()) return;
 
-                Tuple<CheckResult, UUID> toCheck;
+                int size = toKick.size();
+                for (int i = 0; i < size; i++) {
+                    Tuple<CheckResult, UUID> toCheck = toKick.poll();
+                    if (toCheck == null) break;
 
-                while((toCheck = toKick.poll()) != null) {
                     Optional<APIPlayer> player = AntiVPN.getInstance().getPlayerExecutor().getPlayer(toCheck.second());
 
                     if(player.isEmpty()) {
                         continue;
                     }
 
-                    handleKickingOfPlayer(toCheck.first(), player.get());
+                    handleKickingOfPlayer(toCheck.first(), player.get(), false);
                 }
             }
         }, 8, 2, TimeUnit.SECONDS);
     }
 
     public void handleKickingOfPlayer(CheckResult result, APIPlayer player) {
+        handleKickingOfPlayer(result, player, true);
+    }
+
+    public void handleKickingOfPlayer(CheckResult result, APIPlayer player, boolean alert) {
 
         //Ensuring kick task is always running
         if(kickTask == null || kickTask.isDone() || kickTask.isCancelled()) {
             startKickChecks();
         }
 
-        if (AntiVPN.getInstance().getVpnConfig().isAlertToSTaff()) AntiVPN.getInstance().getPlayerExecutor()
+        if (alert && AntiVPN.getInstance().getVpnConfig().isAlertToSTaff()) AntiVPN.getInstance().getPlayerExecutor()
                 .getOnlinePlayers()
                 .stream()
                 .filter(APIPlayer::isAlertsEnabled)
@@ -104,26 +110,28 @@ public abstract class VPNExecutor {
             if(!AntiVPN.getInstance().getVpnConfig().isCommandsEnabled()) return;
         }
 
-        Runnable runCommands = () -> {
-            switch (result.resultType()) {
-                case DENIED_PROXY -> {
-                    for (String command : AntiVPN.getInstance().getVpnConfig().commands()) {
-                        runCommand(StringUtil.varReplace(command, player, result.response()));
+        if(alert) {
+            Runnable runCommands = () -> {
+                switch (result.resultType()) {
+                    case DENIED_PROXY -> {
+                        for (String command : AntiVPN.getInstance().getVpnConfig().commands()) {
+                            runCommand(StringUtil.varReplace(command, player, result.response()));
+                        }
+                    }
+                    case DENIED_COUNTRY -> {
+                        for (String command : AntiVPN.getInstance().getVpnConfig().countryKickCommands()) {
+                            runCommand(StringUtil.varReplace(command, player, result.response()));
+                        }
                     }
                 }
-                case DENIED_COUNTRY -> {
-                    for (String command : AntiVPN.getInstance().getVpnConfig().countryKickCommands()) {
-                        runCommand(StringUtil.varReplace(command, player, result.response()));
-                    }
-                }
+            };
+
+            // Fixes the commands running too fast and causing messaging errors by any downstream plugins like LiteBans
+            var scheduleResult = threadExecutor.schedule(runCommands, 1, TimeUnit.SECONDS);
+
+            if(scheduleResult.isCancelled()) {
+                runCommands.run();
             }
-        };
-
-        // Fixes the commands running too fast and causing messaging errors by any downstream plugins like LiteBans
-        var scheduleResult = threadExecutor.schedule(runCommands, 1, TimeUnit.SECONDS);
-
-        if(scheduleResult.isCancelled()) {
-            runCommands.run();
         }
 
         //Ensuring players are actually kicked as they are supposed to be.
@@ -169,7 +177,7 @@ public abstract class VPNExecutor {
             else {
                 try {
                     VPNResponse response = FunkemunkyAPI
-                            .getVPNResponse(ip, AntiVPN.getInstance().getVpnConfig().getLicense(), true);
+                            .getVPNResponse(ip, true);
 
                     if (response.isSuccess()) {
                         AntiVPN.getInstance().getDatabase().cacheResponse(response);
