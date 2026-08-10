@@ -1,20 +1,17 @@
 package dev.brighten.antivpn.bukkit;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
 import be.seeseemelk.mockbukkit.entity.PlayerMock;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class BukkitPlayerTest {
 
@@ -24,10 +21,8 @@ class BukkitPlayerTest {
   void setUp() {
     server = MockBukkit.mock();
 
-    BukkitPlugin pluginBootstrap = mock(BukkitPlugin.class);
     JavaPlugin plugin = MockBukkit.createMockPlugin();
-    when(pluginBootstrap.getPlugin()).thenReturn(plugin);
-    BukkitPlugin.pluginInstance = pluginBootstrap;
+    BukkitPlugin.pluginInstance = new BukkitPlugin(plugin);
   }
 
   @AfterEach
