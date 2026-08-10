@@ -72,11 +72,6 @@ public class BukkitPlugin implements LoaderBootstrap {
       Bukkit.getLogger().info("Starting bStats metrics...");
       Metrics metrics = new Metrics(plugin, 12615);
       metrics.addCustomChart(new SimplePie("database_used", this::getDatabaseType));
-      new BukkitRunnable() {
-        public void run() {
-          AntiVPN.getInstance().checked = AntiVPN.getInstance().detections = 0;
-        }
-      }.runTaskTimerAsynchronously(plugin, 12000, 12000);
     }
 
     Bukkit.getLogger().info("Setting up and registering commands...");

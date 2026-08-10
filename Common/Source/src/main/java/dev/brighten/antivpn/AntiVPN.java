@@ -59,7 +59,6 @@ public class AntiVPN {
   private MessageHandler messageHandler;
   private Configuration config;
   private List<Command> commands = new ArrayList<>();
-  public int detections, checked;
   private File pluginFolder;
 
   public static void start(VPNExecutor executor, PlayerExecutor playerExecutor, File pluginFolder) {

@@ -164,7 +164,6 @@ public abstract class APIPlayer {
               if (checkResult.resultType().isShouldBlock()) {
                 AntiVPN.getInstance().getExecutor().handleKickingOfPlayer(checkResult, this);
               }
-              AntiVPN.getInstance().checked++;
             });
     return new CheckResult(null, ResultType.UNKNOWN, false);
   }

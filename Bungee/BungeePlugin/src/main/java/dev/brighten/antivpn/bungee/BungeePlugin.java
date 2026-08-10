@@ -64,14 +64,6 @@ public class BungeePlugin implements LoaderBootstrap {
       ProxyServer.getInstance().getLogger().info("Starting bStats metrics...");
       Metrics metrics = new Metrics(getPlugin(), 12616);
       metrics.addCustomChart(new SimplePie("database_used", this::getDatabaseType));
-      ProxyServer.getInstance()
-          .getScheduler()
-          .schedule(
-              getPlugin(),
-              () -> AntiVPN.getInstance().checked = AntiVPN.getInstance().detections = 0,
-              10,
-              10,
-              TimeUnit.MINUTES);
     }
 
     for (Command command : AntiVPN.getInstance().getCommands()) {
