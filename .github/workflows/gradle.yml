@@ -32,6 +32,12 @@ jobs:
             -Xmx4g
             -XX:MaxMetaspaceSize=1g
             -Dfile.encoding=UTF-8
+            -Dorg.gradle.daemon=false
+          JAVA_OPTS: >-
+            -Xmx4g
+            -XX:MaxMetaspaceSize=1g
+            -Dfile.encoding=UTF-8
+            -Dorg.gradle.daemon=false
       - name: Upload AntiVPN
         uses: actions/upload-artifact@v7
         with:
