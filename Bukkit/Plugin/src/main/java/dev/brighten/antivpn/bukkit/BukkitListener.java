@@ -22,7 +22,6 @@ import dev.brighten.antivpn.api.CheckResult;
 import dev.brighten.antivpn.api.OfflinePlayer;
 import dev.brighten.antivpn.api.VPNExecutor;
 import dev.brighten.antivpn.utils.StringUtil;
-import java.util.logging.Level;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
@@ -32,7 +31,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.scheduler.BukkitRunnable;
+
+import java.util.logging.Level;
 
 public class BukkitListener extends VPNExecutor implements Listener {
 
@@ -58,13 +58,9 @@ public class BukkitListener extends VPNExecutor implements Listener {
 
   @Override
   public void runCommand(String command) {
-    new BukkitRunnable() {
-      public void run() {
-        Bukkit.getServer()
-            .dispatchCommand(
-                Bukkit.getConsoleSender(), ChatColor.translateAlternateColorCodes('&', command));
-      }
-    }.runTask(BukkitPlugin.pluginInstance.getPlugin());
+      BukkitPlugin.pluginInstance.getFoliaLib().getScheduler().runNextTick(task ->  Bukkit.getServer()
+              .dispatchCommand(
+                      Bukkit.getConsoleSender(), ChatColor.translateAlternateColorCodes('&', command)));
   }
 
   @Override

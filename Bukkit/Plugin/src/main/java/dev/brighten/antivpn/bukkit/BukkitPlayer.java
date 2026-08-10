@@ -19,7 +19,6 @@ package dev.brighten.antivpn.bukkit;
 import dev.brighten.antivpn.api.APIPlayer;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 
 public class BukkitPlayer extends APIPlayer {
 
@@ -41,11 +40,8 @@ public class BukkitPlayer extends APIPlayer {
 
   @Override
   public void kickPlayer(String reason) {
-    new BukkitRunnable() {
-      public void run() {
-        player.kickPlayer(ChatColor.translateAlternateColorCodes('&', reason));
-      }
-    }.runTask(BukkitPlugin.pluginInstance.getPlugin());
+    BukkitPlugin.pluginInstance.getFoliaLib().getScheduler().runNextTick(task ->
+            player.kickPlayer(ChatColor.translateAlternateColorCodes('&', reason)));
   }
 
   @Override

@@ -2,11 +2,16 @@ plugins {
     id 'com.gradleup.shadow'
 }
 
+repositories {
+    maven { url 'https://jitpack.io' }
+}
+
 dependencies {
     compileOnly 'org.spigotmc:spigot-api:1.20.2-R0.1-SNAPSHOT'
     implementation project(':Common:Source')
     implementation project(':Common:loader-utils')
     implementation 'org.bstats:bstats-bukkit:2.2.1'
+    implementation 'com.github.TechnicallyCoded:FoliaLib:0.4.4'
     testImplementation 'com.github.seeseemelk:MockBukkit-v1.20:3.84.0'
     testImplementation 'com.github.ben-manes.caffeine:caffeine:3.1.8'
     testImplementation 'org.mockito:mockito-core:5.11.0'

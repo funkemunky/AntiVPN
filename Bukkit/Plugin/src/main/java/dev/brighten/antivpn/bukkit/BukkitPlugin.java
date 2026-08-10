@@ -16,6 +16,7 @@
 
 package dev.brighten.antivpn.bukkit;
 
+import com.tcoded.folialib.FoliaLib;
 import dev.brighten.antivpn.AntiVPN;
 import dev.brighten.antivpn.bukkit.command.BukkitCommand;
 import dev.brighten.antivpn.command.Command;
@@ -24,11 +25,6 @@ import dev.brighten.antivpn.database.local.H2VPN;
 import dev.brighten.antivpn.database.mongo.MongoVPN;
 import dev.brighten.antivpn.database.sql.MySqlVPN;
 import dev.brighten.antivpn.loader.LoaderBootstrap;
-import java.io.File;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import lombok.Getter;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
@@ -37,7 +33,12 @@ import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.SimplePluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
+
+import java.io.File;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class BukkitPlugin implements LoaderBootstrap {
 
@@ -46,12 +47,12 @@ public class BukkitPlugin implements LoaderBootstrap {
   @Getter private File dataFolder;
   private final List<org.bukkit.command.Command> registeredCommands = new ArrayList<>();
   @Getter private final JavaPlugin plugin;
+  @Getter private final FoliaLib foliaLib;
 
   public BukkitPlugin(JavaPlugin plugin) {
     this.plugin = plugin;
+      foliaLib = new FoliaLib(plugin);
   }
-
-  @Getter private PlayerCommandRunner playerCommandRunner;
 
   @Override
   public void onLoad(File dataFolder) {
@@ -63,10 +64,6 @@ public class BukkitPlugin implements LoaderBootstrap {
 
     Bukkit.getLogger().info("Starting AntiVPN services...");
     AntiVPN.start(new BukkitListener(), new BukkitPlayerExecutor(), getDataFolder());
-
-    playerCommandRunner = new PlayerCommandRunner();
-    playerCommandRunner.start();
-
     // Loading our bStats metrics to be pushed to https://bstats.org
     if (AntiVPN.getInstance().getVpnConfig().metrics()) {
       Bukkit.getLogger().info("Starting bStats metrics...");
@@ -116,7 +113,6 @@ public class BukkitPlugin implements LoaderBootstrap {
   public void onDisable() {
     Bukkit.getLogger().info("Stopping plugin services...");
     AntiVPN.getInstance().stop();
-    playerCommandRunner.stop();
 
     Bukkit.getLogger().info("Unregistering commands...");
     try {
@@ -144,14 +140,11 @@ public class BukkitPlugin implements LoaderBootstrap {
   private String getDatabaseType() {
     VPNDatabase database = AntiVPN.getInstance().getDatabase();
 
-    if (database instanceof MySqlVPN) {
-      return "MySQL";
-    } else if (database instanceof H2VPN) {
-      return "H2";
-    } else if (database instanceof MongoVPN) {
-      return "MongoDB";
-    } else {
-      return "No-Database";
-    }
+      return switch (database) {
+          case MySqlVPN ignored -> "MySQL";
+          case H2VPN ignored -> "H2";
+          case MongoVPN ignored -> "MongoDB";
+          case null, default -> "No-Database";
+      };
   }
 }
