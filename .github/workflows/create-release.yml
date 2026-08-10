@@ -27,12 +27,6 @@ jobs:
             -Xmx4g
             -XX:MaxMetaspaceSize=1g
             -Dfile.encoding=UTF-8
-            -Dorg.gradle.daemon=false
-          JAVA_OPTS: >-
-            -Xmx4g
-            -XX:MaxMetaspaceSize=1g
-            -Dfile.encoding=UTF-8
-            -Dorg.gradle.daemon=false
       - name: Get Version Number from Gradle
         id: get_version
         run: |
