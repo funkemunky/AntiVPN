@@ -65,6 +65,10 @@ countries:
   vanillaKickReason: |-
     &cSorry, but our server does not allow connections from
     &f%country%
+# Ask PaperStream Intel (https://paperstream.dev/api, free, no key) when the funkemunky API cannot answer, for example
+# when the free queries are used up or the API is unreachable. Off by default; the funkemunky API is always asked first.
+paperstreamIntel:
+  fallback: false
 # This will disable any information being sent to https://bstats.org. We recommend you keep this enabled as it helps
 # us understand our users and put effort where it is needed. All information sent goes under their privacy as seen
 # here: https://bstats.org/privacy-policy

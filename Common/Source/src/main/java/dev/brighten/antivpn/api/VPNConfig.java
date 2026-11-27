@@ -56,7 +56,9 @@ public class VPNConfig {
       defaultAlertToStaff = new ConfigDefault<>(true, "alerts.enabled", AntiVPN.getInstance()),
       defaultWhitelistCountries =
           new ConfigDefault<>(true, "countries.whitelist", AntiVPN.getInstance()),
-      defaultMetrics = new ConfigDefault<>(true, "bstats", AntiVPN.getInstance());
+      defaultMetrics = new ConfigDefault<>(true, "bstats", AntiVPN.getInstance()),
+      defaultPaperStreamFallback =
+          new ConfigDefault<>(false, "paperstreamIntel.fallback", AntiVPN.getInstance());
   private final ConfigDefault<Integer> defaultPort =
       new ConfigDefault<>(-1, "database.port", AntiVPN.getInstance());
   private final ConfigDefault<List<String>>
@@ -92,6 +94,7 @@ public class VPNConfig {
   private boolean useCredentials;
   @Getter private boolean commandsEnabled;
   @Getter private boolean kickPlayers;
+  @Getter private boolean paperStreamFallback;
   private boolean alertToStaff;
   private boolean metrics;
   private boolean whitelistCountries;
@@ -216,5 +219,6 @@ public class VPNConfig {
     whitelistCountries = defaultWhitelistCountries.get();
     countryKickCommands = defCountryKickCommands.get();
     countryVanillaKickReason = defaultCountryKickReason.get();
+    paperStreamFallback = defaultPaperStreamFallback.get();
   }
 }

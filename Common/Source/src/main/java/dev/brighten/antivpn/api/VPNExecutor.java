@@ -24,6 +24,7 @@ import dev.brighten.antivpn.utils.StringUtil;
 import dev.brighten.antivpn.utils.Tuple;
 import dev.brighten.antivpn.utils.json.JSONException;
 import dev.brighten.antivpn.web.FunkemunkyAPI;
+import dev.brighten.antivpn.web.PaperStreamIntelAPI;
 import dev.brighten.antivpn.web.objects.VPNResponse;
 import java.io.IOException;
 import java.net.UnknownHostException;
@@ -201,16 +202,34 @@ public abstract class VPNExecutor {
                 AntiVPN.getInstance().getDatabase().cacheResponse(response);
               } else {
                 log("Query to VPN API failed! Reason: " + response.getFailureReason());
+                return paperStreamFallback(ip, response);
               }
 
               return response;
             } catch (JSONException | IOException e) {
               log("Query to VPN API failed! Reason: " + e.getMessage());
-              return VPNResponse.FAILED_RESPONSE;
+              return paperStreamFallback(ip, VPNResponse.FAILED_RESPONSE);
             }
           }
         },
         threadExecutor);
+  }
+
+  private VPNResponse paperStreamFallback(String ip, VPNResponse failed) {
+    if (!AntiVPN.getInstance().getVpnConfig().isPaperStreamFallback()) {
+      return failed;
+    }
+    try {
+      VPNResponse response = PaperStreamIntelAPI.getVPNResponse(ip);
+      if (!response.isSuccess()) {
+        log("Fallback to PaperStream Intel failed! Reason: " + response.getFailureReason());
+        return failed;
+      }
+      return response;
+    } catch (JSONException | IOException e) {
+      log("Fallback to PaperStream Intel failed! Reason: " + e.getMessage());
+      return failed;
+    }
   }
 
   public abstract void disablePlugin();
